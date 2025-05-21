@@ -1,0 +1,81 @@
+User-agent: *
+Disallow:
+Crawl-delay: 60 # 60 segundos entre cada request
+Visit-time: 0300-1200 # 00:00 AM a 09:00 AM (America/Argentina/Buenos_Aires)
+Request-rate: 6/60m # permite indexar 6 documentos cada 60 minutos
+Request-rate: 3/60m 1200-0300 # permite indexar 3 documentos cada 60 minutos entre las 09:00 AM a 00:00 AM (America/Argentina/Buenos_Aires)
+
+Disallow: /cgi-bin/
+Disallow: /admin/
+Disallow: /*.sql$
+
+# Bloqueo de las URL dinamicas
+Disallow: /*?
+
+# Bloqueo de busquedas
+Disallow: /?s=
+Disallow: /search
+
+# Bloqueo de trackbacks
+Disallow: /trackback
+Disallow: /*trackback
+Disallow: /*trackback*
+Disallow: /*/trackback
+
+# Permitir Google Webmaster Tool
+User-agent: Googlebot
+Allow: /*.js$
+Allow: /*.css$
+
+# wordpress
+Disallow: /xmlrpc.php
+Disallow: /wp-admin/
+Disallow: /wp-includes/
+Disallow: /wp-content/plugins/
+Disallow: /wp-content/cache/
+Disallow: /wp-content/themes/
+
+Disallow: /*/xmlrpc.php
+Disallow: /*/wp-admin/
+Disallow: /*/wp-includes/
+Disallow: /*/wp-content/plugins/
+Disallow: /*/wp-content/cache/
+Disallow: /*/wp-content/themes/
+
+# joomla
+Disallow: /administrator/
+Disallow: /bin/
+Disallow: /cache/
+Disallow: /cli/
+Disallow: /components/
+Disallow: /images/
+Disallow: /includes/
+Disallow: /installation/
+Disallow: /language/
+Disallow: /layouts/
+Disallow: /libraries/
+Disallow: /logs/
+Disallow: /media/
+Disallow: /modules/
+Disallow: /plugins/
+Disallow: /templates/
+Disallow: /tmp/
+
+Disallow: /*/administrator/
+Disallow: /*/bin/
+Disallow: /*/cache/
+Disallow: /*/cli/
+Disallow: /*/components/
+Disallow: /*/images/
+Disallow: /*/includes/
+Disallow: /*/installation/
+Disallow: /*/language/
+Disallow: /*/layouts/
+Disallow: /*/libraries/
+Disallow: /*/logs/
+Disallow: /*/media/
+Disallow: /*/modules/
+Disallow: /*/plugins/
+Disallow: /*/templates/
+Disallow: /*/tmp/
+
