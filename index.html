@@ -1,5 +1,5 @@
-<!DOCTYPE html>
-<html lang="en">
+<html lang="es-AR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,28 +10,28 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
     <style>
-    .chart-container {
+        .chart-container {
         position: relative;
         height: 400px;
         width: 100%;
-    }
-
-    .currency-card:hover {
+        }
+        
+        .currency-card:hover {
         transform: translateY(-5px);
         box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-    }
-
-    .guru-image:hover {
+        }
+        
+        .guru-image:hover {
         transform: translateY(-5px);
         box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-    }
-
-    .timeframe-btn.active {
+        }
+        
+        .timeframe-btn.active {
         background-color: #3b82f6;
         color: white;
-    }
-
-    .dropdown-content {
+        }
+        
+        .dropdown-content {
         display: none;
         position: absolute;
         background-color: white;
@@ -39,22 +39,22 @@
         box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
         z-index: 1;
         border-radius: 0.5rem;
-    }
-
-    .dropdown:hover .dropdown-content {
+        }
+        
+        .dropdown:hover .dropdown-content {
         display: block;
-    }
-
-    .news-card:hover {
+        }
+        
+        .news-card:hover {
         transform: translateY(-3px);
         box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-    }
-
-    .news-thumbnail {
+        }
+        
+        .news-thumbnail {
         height: 180px;
         object-fit: cover;
-    }
-    .ad-sidebar {
+        }
+        .ad-sidebar {
         position: fixed;
         top: 0;
         height: 100vh;
@@ -66,15 +66,15 @@
         background-color: #f8fafc;
         border-right: 1px solid #e2e8f0;
         z-index: 10;
-    }
-
-    .ad-sidebar.right {
+        }
+        
+        .ad-sidebar.right {
         right: 0;
         border-right: none;
         border-left: 1px solid #e2e8f0;
-    }
-
-    .ad-placeholder {
+        }
+        
+        .ad-placeholder {
         background-color: #e2e8f0;
         border: 1px dashed #94a3b8;
         display: flex;
@@ -82,39 +82,39 @@
         justify-content: center;
         color: #64748b;
         font-weight: 500;
-    }
-
-    @media (max-width: 1280px) {
-        .ad-sidebar {
-            display: none;
         }
-    }
-
-    h1 {
+        
+        @media (max-width: 1280px) {
+        .ad-sidebar {
+        display: none;
+        }
+        }
+        
+        h1 {
         font-size: 50px;
-    }
-
-    h1 span {
+        }
+        
+        h1 span {
         color: #acacac;
         font-size: 32px;
-    }
-
-    .carousel-container {
+        }
+        
+        .carousel-container {
         overflow: hidden;
         position: relative;
         width: 100%;
         //background: #111;
         padding: 0.4rem 0;
         cursor: grab;
-    }
-
-    .carousel-track {
+        }
+        
+        .carousel-track {
         display: flex;
         gap: 1rem;
         will-change: transform;
-    }
-
-    .card {
+        }
+        
+        .card {
         background: white;
         color: black;
         border-radius: 8px;
@@ -123,25 +123,25 @@
         text-align: center;
         box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         flex-shrink: 0;
-    }
-
-    .value {
+        }
+        
+        .value {
         font-size: 1.2rem;
         margin-top: 0.5rem;
-    }
-
-    .change {
+        }
+        
+        .change {
         font-weight: bold;
         margin-top: 0.25rem;
         color: green;
-    }
-
-    .dragging {
+        }
+        
+        .dragging {
         cursor: grabbing;
         user-select: none;
-    }
-
-    .modal-backdrop {
+        }
+        
+        .modal-backdrop {
         position: fixed;
         top: 0; left: 0;
         width: 100vw;
@@ -151,10 +151,10 @@
         align-items: center;
         justify-content: center;
         z-index: 9998;
-    }
-
-    /* Caja del modal */
-    .modal {
+        }
+        
+        /* Caja del modal */
+        .modal {
         background-color: white;
         padding: 1rem;
         border-radius: 8px;
@@ -163,13 +163,13 @@
         max-width: 800px;
         aspect-ratio: 16 / 9;
         box-shadow: 0 0 20px rgba(0,0,0,0.4);
-    }
-
-    /* Botón de cerrar */
-    .modal-close {
+        }
+        
+        /* Botón de cerrar */
+        .modal-close {
         position: absolute;
-        top: -16px;         /* Lo sube un poco */
-        right: -16px;       /* Lo empuja fuera del borde para evitar superposición */
+        top: -16px; /* Lo sube un poco */
+        right: -16px; /* Lo empuja fuera del borde para evitar superposición */
         font-size: 1.5rem;
         background: white;
         border: none;
@@ -181,58 +181,47 @@
         display: flex;
         align-items: center;
         justify-content: center;
-    }
-
-    .modal iframe {
+        }
+        
+        .modal iframe {
         width: 100%;
         height: 100%;
         border: none;
         border-radius: 6px;
-    }
-
-    @keyframes stripes {
+        }
+        
+        @keyframes stripes {
         0% {
         background-position: 0 0;
         }
         100% {
         background-position: 28.28px 0;
         }
-    }
-
-    .highlight {
-      animation: flash 0.8s ease-in-out;
-    }
-
-    @keyframes flash {
-      0% {
+        }
+        
+        .highlight {
+        animation: flash 0.8s ease-in-out;
+        }
+        
+        @keyframes flash {
+        0% {
         background-color: rgba(255, 255, 0, 0.4);
-      }
-      100% {
+        }
+        100% {
         background-color: transparent;
-      }
-    }
-
+        }
+        }
     </style>
 </head>
 
-<header class="fixed top-0 w-full z-50">
-    <div class="bg-black p-2 relative h-10" style="z-index:999;">
-            <p class="text-white absolute left-2 top-1"><i>DOLAR GURU</i></p>
-            <p class="text-white absolute left-[200px] top-1">Texto de prueba</p>
-            <p class="text-white absolute right-2 top-1">
-                Mercado<span class="text-red-500 text-[1.5rem] leading-none px-3">●</i></span>
-            </p>
-    </div>
-</header>
-
 <body class="bg-gray-50" style="background-color: #e4eaf1;
-                                background-image: repeating-linear-gradient(
-                                45deg, 
-                                rgba(28, 58, 92,0.05) 0, 
-                                rgba(28, 100, 92,0.05) 1px, 
-                                transparent 50px, 
-                                transparent 20px);
-                                background-attachment: fixed">
+background-image: repeating-linear-gradient(
+45deg,
+rgba(28, 58, 92,0.05) 0,
+rgba(28, 100, 92,0.05) 1px,
+transparent 50px,
+transparent 20px);
+background-attachment: fixed">
 
     <!-- Left Sidebar Ad -->
     <div class="ad-sidebar left">
@@ -255,1047 +244,966 @@
     </div>
 
 
-<div class = "transform translate-y-[37px]"><!-- Contenedor para toda la página -->
-    <!-- Banner deslizante -->
-    <div class="carousel-container" id="carousel">
-    <div class="carousel-track" id="track">
-        <!-- Tarjetas -->
-        <div class="card">
-        <div>💰 Dólar</div>
-        <div class="value">USD 1.000,00</div>
-        <div class="change">+0,25%</div>
-        </div>
-        <div class="card">
-        <div>🪙 Bitcoin</div>
-        <div class="value">USD 30.000,00</div>
-        <div class="change" style="color:red;">-1,25%</div>
-        </div>
-        <div class="card">
-        <div>⛽ Petróleo</div>
-        <div class="value">USD 70,00</div>
-        <div class="change">+0,45%</div>
-        </div>
-        <div class="card">
-        <div>🏦 Merval</div>
-        <div class="value">ARS 2.500.000</div>
-        <div class="change">+0,75%</div>
-        </div>
-    </div>
-    </div>
-    
-    <div class="max-w-5xl mx-auto px-4"><!-- Contenedor para el resto de la página -->
-    <div class="container mx-auto px-4 py-8 ">
-            <div class="mb-10">
-            <div class="bg-white rounded-xl  flex flex-col md:flex-row items-center justify-center gap-10 p-8">
-                <!--Imagen del gurise -->
-                <div class="guru-image flex flex-col items-center transition duration-300 ease-in-out">
-                <div class="relative w-72 h-72 rounded-lg overflow-hidden shadow-xl">
-                    <img src="https://weddingtime.site/weddings/dg-resources/dolar-guru.png" alt="El Gurú del Dólar" class="object-cover w-full h-full object-[center_-50px]">
+    <div class="transform translate-y-[37px]">
+        <!-- Contenedor para toda la página -->
+        <!-- Banner deslizante -->
+        <div class="carousel-container" id="carousel">
+            <div class="carousel-track" id="track">
+                <!-- Tarjetas -->
+                <div class="card">
+                    <div>💰 Dólar</div>
+                    <div class="value">USD 1.000,00</div>
+                    <div class="change">+0,25%</div>
                 </div>
+                <div class="card">
+                    <div>🪙 Bitcoin</div>
+                    <div class="value">USD 30.000,00</div>
+                    <div class="change" style="color:red;">-1,25%</div>
                 </div>
-                <!--Texto -->
-                <div class="flex flex-col max-w-xl text-lg ">
-                <h1 class="text-[2rem] font-bold text-green-800"><i>🧙🏼‍♂️ EL GURISE DE LOS DOLLARS 💸</i></h1>
-                <p class="text-gray-600 mb-5">(Qué tiempo loco ⛈️⚡)</p>
-                <pclass="text-gray-600">Acá vas a encontrar todo lo que tenés que saber sobre el movimiento del mercado argentino OPAAAAAAAAAAAAA</p>
+                <div class="card">
+                    <div>⛽ Petróleo</div>
+                    <div class="value">USD 70,00</div>
+                    <div class="change">+0,45%</div>
+                </div>
+                <div class="card">
+                    <div>🏦 Merval</div>
+                    <div class="value">ARS 2.500.000</div>
+                    <div class="change">+0,75%</div>
                 </div>
             </div>
-            </div>
+        </div>
 
-            <!-- /////////////////////////////////////////ZONA PRINCIPAL///////////////////////////////////////// -->
-            <!-- Pestañas -->
-            <div class="flex space-x-[0.1rem] transform translate-y-[5px] relative" style="z-index:1;">
-            <button onclick="showTab('inicio')" id="tab-inicio"
-                class="tab-btn bg-gray-100 px-4 py-2 rounded-t-md hover:bg-green-700">💵 Dólares</button>
-            <button onclick="showTab('descargas')" id="tab-descargas"
-                class="tab-btn bg-gray-100 px-4 py-2 rounded-t-md hover:bg-gray-500">🏦 Economía</button>
-            <button onclick="showTab('escritorio')" id="tab-escritorio"
-                class="tab-btn bg-gray-100 px-4 py-2 rounded-t-md hover:bg-orange-400">📈 Finanzas</button>
-                <button onclick="showTab('escritorio')" id="tab-escritorio"
-                class="tab-btn bg-gray-100 px-4 py-2 rounded-t-md hover:bg-blue-700">🛢️ Commodities</button>
-                <button onclick="showTab('escritorio')" id="tab-escritorio"
-                class="tab-btn bg-gray-100 px-4 py-2 rounded-t-md hover:bg-blue-700 fas fa-plus"></button>
-            </div>
+        <div class="max-w-5xl mx-auto px-4">
+            <!-- Contenedor para el resto de la página -->
+            <div class="container mx-auto px-4 py-8 ">
+                <div class="mb-10">
+                    <div class="bg-white rounded-xl flex flex-col md:flex-row items-center justify-center gap-10 p-8">
+                        <!--Imagen del gurise -->
+                        <div class="guru-image flex flex-col items-center transition duration-300 ease-in-out">
+                            <div class="relative w-72 h-72 rounded-lg overflow-hidden shadow-xl">
+                                <img src="https://weddingtime.site/weddings/dg-resources/dolar-guru.png" alt="El Gurú del Dólar" class="object-cover w-full h-full object-[center_-50px]">
+                            </div>
+                        </div>
+                        <!--Texto -->
+                        <div class="flex flex-col max-w-xl text-lg ">
+                            <h1 class="text-[2rem] font-bold text-green-800"><i>🧙🏼‍♂️ EL GURISE DE LOS DOLLARS 💸</i></h1>
+                            <p class="text-gray-600 mb-5">(Qué tiempo loco ⛈️⚡)</p>
+                            <pclass="text-gray-600">Acá vas a encontrar todo lo que tenés que saber sobre el movimiento del mercado argentino OPAAAAAAAAAAAAA</p>
+                        </div>
+                    </div>
+                </div>
 
-        <!-- Información -->
-        <div class="bg-gray-100 rounded-[0.2rem] shadow-md p-6 mb-4 relative"  style="z-index:2;">
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 mb-6">
-                <!-- Currency Cards -->
-                <!-- DÓLAR OFICIAL -->
-                <div class="currency-card bg-white rounded-[0.2rem] shadow-md p-6 transition duration-300 ease-in-out">
-                    <div class="flex items-center mb-4">
-                        <div class="rounded-xl bg-green-100 flex items-center justify-center mr-2 p-1">
-                            <i class="text-green-500 fas fa-caret-down mr-1"></i>
-                            <span class="text-green-700">0,12%</span>
-                        </div>
-                        <div>
-                            <p class="text-[1.1rem] md:text-[1.0rem] lg:text-[1.1rem] font-semibold">Dólar Oficial</p>
-                            <p class="text-[0.7rem] text-gray-500" id="oficial-t">...</p>
-                        </div>
-                    </div>
-                    <div class="flex justify-between items-end">
-                        <div>
-                            <p class="text-gray-500 text-sm">Compra</p>
-                            <p class="text-[1.2rem] font-bold" id="oficial-c">...</p>
-                        </div>
-                        <div>
-                        <p class="text-gray-500 text-sm">Venta</p>
-                            <p class="text-[1.2rem] font-bold" id="oficial-v">...</p>
-                        </div>
-                    </div>
+                <!-- /////////////////////////////////////////ZONA PRINCIPAL///////////////////////////////////////// -->
+                <!-- Pestañas -->
+                <div class="flex space-x-[0.1rem] transform translate-y-[5px] relative" style="z-index:1;">
+                    <button onclick="showTab('inicio')" id="tab-inicio" class="tab-btn bg-gray-100 px-4 py-2 rounded-t-md hover:bg-green-700">💵 Dólares</button>
+                    <button onclick="showTab('descargas')" id="tab-descargas" class="tab-btn bg-gray-100 px-4 py-2 rounded-t-md hover:bg-gray-500">🏦 Economía</button>
+                    <button onclick="showTab('escritorio')" id="tab-escritorio" class="tab-btn bg-gray-100 px-4 py-2 rounded-t-md hover:bg-orange-400">📈 Finanzas</button>
+                    <button onclick="showTab('escritorio')" id="tab-escritorio" class="tab-btn bg-gray-100 px-4 py-2 rounded-t-md hover:bg-blue-700">🛢️ Commodities</button>
+                    <button onclick="showTab('escritorio')" id="tab-escritorio" class="tab-btn bg-gray-100 px-4 py-2 rounded-t-md hover:bg-blue-700 fas fa-plus"></button>
                 </div>
-                <!-- DÓLAR BLUE -->
-                <div class="currency-card bg-white rounded-[0.2rem] shadow-md p-6 transition duration-300 ease-in-out">
-                    <div class="flex items-center mb-4">
-                        <div class="rounded-xl bg-red-100 flex items-center justify-center mr-2 p-1">
-                            <i class="text-red-500 fas fa-caret-up mr-1"></i>
-                            <span class="text-red-700">0,17%</span>
-                        </div>
-                        <div>
-                            <p class="text-[1.1rem] md:text-[1.0rem] lg:text-[1.1rem] font-semibold">Dólar Blue</p>
-                            <p class="text-[0.7rem] text-gray-500" id="blue-t">...</p>
-                        </div>
-                    </div>
-                    <div class="flex justify-between items-end">
-                        <div>
-                            <p class="text-gray-500 text-sm">Compra</p>
-                            <p class="text-[1.2rem] font-bold" id="blue-c">...</p>
-                        </div>
-                        <div>
-                        <p class="text-gray-500 text-sm">Venta</p>
-                            <p class="text-[1.2rem] font-bold" id="blue-v">...</p>
-                        </div>
-                    </div>
-                </div>
-                <!-- DÓLAR BOLSA -->
-                <div class="currency-card bg-white rounded-[0.2rem] shadow-md p-6 transition duration-300 ease-in-out">
-                    <div class="flex items-center mb-4">
-                        <div class="rounded-xl bg-green-100 flex items-center justify-center mr-2 p-1">
-                            <i class="text-green-500 fas fa-caret-down mr-1"></i>
-                            <span class="text-green-700">0,12%</span>
-                        </div>
-                        <div>
-                            <p class="text-[1.1rem] md:text-[1.0rem] lg:text-[1.1rem] font-semibold">Dólar Bolsa</p>
-                            <p class="text-[0.7rem] text-gray-500"  id="bolsa-t">...</p>
-                        </div>
-                    </div>
-                    <div class="flex justify-between items-end">
-                        <div>
-                            <p class="text-gray-500 text-sm">Compra</p>
-                            <p class="text-[1.2rem] font-bold" id="bolsa-c">...</p>
-                        </div>
-                        <div>
-                        <p class="text-gray-500 text-sm">Venta</p>
-                            <p class="text-[1.2rem] font-bold" id="bolsa-v">...</p>
-                        </div>
-                    </div>
-                </div>
-                <!-- DÓLAR CONTADO CON LIQUIDACIÓN -->
-                <div class="currency-card bg-white rounded-[0.2rem] shadow-md p-6 transition duration-300 ease-in-out">
-                    <div class="flex items-center mb-4">
-                        <div class="rounded-xl bg-green-100 flex items-center justify-center mr-2 p-1">
-                            <i class="text-green-500 fas fa-caret-down mr-1"></i>
-                            <span class="text-green-700">0,12%</span>
-                        </div>
-                        <div>
-                            <p class="text-[1.1rem] md:text-[1.0rem] lg:text-[1.1rem] font-semibold">Dólar CCL</p>
-                            <p class="text-[0.7rem] text-gray-500" id="contadoconliqui-t">...</p>
-                        </div>
-                    </div>
-                    <div class="flex justify-between items-end">
-                        <div>
-                            <p class="text-gray-500 text-sm">Compra</p>
-                            <p class="text-[1.2rem] font-bold" id="contadoconliqui-c">...</p>
-                        </div>
-                        <div>
-                        <p class="text-gray-500 text-sm">Venta</p>
-                            <p class="text-[1.2rem] font-bold" id="contadoconliqui-v">...</p>
-                        </div>
-                    </div>
-                </div>
-                <!-- DÓLAR TARJETA -->
-                <div class="currency-card bg-white rounded-[0.2rem] shadow-md p-6 transition duration-300 ease-in-out">
-                    <div class="flex items-center mb-4">
-                        <div class="rounded-xl bg-green-100 flex items-center justify-center mr-2 p-1">
-                            <i class="text-green-500 fas fa-caret-down mr-1"></i>
-                            <span class="text-green-700">0,12%</span>
-                        </div>
-                        <div>
-                            <p class="text-[1.1rem] md:text-[1.0rem] lg:text-[1.1rem] font-semibold">Dólar Tarjeta</p>
-                            <p class="text-[0.7rem] text-gray-500" id="tarjeta-t">...</p>
-                        </div>
-                    </div>
-                    <div class="flex justify-between items-end">
-                        <div>
-                            <p class="text-gray-500 text-sm">Compra</p>
-                            <p class="text-[1.2rem] font-bold" id="tarjeta-c">...</p>
-                        </div>
-                        <div>
-                        <p class="text-gray-500 text-sm">Venta</p>
-                            <p class="text-[1.2rem] font-bold" id="tarjeta-v">...</p>
-                        </div>
-                    </div>
-                </div>
-                <!-- DÓLAR MAYORISTA -->
-                <div class="currency-card bg-white rounded-[0.2rem] shadow-md p-6 transition duration-300 ease-in-out">
-                    <div class="flex items-center mb-4">
-                        <div class="rounded-xl bg-green-100 flex items-center justify-center mr-2 p-1">
-                            <i class="text-green-500 fas fa-caret-down mr-1"></i>
-                            <span class="text-green-700">0,12%</span>
-                        </div>
-                        <div>
-                            <p class="text-[1.1rem] md:text-[1.0rem] lg:text-[1.1rem] font-semibold">Dólar Mayorista</p>
-                            <p class="text-[0.7rem] text-gray-500" id="mayorista-t">...</p>
-                        </div>
-                    </div>
-                    <div class="flex justify-between items-end">
-                        <div>
-                            <p class="text-gray-500 text-sm">Compra</p>
-                            <p class="text-[1.2rem] font-bold" id="mayorista-c">...</p>
-                        </div>
-                        <div>
-                        <p class="text-gray-500 text-sm">Venta</p>
-                            <p class="text-[1.2rem] font-bold" id="mayorista-v">...</p>
-                        </div>
-                    </div>
-                </div>
-                <!-- DÓLAR CRIPTO -->
-                <div class="currency-card bg-white rounded-[0.2rem] shadow-md p-6 transition duration-300 ease-in-out">
-                    <div class="flex items-center mb-4">
-                        <div class="rounded-xl bg-green-100 flex items-center justify-center mr-2 p-1">
-                            <i class="text-green-500 fas fa-caret-down mr-1"></i>
-                            <span class="text-green-700">0,12%</span>
-                        </div>
-                        <div>
-                            <p class="text-[1.1rem] md:text-[1.0rem] lg:text-[1.1rem] font-semibold">Dólar Cripto</p>
-                            <p class="text-[0.7rem] text-gray-500" id="cripto-t">...</p>
-                        </div>
-                    </div>
-                    <div class="flex justify-between items-end">
-                        <div>
-                            <p class="text-gray-500 text-sm">Compra</p>
-                            <p class="text-[1.2rem] font-bold" id="cripto-c">...</p>
-                        </div>
-                        <div>
-                        <p class="text-gray-500 text-sm">Venta</p>
-                            <p class="text-[1.2rem] font-bold" id="cripto-v">...</p>
-                        </div>
-                    </div>
-                </div>
-                <!-- DÓLAR FUTURO -->
-                <div class="currency-card bg-white rounded-[0.2rem] shadow-md p-6 transition duration-300 ease-in-out">
-                    <div class="flex items-center mb-4">
-                        <div class="rounded-xl bg-green-100 flex items-center justify-center mr-2 p-1">
-                            <i class="text-green-500 fas fa-caret-down mr-1"></i>
-                            <span class="text-green-700">0,12%</span>
-                        </div>
-                        <div>
-                            <p class="text-[1.1rem] md:text-[1.0rem] lg:text-[1.1rem] font-semibold">Dólar Futuro</p>
-                            <p class="text-[0.7rem] text-gray-500" id="futuro-t">...</p>
-                        </div>
-                    </div>
-                    <div class="flex justify-between items-end">
-                        <div>
-                            <p class="text-gray-500 text-sm">Compra</p>
-                            <p class="text-[1.2rem] font-bold" id="futuro-c">...</p>
-                        </div>
-                        <div>
-                        <p class="text-gray-500 text-sm">Venta</p>
-                            <p class="text-[1.2rem] font-bold" id="futuro-v">...</p>
-                        </div>
-                    </div>
-                </div>
-                <!-- TARJETA DE PRUEBA -->
-                <div class="currency-card bg-[#0e240a] rounded-[0.2rem] shadow-md p-6 transition duration-300 ease-in-out">
-                    <div class="flex items-center mb-4">
-                        <div>
-                            <p class="text-white text-[1.5rem] md:text-[1.2rem] lg:text-[1.2rem] font-semibold">Tarjeta de prueba</p>
-                            <div class="flex justify-between">
-                            <span class="text-white text-[0.7rem] text-gray-500" id="-t">Tiempo </span>
-                            <div class="relative inline-block">
-                                <div class="rounded-sm bg-green-100 flex items-center justify-center pl-2 pr-1">
-                                    <span class="text-green-500 fas fa-arrow-down mr-1"></span>
+
+                <!-- Información -->
+                <div class="bg-gray-100 rounded-[0.2rem] shadow-md p-6 mb-4 relative" style="z-index:2;">
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 mb-6">
+                        <!-- Currency Cards -->
+                        <!-- DÓLAR OFICIAL -->
+                        <div class="currency-card bg-white rounded-[0.2rem] shadow-md p-6 transition duration-300 ease-in-out">
+                            <div class="flex items-center mb-4">
+                                <div class="rounded-xl bg-green-100 flex items-center justify-center mr-2 p-1">
+                                    <i class="text-green-500 fas fa-caret-down mr-1"></i>
                                     <span class="text-green-700">0,12%</span>
                                 </div>
+                                <div>
+                                    <p class="text-[1.1rem] md:text-[1.0rem] lg:text-[1.1rem] font-semibold">Dólar Oficial</p>
+                                    <p class="text-[0.7rem] text-gray-500" id="oficial-t">...</p>
+                                </div>
                             </div>
+                            <div class="flex justify-between items-end">
+                                <div>
+                                    <p class="text-gray-500 text-sm">Compra</p>
+                                    <p class="text-[1.2rem] font-bold" id="oficial-c">...</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500 text-sm">Venta</p>
+                                    <p class="text-[1.2rem] font-bold" id="oficial-v">...</p>
+                                </div>
                             </div>
                         </div>
+                        <!-- DÓLAR BLUE -->
+                        <div class="currency-card bg-white rounded-[0.2rem] shadow-md p-6 transition duration-300 ease-in-out">
+                            <div class="flex items-center mb-4">
+                                <div class="rounded-xl bg-red-100 flex items-center justify-center mr-2 p-1">
+                                    <i class="text-red-500 fas fa-caret-up mr-1"></i>
+                                    <span class="text-red-700">0,17%</span>
+                                </div>
+                                <div>
+                                    <p class="text-[1.1rem] md:text-[1.0rem] lg:text-[1.1rem] font-semibold">Dólar Blue</p>
+                                    <p class="text-[0.7rem] text-gray-500" id="blue-t">...</p>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-end">
+                                <div>
+                                    <p class="text-gray-500 text-sm">Compra</p>
+                                    <p class="text-[1.2rem] font-bold" id="blue-c">...</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500 text-sm">Venta</p>
+                                    <p class="text-[1.2rem] font-bold" id="blue-v">...</p>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- DÓLAR BOLSA -->
+                        <div class="currency-card bg-white rounded-[0.2rem] shadow-md p-6 transition duration-300 ease-in-out">
+                            <div class="flex items-center mb-4">
+                                <div class="rounded-xl bg-green-100 flex items-center justify-center mr-2 p-1">
+                                    <i class="text-green-500 fas fa-caret-down mr-1"></i>
+                                    <span class="text-green-700">0,12%</span>
+                                </div>
+                                <div>
+                                    <p class="text-[1.1rem] md:text-[1.0rem] lg:text-[1.1rem] font-semibold">Dólar Bolsa</p>
+                                    <p class="text-[0.7rem] text-gray-500" id="bolsa-t">...</p>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-end">
+                                <div>
+                                    <p class="text-gray-500 text-sm">Compra</p>
+                                    <p class="text-[1.2rem] font-bold" id="bolsa-c">...</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500 text-sm">Venta</p>
+                                    <p class="text-[1.2rem] font-bold" id="bolsa-v">...</p>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- DÓLAR CONTADO CON LIQUIDACIÓN -->
+                        <div class="currency-card bg-white rounded-[0.2rem] shadow-md p-6 transition duration-300 ease-in-out">
+                            <div class="flex items-center mb-4">
+                                <div class="rounded-xl bg-green-100 flex items-center justify-center mr-2 p-1">
+                                    <i class="text-green-500 fas fa-caret-down mr-1"></i>
+                                    <span class="text-green-700">0,12%</span>
+                                </div>
+                                <div>
+                                    <p class="text-[1.1rem] md:text-[1.0rem] lg:text-[1.1rem] font-semibold">Dólar CCL</p>
+                                    <p class="text-[0.7rem] text-gray-500" id="contadoconliqui-t">...</p>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-end">
+                                <div>
+                                    <p class="text-gray-500 text-sm">Compra</p>
+                                    <p class="text-[1.2rem] font-bold" id="contadoconliqui-c">...</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500 text-sm">Venta</p>
+                                    <p class="text-[1.2rem] font-bold" id="contadoconliqui-v">...</p>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- DÓLAR TARJETA -->
+                        <div class="currency-card bg-white rounded-[0.2rem] shadow-md p-6 transition duration-300 ease-in-out">
+                            <div class="flex items-center mb-4">
+                                <div class="rounded-xl bg-green-100 flex items-center justify-center mr-2 p-1">
+                                    <i class="text-green-500 fas fa-caret-down mr-1"></i>
+                                    <span class="text-green-700">0,12%</span>
+                                </div>
+                                <div>
+                                    <p class="text-[1.1rem] md:text-[1.0rem] lg:text-[1.1rem] font-semibold">Dólar Tarjeta</p>
+                                    <p class="text-[0.7rem] text-gray-500" id="tarjeta-t">...</p>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-end">
+                                <div>
+                                    <p class="text-gray-500 text-sm">Compra</p>
+                                    <p class="text-[1.2rem] font-bold" id="tarjeta-c">...</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500 text-sm">Venta</p>
+                                    <p class="text-[1.2rem] font-bold" id="tarjeta-v">...</p>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- DÓLAR MAYORISTA -->
+                        <div class="currency-card bg-white rounded-[0.2rem] shadow-md p-6 transition duration-300 ease-in-out">
+                            <div class="flex items-center mb-4">
+                                <div class="rounded-xl bg-green-100 flex items-center justify-center mr-2 p-1">
+                                    <i class="text-green-500 fas fa-caret-down mr-1"></i>
+                                    <span class="text-green-700">0,12%</span>
+                                </div>
+                                <div>
+                                    <p class="text-[1.1rem] md:text-[1.0rem] lg:text-[1.1rem] font-semibold">Dólar Mayorista</p>
+                                    <p class="text-[0.7rem] text-gray-500" id="mayorista-t">...</p>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-end">
+                                <div>
+                                    <p class="text-gray-500 text-sm">Compra</p>
+                                    <p class="text-[1.2rem] font-bold" id="mayorista-c">...</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500 text-sm">Venta</p>
+                                    <p class="text-[1.2rem] font-bold" id="mayorista-v">...</p>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- DÓLAR CRIPTO -->
+                        <div class="currency-card bg-white rounded-[0.2rem] shadow-md p-6 transition duration-300 ease-in-out">
+                            <div class="flex items-center mb-4">
+                                <div class="rounded-xl bg-green-100 flex items-center justify-center mr-2 p-1">
+                                    <i class="text-green-500 fas fa-caret-down mr-1"></i>
+                                    <span class="text-green-700">0,12%</span>
+                                </div>
+                                <div>
+                                    <p class="text-[1.1rem] md:text-[1.0rem] lg:text-[1.1rem] font-semibold">Dólar Cripto</p>
+                                    <p class="text-[0.7rem] text-gray-500" id="cripto-t">...</p>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-end">
+                                <div>
+                                    <p class="text-gray-500 text-sm">Compra</p>
+                                    <p class="text-[1.2rem] font-bold" id="cripto-c">...</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500 text-sm">Venta</p>
+                                    <p class="text-[1.2rem] font-bold" id="cripto-v">...</p>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- DÓLAR FUTURO -->
+                        <div class="currency-card bg-white rounded-[0.2rem] shadow-md p-6 transition duration-300 ease-in-out">
+                            <div class="flex items-center mb-4">
+                                <div class="rounded-xl bg-green-100 flex items-center justify-center mr-2 p-1">
+                                    <i class="text-green-500 fas fa-caret-down mr-1"></i>
+                                    <span class="text-green-700">0,12%</span>
+                                </div>
+                                <div>
+                                    <p class="text-[1.1rem] md:text-[1.0rem] lg:text-[1.1rem] font-semibold">Dólar Futuro</p>
+                                    <p class="text-[0.7rem] text-gray-500" id="futuro-t">...</p>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-end">
+                                <div>
+                                    <p class="text-gray-500 text-sm">Compra</p>
+                                    <p class="text-[1.2rem] font-bold" id="futuro-c">...</p>
+                                </div>
+                                <div>
+                                    <p class="text-gray-500 text-sm">Venta</p>
+                                    <p class="text-[1.2rem] font-bold" id="futuro-v">...</p>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- TARJETA DE PRUEBA -->
+                        <div class="currency-card bg-[#0e240a] rounded-[0.2rem] shadow-md p-6 transition duration-300 ease-in-out">
+                            <div class="flex items-center mb-4">
+                                <div>
+                                    <p class="text-white text-[1.5rem] md:text-[1.2rem] lg:text-[1.2rem] font-semibold">Tarjeta de prueba</p>
+                                    <div class="flex justify-between">
+                                        <span class="text-white text-[0.7rem] text-gray-500" id="-t">Tiempo </span>
+                                        <div class="relative inline-block">
+                                            <div class="rounded-sm bg-green-100 flex items-center justify-center pl-2 pr-1">
+                                                <span class="text-green-500 fas fa-arrow-down mr-1"></span>
+                                                <span class="text-green-700">0,12%</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-end">
+                                <div>
+                                    <p class="text-white text-sm">Compra</p>
+                                    <p class="text-white text-[1.2rem] font-bold" id="-c">...</p>
+                                </div>
+                                <div>
+                                    <p class="text-white text-sm">Venta</p>
+                                    <p class="text-white text-[1.2rem] font-bold" id="-v">...</p>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
-                    <div class="flex justify-between items-end">
-                        <div>
-                            <p class="text-white text-sm">Compra</p>
-                            <p class="text-white text-[1.2rem] font-bold" id="-c">...</p>
+
+                    <!-- Barrita de carga -->
+                    <div class="w-full max-w-xl mb-4 mx-auto">
+                        <div class="w-full h-4 bg-gray-700 rounded overflow-hidden relative">
+                            <div id="progress-bar" class="h-full animate-stripes" style="
+width: 0%;
+background-color: rgba(255,255,255,0.2);
+background-image: repeating-linear-gradient(
+45deg,
+rgba(255,255,255,0.3) 0,
+rgba(255,255,255,0.3) 10px,
+transparent 10px,
+transparent 20px
+);
+background-size: 28.28px 28.28px; /* 20px / sin(45°) to match the 45deg angle */
+background-repeat: repeat;
+animation: stripes 1s linear infinite;
+transition: width 10s linear;
+"></div>
                         </div>
-                        <div>
-                        <p class="text-white text-sm">Venta</p>
-                            <p class="text-white text-[1.2rem] font-bold" id="-v">...</p>
+                        <p class="text-center text-gray-300">Próxima actualización en unos segundos</p>
+                    </div>
+
+                    <!-- Gráfico -->
+                    <div class="bg-white rounded-[0.2rem] shadow-md p-6 mb-2">
+                        <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+                            <h2 class="text-2xl font-semibold text-gray-800 mb-4 md:mb-0">Exchange Rate Trends</h2>
+
+                            <div class="flex flex-wrap gap-4">
+                                <!-- Currency Type Selector -->
+                                <div class="dropdown relative">
+                                    <button class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium py-2 px-4 rounded-lg inline-flex items-center">
+                                        <span id="selectedCurrency">USD Blue</span>
+                                        <i class="fas fa-chevron-down ml-2"></i>
+                                    </button>
+                                    <div class="dropdown-content mt-1">
+                                        <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100" onclick="changeCurrencyType('blue')">USD Blue</a>
+                                        <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100" onclick="changeCurrencyType('oficial')">USD Oficial</a>
+                                        <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100" onclick="changeCurrencyType('bolsa')">USD Bolsa</a>
+                                        <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100" onclick="changeCurrencyType('contadoconliqui')">USD Contado con liquidación</a>
+                                        <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100" onclick="changeCurrencyType('mayorista')">USD Mayorista</a>
+                                        <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100" onclick="changeCurrencyType('cripto')">USD Cripto</a>
+                                        <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100" onclick="changeCurrencyType('tarjeta')">USD Tarjeta</a>
+                                    </div>
+                                </div>
+
+                                <!-- Timeframe Selector -->
+                                <div class="flex bg-gray-100 rounded-lg p-1">
+                                    <button class="timeframe-btn px-3 py-1 rounded-md text-sm font-medium active" onclick="changeTimeframe('1d')">1D</button>
+                                    <button class="timeframe-btn px-3 py-1 rounded-md text-sm font-medium" onclick="changeTimeframe('1w')">1W</button>
+                                    <button class="timeframe-btn px-3 py-1 rounded-md text-sm font-medium" onclick="changeTimeframe('1m')">1M</button>
+                                    <button class="timeframe-btn px-3 py-1 rounded-md text-sm font-medium" onclick="changeTimeframe('3m')">3M</button>
+                                    <button class="timeframe-btn px-3 py-1 rounded-md text-sm font-medium" onclick="changeTimeframe('1y')">1Y</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="chart-container">
+                            <canvas id="exchangeRateChart"></canvas>
                         </div>
                     </div>
                 </div>
 
-            </div>
-        
-            <!-- Barrita de carga -->
-            <div class="w-full max-w-xl mb-4 mx-auto">
-            <div class="w-full h-4 bg-gray-700 rounded overflow-hidden relative">
-                <div id="progress-bar" class="h-full animate-stripes" style="
-                width: 0%;
-                background-color: rgba(255,255,255,0.2);
-                background-image: repeating-linear-gradient(
-                    45deg,
-                    rgba(255,255,255,0.3) 0,
-                    rgba(255,255,255,0.3) 10px,
-                    transparent 10px,
-                    transparent 20px
-                );
-                background-size: 28.28px 28.28px; /* 20px / sin(45°) to match the 45deg angle */
-                background-repeat: repeat;
-                animation: stripes 1s linear infinite;
-                transition: width 10s linear;
-                "></div>
-            </div>
-            <p class="text-center text-gray-300">Próxima actualización en unos segundos</p>
-            </div>
+                <!-- /////////////////////////////////////////CURRENCY CONVERTER///////////////////////////////////////// -->
+                <div class="bg-white rounded-xl shadow-md p-6 mb-8">
+                    <h2 class="text-2xl font-semibold text-gray-800 mb-6">Currency Converter</h2>
 
-            <!-- Gráfico -->
-            <div class="bg-white rounded-[0.2rem] shadow-md p-6 mb-2">
-                <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
-                    <h2 class="text-2xl font-semibold text-gray-800 mb-4 md:mb-0">Exchange Rate Trends</h2>
-                    
-                    <div class="flex flex-wrap gap-4">
-                        <!-- Currency Pair Selector -->
-                        <div class="dropdown relative">
-                            <button class="bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium py-2 px-4 rounded-lg inline-flex items-center">
-                                <span>USD to EUR</span>
-                                <i class="fas fa-chevron-down ml-2"></i>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Amount</label>
+                            <input type="number" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" value="100">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">From</label>
+                            <select class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                                <option>USD - US Dollar</option>
+                                <option>EUR - Euro</option>
+                                <option>GBP - British Pound</option>
+                                <option>JPY - Japanese Yen</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">To</label>
+                            <select class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                                <option>EUR - Euro</option>
+                                <option>USD - US Dollar</option>
+                                <option>GBP - British Pound</option>
+                                <option>JPY - Japanese Yen</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 p-4 bg-blue-50 rounded-lg">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-sm text-gray-600">Conversion Result</p>
+                                <p class="text-2xl font-bold">92.34 EUR</p>
+                            </div>
+                            <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-300">
+                                Convert
                             </button>
-                            <div class="dropdown-content mt-1">
-                                <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100" onclick="changeCurrencyPair('USD', 'EUR')">USD to EUR</a>
-                                <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100" onclick="changeCurrencyPair('USD', 'GBP')">USD to GBP</a>
-                                <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100" onclick="changeCurrencyPair('USD', 'JPY')">USD to JPY</a>
-                                <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100" onclick="changeCurrencyPair('EUR', 'GBP')">EUR to GBP</a>
-                                <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-gray-100" onclick="changeCurrencyPair('EUR', 'JPY')">EUR to JPY</a>
+                        </div>
+                    </div>
+                </div>
+                <!-- ///////////////////////////////////////////////////////////////////////////////////// -->
+                <div class="bg-green-900 rounded-xl shadow-md p-6 mb-8" style="background-image: repeating-linear-gradient(45deg,
+rgba(255,255,255,0.05) 0,
+rgba(255,255,255,0.05) 1px,
+transparent 3px,
+transparent 10px
+);">
+                    <div class="p-4 bg-green-600 rounded-lg shadow-xl">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-sm text-white">First time offer:</p>
+                                <p class="text-2xl font-bold">REDEEM YOUR FREE DOLLARS HERE! 🤑 -----------> </p>
+                            </div>
+                            <!--<a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank"
+rel="noopener noreferrer">-->
+                            <button onclick="openModal()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-300">
+                                Redeem 💸
+                            </button>
+                            <!--</a>-->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MODAL -->
+                <div class="modal-backdrop" id="modal-backdrop">
+                    <div class="modal" style="background-color: rgba(20, 70, 50, 1);
+background-image: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2232%22 height=%2232%22><text y=%2224%22 font-size=%2224%22>💵</text></svg>');
+background-repeat: repeat;
+background-size: 40px 40px;">
+
+                        <button class="modal-close" onclick="closeModal()">×</button>
+                        <iframe id="youtube-frame" src="" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
+                        </iframe>
+                    </div>
+                </div>
+
+                <div id="emoji-container" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999;"></div>
+
+                <!-- ///////////////////////////////////////////////////////////////////////////////////// -->
+
+
+                <!-- Horizontal Ad Banner -->
+                <div class="ad-placeholder w-full h-32 rounded-lg mb-8 flex items-center justify-center">
+                    Advertisement
+                </div>
+
+                <!-- News Section -->
+                <div class="bg-white rounded-xl shadow-md p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-semibold text-gray-800">Latest Economic News</h2>
+                        <div class="flex items-center">
+                            <span class="text-sm text-gray-500 mr-2">Filter by:</span>
+                            <select class="px-3 py-1 border border-gray-300 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500">
+                                <option>All Categories</option>
+                                <option>Markets</option>
+                                <option>Central Banks</option>
+                                <option>Trade</option>
+                                <option>Commodities</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- News Card 1 -->
+                        <div class="news-card bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg transition duration-300 ease-in-out">
+                            <img src="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="Federal Reserve building" class="w-full news-thumbnail">
+                            <div class="p-4">
+                                <div class="flex items-center text-sm text-gray-500 mb-2">
+                                    <span>Markets</span>
+                                    <span class="mx-2">•</span>
+                                    <span>2 hours ago</span>
+                                </div>
+                                <h3 class="font-bold text-lg mb-2">Fed Signals Potential Rate Cuts in 2024 Amid Cooling Inflation</h3>
+                                <p class="text-gray-600 mb-3">The Federal Reserve indicated it may begin cutting interest rates next year as inflation shows signs of easing, sending markets higher.</p>
+                                <a href="#" class="text-blue-600 font-medium hover:underline">Read more →</a>
                             </div>
                         </div>
-                        
-                        <!-- Timeframe Selector -->
-                        <div class="flex bg-gray-100 rounded-lg p-1">
-                            <button class="timeframe-btn px-3 py-1 rounded-md text-sm font-medium active" onclick="changeTimeframe('1d')">1D</button>
-                            <button class="timeframe-btn px-3 py-1 rounded-md text-sm font-medium" onclick="changeTimeframe('1w')">1W</button>
-                            <button class="timeframe-btn px-3 py-1 rounded-md text-sm font-medium" onclick="changeTimeframe('1m')">1M</button>
-                            <button class="timeframe-btn px-3 py-1 rounded-md text-sm font-medium" onclick="changeTimeframe('3m')">3M</button>
-                            <button class="timeframe-btn px-3 py-1 rounded-md text-sm font-medium" onclick="changeTimeframe('1y')">1Y</button>
+
+                        <!-- News Card 2 -->
+                        <div class="news-card bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg transition duration-300 ease-in-out">
+                            <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="Euro currency" class="w-full news-thumbnail">
+                            <div class="p-4">
+                                <div class="flex items-center text-sm text-gray-500 mb-2">
+                                    <span>Central Banks</span>
+                                    <span class="mx-2">•</span>
+                                    <span>5 hours ago</span>
+                                </div>
+                                <h3 class="font-bold text-lg mb-2">ECB Holds Rates Steady but Hints at Earlier Than Expected Easing</h3>
+                                <p class="text-gray-600 mb-3">The European Central Bank maintained its current interest rate levels but suggested policy could loosen sooner than previously indicated.</p>
+                                <a href="#" class="text-blue-600 font-medium hover:underline">Read more →</a>
+                            </div>
+                        </div>
+
+                        <!-- News Card 3 -->
+                        <div class="news-card bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg transition duration-300 ease-in-out">
+                            <img src="https://images.unsplash.com/photo-1604594849809-dfedbc827105?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="Stock market board" class="w-full news-thumbnail">
+                            <div class="p-4">
+                                <div class="flex items-center text-sm text-gray-500 mb-2">
+                                    <span>Markets</span>
+                                    <span class="mx-2">•</span>
+                                    <span>Yesterday</span>
+                                </div>
+                                <h3 class="font-bold text-lg mb-2">Global Markets Rally as US Inflation Data Comes in Below Expectations</h3>
+                                <p class="text-gray-600 mb-3">Stocks worldwide surged after US consumer price data showed inflation cooling faster than anticipated, boosting risk appetite.</p>
+                                <a href="#" class="text-blue-600 font-medium hover:underline">Read more →</a>
+                            </div>
+                        </div>
+
+                        <!-- News Card 4 -->
+                        <div class="news-card bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg transition duration-300 ease-in-out">
+                            <img src="https://images.unsplash.com/photo-1502920514313-52581002a659?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="Oil rig" class="w-full news-thumbnail">
+                            <div class="p-4">
+                                <div class="flex items-center text-sm text-gray-500 mb-2">
+                                    <span>Commodities</span>
+                                    <span class="mx-2">•</span>
+                                    <span>Yesterday</span>
+                                </div>
+                                <h3 class="font-bold text-lg mb-2">Oil Prices Jump 3% After OPEC+ Announces Additional Production Cuts</h3>
+                                <p class="text-gray-600 mb-3">Crude oil futures climbed sharply following OPEC+'s decision to reduce output by an additional 1 million barrels per day in early 2024.</p>
+                                <a href="#" class="text-blue-600 font-medium hover:underline">Read more →</a>
+                            </div>
+                        </div>
+
+                        <!-- News Card 5 -->
+                        <div class="news-card bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg transition duration-300 ease-in-out">
+                            <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" alt="Trade negotiations" class="w-full news-thumbnail">
+                            <div class="p-4">
+                                <div class="flex items-center text-sm text-gray-500 mb-2">
+                                    <span>Trade</span>
+                                    <span class="mx-2">•</span>
+                                    <span>2 days ago</span>
+                                </div>
+                                <h3 class="font-bold text-lg mb-2">US and EU Reach Preliminary Agreement on Critical Minerals Trade</h3>
+                                <p class="text-gray-600 mb-3">The deal aims to strengthen supply chains for electric vehicle batteries and reduce dependence on Chinese exports of rare earth minerals.</p>
+                                <a href="#" class="text-blue-600 font-medium hover:underline">Read more →</a>
+                            </div>
+                        </div>
+
+                        <!-- News Card 6 -->
+                        <div class="news-card bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg transition duration-300 ease-in-out">
+                            <img src="https://www.chaincatcher.com/upload/image/20241216/1734339937707-588285.webp" alt="Japanese yen" class="w-full news-thumbnail">
+                            <div class="p-4">
+                                <div class="flex items-center text-sm text-gray-500 mb-2">
+                                    <span>Markets</span>
+                                    <span class="mx-2">•</span>
+                                    <span>3 days ago</span>
+                                </div>
+                                <h3 class="font-bold text-lg mb-2">Yen Weakens to 150 Against Dollar Despite Japan's Intervention Warnings</h3>
+                                <p class="text-gray-600 mb-3">The Japanese currency fell to its lowest level in months as the interest rate differential with the US continues to weigh.</p>
+                                <a href="#" class="text-blue-600 font-medium hover:underline">Read more →</a>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="chart-container">
-                    <canvas id="exchangeRateChart"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <!-- /////////////////////////////////////////CURRENCY CONVERTER///////////////////////////////////////// -->
-            <div class="bg-white rounded-xl shadow-md p-6 mb-8">
-                <h2 class="text-2xl font-semibold text-gray-800 mb-6">Currency Converter</h2>
-                
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Amount</label>
-                        <input type="number" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500" value="100">
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">From</label>
-                        <select class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
-                            <option>USD - US Dollar</option>
-                            <option>EUR - Euro</option>
-                            <option>GBP - British Pound</option>
-                            <option>JPY - Japanese Yen</option>
-                        </select>
-                    </div>
-                    
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">To</label>
-                        <select class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
-                            <option>EUR - Euro</option>
-                            <option>USD - US Dollar</option>
-                            <option>GBP - British Pound</option>
-                            <option>JPY - Japanese Yen</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <div class="mt-6 p-4 bg-blue-50 rounded-lg">
-                    <div class="flex justify-between items-center">
-                        <div>
-                            <p class="text-sm text-gray-600">Conversion Result</p>
-                            <p class="text-2xl font-bold">92.34 EUR</p>
-                        </div>
-                        <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-300">
-                            Convert
+                    <div class="mt-8 text-center">
+                        <button class="px-6 py-2 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition duration-300">
+                            Load More News
                         </button>
                     </div>
-                </div>
-            </div>
-            <!-- ///////////////////////////////////////////////////////////////////////////////////// -->
-            <div class="bg-green-900 rounded-xl shadow-md p-6 mb-8"
-                    style="background-image: repeating-linear-gradient(45deg, 
-                    rgba(255,255,255,0.05) 0, 
-                    rgba(255,255,255,0.05) 1px, 
-                    transparent 3px, 
-                    transparent 10px
-                    );">
-                <div class="p-4 bg-green-600 rounded-lg shadow-xl">
-                    <div class="flex justify-between items-center">
-                        <div>
-                            <p class="text-sm text-white">First time offer:</p>
-                            <p class="text-2xl font-bold">REDEEM YOUR FREE DOLLARS HERE! 🤑 ----------->  </p>
-                        </div>
-                        <!--<a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank" 
-                        rel="noopener noreferrer">-->
-                        <button onclick="openModal()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-300">
-                            Redeem 💸
-                        </button>
-                        <!--</a>-->
-                    </div>
-                </div>
-            </div>
-
-            <!-- MODAL -->
-            <div class="modal-backdrop" id="modal-backdrop">
-            <div class="modal" style="background-color: rgba(20, 70, 50, 1);
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2232%22 height=%2232%22><text y=%2224%22 font-size=%2224%22>💵</text></svg>');
-                background-repeat: repeat;
-                background-size: 40px 40px;">
-
-                <button class="modal-close" onclick="closeModal()">×</button>
-                <iframe id="youtube-frame"
-                    src=""
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowfullscreen>
-                </iframe>
-            </div>
-            </div>
-
-            <div id="emoji-container" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999;"></div>
-
-            <!-- ///////////////////////////////////////////////////////////////////////////////////// -->
-
-
-            <!-- Horizontal Ad Banner -->
-            <div class="ad-placeholder w-full h-32 rounded-lg mb-8 flex items-center justify-center">
-                Advertisement
-            </div>
-
-            <!-- News Section -->
-            <div class="bg-white rounded-xl shadow-md p-6">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-semibold text-gray-800">Latest Economic News</h2>
-                    <div class="flex items-center">
-                        <span class="text-sm text-gray-500 mr-2">Filter by:</span>
-                        <select class="px-3 py-1 border border-gray-300 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500">
-                            <option>All Categories</option>
-                            <option>Markets</option>
-                            <option>Central Banks</option>
-                            <option>Trade</option>
-                            <option>Commodities</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <!-- News Card 1 -->
-                    <div class="news-card bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg transition duration-300 ease-in-out">
-                        <img src="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" 
-                            alt="Federal Reserve building" 
-                            class="w-full news-thumbnail">
-                        <div class="p-4">
-                            <div class="flex items-center text-sm text-gray-500 mb-2">
-                                <span>Markets</span>
-                                <span class="mx-2">•</span>
-                                <span>2 hours ago</span>
-                            </div>
-                            <h3 class="font-bold text-lg mb-2">Fed Signals Potential Rate Cuts in 2024 Amid Cooling Inflation</h3>
-                            <p class="text-gray-600 mb-3">The Federal Reserve indicated it may begin cutting interest rates next year as inflation shows signs of easing, sending markets higher.</p>
-                            <a href="#" class="text-blue-600 font-medium hover:underline">Read more →</a>
-                        </div>
-                    </div>
-
-                    <!-- News Card 2 -->
-                    <div class="news-card bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg transition duration-300 ease-in-out">
-                        <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" 
-                            alt="Euro currency" 
-                            class="w-full news-thumbnail">
-                        <div class="p-4">
-                            <div class="flex items-center text-sm text-gray-500 mb-2">
-                                <span>Central Banks</span>
-                                <span class="mx-2">•</span>
-                                <span>5 hours ago</span>
-                            </div>
-                            <h3 class="font-bold text-lg mb-2">ECB Holds Rates Steady but Hints at Earlier Than Expected Easing</h3>
-                            <p class="text-gray-600 mb-3">The European Central Bank maintained its current interest rate levels but suggested policy could loosen sooner than previously indicated.</p>
-                            <a href="#" class="text-blue-600 font-medium hover:underline">Read more →</a>
-                        </div>
-                    </div>
-
-                    <!-- News Card 3 -->
-                    <div class="news-card bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg transition duration-300 ease-in-out">
-                        <img src="https://images.unsplash.com/photo-1604594849809-dfedbc827105?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" 
-                            alt="Stock market board" 
-                            class="w-full news-thumbnail">
-                        <div class="p-4">
-                            <div class="flex items-center text-sm text-gray-500 mb-2">
-                                <span>Markets</span>
-                                <span class="mx-2">•</span>
-                                <span>Yesterday</span>
-                            </div>
-                            <h3 class="font-bold text-lg mb-2">Global Markets Rally as US Inflation Data Comes in Below Expectations</h3>
-                            <p class="text-gray-600 mb-3">Stocks worldwide surged after US consumer price data showed inflation cooling faster than anticipated, boosting risk appetite.</p>
-                            <a href="#" class="text-blue-600 font-medium hover:underline">Read more →</a>
-                        </div>
-                    </div>
-
-                    <!-- News Card 4 -->
-                    <div class="news-card bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg transition duration-300 ease-in-out">
-                        <img src="https://images.unsplash.com/photo-1502920514313-52581002a659?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" 
-                            alt="Oil rig" 
-                            class="w-full news-thumbnail">
-                        <div class="p-4">
-                            <div class="flex items-center text-sm text-gray-500 mb-2">
-                                <span>Commodities</span>
-                                <span class="mx-2">•</span>
-                                <span>Yesterday</span>
-                            </div>
-                            <h3 class="font-bold text-lg mb-2">Oil Prices Jump 3% After OPEC+ Announces Additional Production Cuts</h3>
-                            <p class="text-gray-600 mb-3">Crude oil futures climbed sharply following OPEC+'s decision to reduce output by an additional 1 million barrels per day in early 2024.</p>
-                            <a href="#" class="text-blue-600 font-medium hover:underline">Read more →</a>
-                        </div>
-                    </div>
-
-                    <!-- News Card 5 -->
-                    <div class="news-card bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg transition duration-300 ease-in-out">
-                        <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" 
-                            alt="Trade negotiations" 
-                            class="w-full news-thumbnail">
-                        <div class="p-4">
-                            <div class="flex items-center text-sm text-gray-500 mb-2">
-                                <span>Trade</span>
-                                <span class="mx-2">•</span>
-                                <span>2 days ago</span>
-                            </div>
-                            <h3 class="font-bold text-lg mb-2">US and EU Reach Preliminary Agreement on Critical Minerals Trade</h3>
-                            <p class="text-gray-600 mb-3">The deal aims to strengthen supply chains for electric vehicle batteries and reduce dependence on Chinese exports of rare earth minerals.</p>
-                            <a href="#" class="text-blue-600 font-medium hover:underline">Read more →</a>
-                        </div>
-                    </div>
-
-                    <!-- News Card 6 -->
-                    <div class="news-card bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg transition duration-300 ease-in-out">
-                        <img src="https://www.chaincatcher.com/upload/image/20241216/1734339937707-588285.webp" 
-                            alt="Japanese yen" 
-                            class="w-full news-thumbnail">
-                        <div class="p-4">
-                            <div class="flex items-center text-sm text-gray-500 mb-2">
-                                <span>Markets</span>
-                                <span class="mx-2">•</span>
-                                <span>3 days ago</span>
-                            </div>
-                            <h3 class="font-bold text-lg mb-2">Yen Weakens to 150 Against Dollar Despite Japan's Intervention Warnings</h3>
-                            <p class="text-gray-600 mb-3">The Japanese currency fell to its lowest level in months as the interest rate differential with the US continues to weigh.</p>
-                            <a href="#" class="text-blue-600 font-medium hover:underline">Read more →</a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mt-8 text-center">
-                    <button class="px-6 py-2 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition duration-300">
-                        Load More News
-                    </button>
                 </div>
             </div>
         </div>
     </div>
-</div>
-<!-- ///////////////////////////////////////// PARA EL GRÁFICO, LO HIZO LA IA JUJÚ ///////////////////////////////////////// -->
+    <!-- ///////////////////////////////////////// PARA EL GRÁFICO, LO HIZO LA IA JUJÚ ///////////////////////////////////////// -->
     <script>
-        // Sample data for the chart
-        const timeframes = {
-            '1d': ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00', '23:59'],
-            '1w': ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-            '1m': ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
-            '3m': ['Month 1', 'Month 2', 'Month 3'],
-            '1y': ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-        };
+        let exchangeRateChart;
+        let historicalData = [];
+        let selectedCurrencyType = 'blue';
+        
+        // Fetch historical data from JSON file
+        fetch('historical_datos_dolar.json')
+            .then(response => response.json())
+            .then(data => {
+                historicalData = data;
+                updateChart();
+            });
+        
+        function changeCurrencyType(currencyType) {
+            selectedCurrencyType = currencyType;
+            document.getElementById('selectedCurrency').innerText = `USD ${currencyType.charAt(0).toUpperCase() + currencyType.slice(1)}`;
+            updateChart();
+        }
+        
+        function changeTimeframe(timeframe) {
+            // Update the chart based on the selected timeframe
+            document.querySelectorAll('.timeframe-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`.timeframe-btn[onclick="changeTimeframe('${timeframe}')"]`).classList.add('active');
+            updateChart();
+        }
+        
+    function updateChart() {
+        const labels = [];
+        const data = [];
 
-        const exchangeRates = {
-            'USD-EUR': {
-                '1d': [0.915, 0.917, 0.919, 0.918, 0.920, 0.922, 0.923],
-                '1w': [0.910, 0.912, 0.915, 0.918, 0.920, 0.922, 0.923],
-                '1m': [0.905, 0.910, 0.915, 0.920],
-                '3m': [0.890, 0.905, 0.920],
-                '1y': [0.880, 0.885, 0.890, 0.895, 0.900, 0.905, 0.910, 0.915, 0.920, 0.925, 0.923, 0.920]
-            },
-            'USD-GBP': {
-                '1d': [0.785, 0.786, 0.788, 0.789, 0.790, 0.791, 0.792],
-                '1w': [0.780, 0.782, 0.784, 0.786, 0.788, 0.790, 0.792],
-                '1m': [0.775, 0.780, 0.785, 0.790],
-                '3m': [0.765, 0.775, 0.785],
-                '1y': [0.750, 0.755, 0.760, 0.765, 0.770, 0.775, 0.780, 0.785, 0.790, 0.795, 0.793, 0.790]
-            },
-            'USD-JPY': {
-                '1d': [151.0, 151.2, 151.4, 151.3, 151.5, 151.6, 151.7],
-                '1w': [150.5, 150.8, 151.0, 151.2, 151.4, 151.6, 151.7],
-                '1m': [149.5, 150.0, 150.5, 151.0],
-                '3m': [148.0, 149.5, 151.0],
-                '1y': [145.0, 146.0, 147.0, 148.0, 149.0, 150.0, 150.5, 151.0, 151.5, 152.0, 151.7, 151.5]
-            },
-            'EUR-GBP': {
-                '1d': [0.858, 0.857, 0.856, 0.855, 0.854, 0.853, 0.852],
-                '1w': [0.860, 0.859, 0.858, 0.857, 0.856, 0.855, 0.854],
-                '1m': [0.865, 0.862, 0.859, 0.856],
-                '3m': [0.870, 0.865, 0.860],
-                '1y': [0.880, 0.875, 0.870, 0.865, 0.860, 0.855, 0.853, 0.850, 0.848, 0.845, 0.843, 0.840]
-            },
-            'EUR-JPY': {
-                '1d': [165.0, 165.2, 165.1, 165.3, 165.4, 165.5, 165.6],
-                '1w': [164.5, 164.8, 165.0, 165.2, 165.3, 165.5, 165.6],
-                '1m': [163.5, 164.0, 164.5, 165.0],
-                '3m': [162.0, 163.5, 165.0],
-                '1y': [160.0, 161.0, 162.0, 163.0, 164.0, 164.5, 165.0, 165.5, 166.0, 166.5, 166.2, 166.0]
+        historicalData.forEach(entry => {
+            const date = new Date(entry.fecha);
+            const rate = entry.datos.find(d => d.casa === selectedCurrencyType);
+            if (rate) {
+                labels.push(date.toLocaleString());
+                data.push(rate.venta);
             }
-        };
+        });
 
-        // Initialize chart
         const ctx = document.getElementById('exchangeRateChart').getContext('2d');
-        let exchangeRateChart = new Chart(ctx, {
+        if (exchangeRateChart) {
+            exchangeRateChart.destroy();
+        }
+
+        exchangeRateChart = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: timeframes['1d'],
+                labels: labels,
                 datasets: [{
-                    label: 'USD to EUR',
-                    data: exchangeRates['USD-EUR']['1d'],
-                    borderColor: '#3b82f6',
-                    backgroundColor: 'rgba(59, 130, 246, 0.05)',
-                    borderWidth: 2,
-                    fill: true,
-                    tension: 0.4
+                    label: `USD ${selectedCurrencyType.charAt(0).toUpperCase() + selectedCurrencyType.slice(1)}`,
+                    data: data,
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderWidth: 1
                 }]
             },
             options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                    },
-                    tooltip: {
-                        mode: 'index',
-                        intersect: false,
-                    }
-                },
                 scales: {
-                    y: {
-                        beginAtZero: false,
-                        grid: {
-                            color: 'rgba(0, 0, 0, 0.05)',
+                    x: {
+                        type: 'time',
+                        time: {
+                            unit: 'day'
                         }
                     },
-                    x: {
-                        grid: {
-                            display: false
-                        }
+                    y: {
+                        beginAtZero: false
                     }
                 }
             }
         });
-
-        // Change currency pair
-        function changeCurrencyPair(from, to) {
-            const newLabel = `${from} to ${to}`;
-            const timeframe = document.querySelector('.timeframe-btn.active').textContent.toLowerCase();
-            
-            // Update chart data
-            exchangeRateChart.data.labels = timeframes[timeframe];
-            exchangeRateChart.data.datasets[0].data = exchangeRates[`${from}-${to}`][timeframe];
-            exchangeRateChart.data.datasets[0].label = newLabel;
-            exchangeRateChart.update();
-            
-            // Update dropdown button text
-            document.querySelector('.dropdown button span').textContent = newLabel;
-        }
-
-        // Change timeframe
-        function changeTimeframe(timeframe) {
-            // Update active button
-            document.querySelectorAll('.timeframe-btn').forEach(btn => {
-                btn.classList.remove('active');
-                if (btn.textContent.toLowerCase() === timeframe) {
-                    btn.classList.add('active');
-                }
-            });
-            
-            // Get current currency pair
-            const currentPair = exchangeRateChart.data.datasets[0].label.split(' to ');
-            const from = currentPair[0];
-            const to = currentPair[1];
-            
-            // Update chart data
-            exchangeRateChart.data.labels = timeframes[timeframe];
-            exchangeRateChart.data.datasets[0].data = exchangeRates[`${from}-${to}`][timeframe];
-            exchangeRateChart.update();
-        }
-
-        // Initialize timeframe buttons
-        document.querySelectorAll('.timeframe-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.timeframe-btn').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-            });
-        });
-    </script>
-
-<script>
-    const container = document.getElementById('carousel');
-    const track = document.getElementById('track');
-
-    // Copia las tarjetas para efecto infinito
-    track.innerHTML += track.innerHTML;
-
-    let position = 0;
-    let speed = 0.5;
-    let paused = false;
-
-    function animate() {
-      if (!paused) {
-        position -= speed;
-        if (Math.abs(position) >= track.scrollWidth / 2) {
-          position = 0;
-        }
-        track.style.transform = `translateX(${position}px)`;
-      }
-      requestAnimationFrame(animate);
     }
 
-    container.addEventListener('mouseenter', () => paused = true);
-    container.addEventListener('mouseleave', () => paused = false);
+    </script>
 
-    // Drag manual
-    let isDragging = false;
-    let startX;
-    let dragStartPos;
-
-    container.addEventListener('mousedown', (e) => {
-      isDragging = true;
-      startX = e.clientX;
-      dragStartPos = position;
-      container.classList.add('dragging');
-    });
-
-    window.addEventListener('mouseup', () => {
-      isDragging = false;
-      container.classList.remove('dragging');
-    });
-
-    window.addEventListener('mousemove', (e) => {
-      if (!isDragging) return;
-      const dx = e.clientX - startX;
-      position = dragStartPos + dx;
-      track.style.transform = `translateX(${position}px)`; // ACTUALIZA EN VIVO
-    });
-
+    <script>
+        const container = document.getElementById('carousel');
+        const track = document.getElementById('track');
+        
+        // Copia las tarjetas para efecto infinito
+        track.innerHTML += track.innerHTML;
+        
+        let position = 0;
+        let speed = 0.5;
+        let paused = false;
+        
+        function animate() {
+        if (!paused) {
+        position -= speed;
+        if (Math.abs(position) >= track.scrollWidth / 2) {
+        position = 0;
+        }
+        track.style.transform = `translateX(${position}px)`;
+        }
+        requestAnimationFrame(animate);
+        }
+        
+        container.addEventListener('mouseenter', () => paused = true);
+        container.addEventListener('mouseleave', () => paused = false);
+        
+        // Drag manual
+        let isDragging = false;
+        let startX;
+        let dragStartPos;
+        
+        container.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        startX = e.clientX;
+        dragStartPos = position;
+        container.classList.add('dragging');
+        });
+        
+        window.addEventListener('mouseup', () => {
+        isDragging = false;
+        container.classList.remove('dragging');
+        });
+        
+        window.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        const dx = e.clientX - startX;
+        position = dragStartPos + dx;
+        track.style.transform = `translateX(${position}px)`; // ACTUALIZA EN VIVO
+        });
+        
         // --- SOPORTE PARA TOUCH ---
-    container.addEventListener('touchstart', (e) => {
-      isDragging = true;
-      startX = e.touches[0].clientX;
-      dragStartPos = position;
-      container.classList.add('dragging');
-    }, { passive: true });
-
-    container.addEventListener('touchmove', (e) => {
-      if (!isDragging) return;
-      const dx = e.touches[0].clientX - startX;
-      position = dragStartPos + dx;
-      track.style.transform = `translateX(${position}px)`;
-    }, { passive: true });
-
-    container.addEventListener('touchend', () => {
-      isDragging = false;
-      container.classList.remove('dragging');
-    });
-    animate();
-  </script>
-<!-- /////////////////////////////////////////SCRIPT PARA EL RICKROLL///////////////////////////////////////// -->
-  <script>
-      function openModal() {
+        container.addEventListener('touchstart', (e) => {
+        isDragging = true;
+        startX = e.touches[0].clientX;
+        dragStartPos = position;
+        container.classList.add('dragging');
+        }, { passive: true });
+        
+        container.addEventListener('touchmove', (e) => {
+        if (!isDragging) return;
+        const dx = e.touches[0].clientX - startX;
+        position = dragStartPos + dx;
+        track.style.transform = `translateX(${position}px)`;
+        }, { passive: true });
+        
+        container.addEventListener('touchend', () => {
+        isDragging = false;
+        container.classList.remove('dragging');
+        });
+        animate();
+    </script>
+    <!-- /////////////////////////////////////////SCRIPT PARA EL RICKROLL///////////////////////////////////////// -->
+    <script>
+        function openModal() {
         const iframe = document.getElementById('youtube-frame');
         iframe.src = "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&rel=0";
         document.getElementById('modal-backdrop').style.display = 'flex';
         startEmojiRain();
-      }
-
-      function closeModal() {
+        }
+        
+        function closeModal() {
         const modal = document.getElementById('modal-backdrop');
         modal.style.display = 'none';
         document.getElementById('youtube-frame').src = "";
         stopEmojiRain();
-      }
-
-    // Cerrar modal al hacer clic fuera de la caja modal
-    document.getElementById('modal-backdrop').addEventListener('click', (e) => {
-      // Solo cerrar si se hizo clic directamente sobre el fondo, no sobre el contenido
-      if (e.target.id === 'modal-backdrop') {
+        }
+        
+        // Cerrar modal al hacer clic fuera de la caja modal
+        document.getElementById('modal-backdrop').addEventListener('click', (e) => {
+        // Solo cerrar si se hizo clic directamente sobre el fondo, no sobre el contenido
+        if (e.target.id === 'modal-backdrop') {
         closeModal();
-      }
-    });
-
-    // Cerrar modal al presionar Escape
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
+        }
+        });
+        
+        // Cerrar modal al presionar Escape
+        document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
         closeModal();
-      }
-      });
-
-      // Lista de emojis a usar
-      const emojiList = ['💸', '🪙', '💰', '🤑', '💵','🪅','🪄'];
-
-      // Configuraciones
-      const maxEmojis = 30; // Cantidad máxima de emojis simultáneos
-      const emojiLifetime = 10000; // Duración de cada emoji en milisegundos
-      const emojiFallDuration = 8000; // Tiempo que tarda en caer, en ms
-
-      let emojiInterval;
-      let emojiCount = 0;
-
-      function startEmojiRain() {
+        }
+        });
+        
+        // Lista de emojis a usar
+        const emojiList = ['💸', '🪙', '💰', '🤑', '💵','🪅','🪄'];
+        
+        // Configuraciones
+        const maxEmojis = 30; // Cantidad máxima de emojis simultáneos
+        const emojiLifetime = 10000; // Duración de cada emoji en milisegundos
+        const emojiFallDuration = 8000; // Tiempo que tarda en caer, en ms
+        
+        let emojiInterval;
+        let emojiCount = 0;
+        
+        function startEmojiRain() {
         const container = document.getElementById('emoji-container');
-
+        
         emojiInterval = setInterval(() => {
-          if (emojiCount >= maxEmojis) return;
-
-          const emoji = document.createElement('div');
-          emoji.textContent = emojiList[Math.floor(Math.random() * emojiList.length)];
-          emoji.style.position = 'absolute';
-          emoji.style.fontSize = `${Math.random() * 24 + 24}px`;
-          emoji.style.left = `${Math.random() * 100}%`;
-          emoji.style.top = '-40px';
-          emoji.style.opacity = 0.9;
-          emoji.style.transition = `transform ${emojiFallDuration}ms linear`;
-          emoji.style.transform = 'translateY(0)';
-          
-          container.appendChild(emoji);
-          emojiCount++;
-
-          // Trigger the animation after appending
-          requestAnimationFrame(() => {
-            emoji.style.transform = `translateY(100vh)`;
-          });
-
-          // Eliminar después del tiempo de vida
-          setTimeout(() => {
-            emoji.remove();
-            emojiCount--;
-          }, emojiLifetime);
+        if (emojiCount >= maxEmojis) return;
+        
+        const emoji = document.createElement('div');
+        emoji.textContent = emojiList[Math.floor(Math.random() * emojiList.length)];
+        emoji.style.position = 'absolute';
+        emoji.style.fontSize = `${Math.random() * 24 + 24}px`;
+        emoji.style.left = `${Math.random() * 100}%`;
+        emoji.style.top = '-40px';
+        emoji.style.opacity = 0.9;
+        emoji.style.transition = `transform ${emojiFallDuration}ms linear`;
+        emoji.style.transform = 'translateY(0)';
+        
+        container.appendChild(emoji);
+        emojiCount++;
+        
+        // Trigger the animation after appending
+        requestAnimationFrame(() => {
+        emoji.style.transform = `translateY(100vh)`;
+        });
+        
+        // Eliminar después del tiempo de vida
+        setTimeout(() => {
+        emoji.remove();
+        emojiCount--;
+        }, emojiLifetime);
         }, 300); // Frecuencia con que caen los emojis (ajustable)
-      }
-
-      function stopEmojiRain() {
+        }
+        
+        function stopEmojiRain() {
         clearInterval(emojiInterval);
         emojiInterval = null;
         emojiCount = 0;
         document.getElementById('emoji-container').innerHTML = '';
-      }
-
-</script>
-<!-- /////////////////////////////////////////SCRIPT PARA OBTENER COTIZACIONES DEL DÓLAR - FUENTE: DOLAR API///////////////////////////////////////// -->
-<!-- Script viejo que llamaba a la API directamente desde el usuario -->
-<script>
-  /*const tipos = [
-    { id: "oficial", nombre: "oficial" },
-    { id: "blue", nombre: "blue" },
-    { id: "bolsa", nombre: "bolsa" },
-    { id: "contadoconliqui", nombre: "contadoconliqui" },
-    { id: "tarjeta", nombre: "tarjeta" },
-    { id: "mayorista", nombre: "mayorista" },
-    { id: "cripto", nombre: "cripto" },
-    //{ id: "futuro", nombre: "futuro" } Esta API no tiene esta cotización
-  ];
-
-  function tiempoRelativo(fecha) {
-    const ahora = new Date();
-    const diffMs = ahora - fecha;
-    const diffMin = Math.floor(diffMs / 60000);
-    const diffHs = Math.floor(diffMin / 60);
-
-    if (diffMin < 1) return "< 1 minuto";
-    if (diffMin < 60) return `Hace ${diffMin} minuto${diffMin === 1 ? "" : "s"}`;
-    return `Hace ${diffHs} hora${diffHs === 1 ? "" : "s"}`;
-  }
-
-  function actualizarCotizaciones() {
-    tipos.forEach(({ id, nombre }) => {
-      fetch(`https://dolarapi.com/v1/dolares/${nombre}`)
-      //fetch(`https://weddingtime.site/cotizaciones.php`)
+        }
+    </script>
+    <!-- /////////////////////////////////////////SCRIPT PARA OBTENER COTIZACIONES DEL DÓLAR - FUENTE: DOLAR API///////////////////////////////////////// -->
+    <!-- Script viejo que llamaba a la API directamente desde el usuario -->
+    <script>
+        /*const tipos = [
+        { id: "oficial", nombre: "oficial" },
+        { id: "blue", nombre: "blue" },
+        { id: "bolsa", nombre: "bolsa" },
+        { id: "contadoconliqui", nombre: "contadoconliqui" },
+        { id: "tarjeta", nombre: "tarjeta" },
+        { id: "mayorista", nombre: "mayorista" },
+        { id: "cripto", nombre: "cripto" },
+        //{ id: "futuro", nombre: "futuro" } Esta API no tiene esta cotización
+        ];
+        
+        function tiempoRelativo(fecha) {
+        const ahora = new Date();
+        const diffMs = ahora - fecha;
+        const diffMin = Math.floor(diffMs / 60000);
+        const diffHs = Math.floor(diffMin / 60);
+        
+        if (diffMin < 1) return "< 1 minuto";
+        if (diffMin < 60) return `Hace ${diffMin} minuto${diffMin === 1 ? "" : "s"}`;
+        return `Hace ${diffHs} hora${diffHs === 1 ? "" : "s"}`;
+        }
+        
+        function actualizarCotizaciones() {
+        tipos.forEach(({ id, nombre }) => {
+        fetch(`https://dolarapi.com/v1/dolares/${nombre}`)
+        //fetch(`https://weddingtime.site/cotizaciones.php`)
         .then(res => res.json())
         .then(data => {
-          const compraEl = document.getElementById(`${id}-c`);
-          const ventaEl = document.getElementById(`${id}-v`);
-          const tiempoEl = document.getElementById(`${id}-t`);
-
-          if (compraEl) {
-            compraEl.textContent = `$${data.compra.toLocaleString("es-AR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}`;
-            compraEl.classList.remove("highlight");
-            void compraEl.offsetWidth; // Forzar reflow para reiniciar animación
-            compraEl.classList.add("highlight");
-          }
-
-          if (ventaEl) {
-            ventaEl.textContent = `$${data.venta.toLocaleString("es-AR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}`;
-            ventaEl.classList.remove("highlight");
-            void ventaEl.offsetWidth;
-            ventaEl.classList.add("highlight");
-          }
-
-          if (tiempoEl) {
-            const fecha = new Date();
-            tiempoEl.dataset.timestamp = fecha.getTime();
-            tiempoEl.textContent = tiempoRelativo(fecha);
-          }
-        })
-        .catch(err => {
-          console.error(`Error al obtener el dólar ${nombre}:`, err);
-        });
-    });
-  }
-  // ⏱ Actualizar los textos de tiempo periódicamente
-  setInterval(() => {
-    const tiempoEls = document.querySelectorAll("[id$='-t']");
-    tiempoEls.forEach(el => {
-      const timestamp = el.dataset.timestamp;
-      if (timestamp) {
-        const fecha = new Date(parseInt(timestamp));
-        el.textContent = tiempoRelativo(fecha);
-      }
-    });
-  }, 60000);//30000
-  // Llamar manualmente la primera vez
-  actualizarCotizaciones();
-  */
-</script>
-<script>
-  const tipos = [
-    { id: "oficial", nombre: "oficial" },
-    { id: "blue", nombre: "blue" },
-    { id: "bolsa", nombre: "bolsa" },
-    { id: "contadoconliqui", nombre: "contadoconliqui" },
-    { id: "tarjeta", nombre: "tarjeta" },
-    { id: "mayorista", nombre: "mayorista" },
-    { id: "cripto", nombre: "cripto" },
-  ];
-
-  function tiempoRelativo(fecha) {
-    const ahora = new Date();
-    const diffMs = ahora - fecha;
-    const diffMin = Math.floor(diffMs / 60000);
-    const diffHs = Math.floor(diffMin / 60);
-
-    if (diffMin < 1) return "< 1 minuto";
-    if (diffMin < 60) return `Hace ${diffMin} minuto${diffMin === 1 ? "" : "s"}`;
-    return `Hace ${diffHs} hora${diffHs === 1 ? "" : "s"}`;
-  }
-
-  function actualizarCotizaciones() {
-  fetch("https://dolar.guru/cotizaciones.php")
-    .then(res => res.json())
-    .then(data => {
-      tipos.forEach(({ id, nombre }) => {
-        const cotizacion = data.find(item => item.casa === nombre);
-        if (!cotizacion) return;
-
         const compraEl = document.getElementById(`${id}-c`);
         const ventaEl = document.getElementById(`${id}-v`);
         const tiempoEl = document.getElementById(`${id}-t`);
-
+        
         if (compraEl) {
-          compraEl.textContent = `$${cotizacion.compra.toLocaleString("es-AR", {
-            minimumFractionDigits: 1,
-            maximumFractionDigits: 1,
-          })}`;
-          compraEl.classList.remove("highlight");
-          void compraEl.offsetWidth;
-          compraEl.classList.add("highlight");
+        compraEl.textContent = `$${data.compra.toLocaleString("es-AR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}`;
+        compraEl.classList.remove("highlight");
+        void compraEl.offsetWidth; // Forzar reflow para reiniciar animación
+        compraEl.classList.add("highlight");
         }
-
+        
         if (ventaEl) {
-          ventaEl.textContent = `$${cotizacion.venta.toLocaleString("es-AR", {
-            minimumFractionDigits: 1,
-            maximumFractionDigits: 1,
-          })}`;
-          ventaEl.classList.remove("highlight");
-          void ventaEl.offsetWidth;
-          ventaEl.classList.add("highlight");
+        ventaEl.textContent = `$${data.venta.toLocaleString("es-AR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}`;
+        ventaEl.classList.remove("highlight");
+        void ventaEl.offsetWidth;
+        ventaEl.classList.add("highlight");
         }
-
+        
         if (tiempoEl) {
-          const fecha = new Date(cotizacion.fechaActualizacion);
-          tiempoEl.dataset.timestamp = fecha.getTime();
-          tiempoEl.textContent = tiempoRelativo(fecha);
+        const fecha = new Date();
+        tiempoEl.dataset.timestamp = fecha.getTime();
+        tiempoEl.textContent = tiempoRelativo(fecha);
         }
-      });
-    })
-    .catch(err => {
-      console.error("Error al obtener las cotizaciones:", err);
-    });
-}
-
-  // ⏱ Actualizar los textos de tiempo periódicamente
-  setInterval(() => {
-    const tiempoEls = document.querySelectorAll("[id$='-t']");
-    tiempoEls.forEach(el => {
-      const timestamp = el.dataset.timestamp;
-      if (timestamp) {
+        })
+        .catch(err => {
+        console.error(`Error al obtener el dólar ${nombre}:`, err);
+        });
+        });
+        }
+        // ⏱ Actualizar los textos de tiempo periódicamente
+        setInterval(() => {
+        const tiempoEls = document.querySelectorAll("[id$='-t']");
+        tiempoEls.forEach(el => {
+        const timestamp = el.dataset.timestamp;
+        if (timestamp) {
         const fecha = new Date(parseInt(timestamp));
         el.textContent = tiempoRelativo(fecha);
-      }
-    });
-  }, 60000);
+        }
+        });
+        }, 60000);//30000
+        // Llamar manualmente la primera vez
+        actualizarCotizaciones();
+        */
+    </script>
+    <script>
+        const tipos = [
+        { id: "oficial", nombre: "oficial" },
+        { id: "blue", nombre: "blue" },
+        { id: "bolsa", nombre: "bolsa" },
+        { id: "contadoconliqui", nombre: "contadoconliqui" },
+        { id: "tarjeta", nombre: "tarjeta" },
+        { id: "mayorista", nombre: "mayorista" },
+        { id: "cripto", nombre: "cripto" },
+        ];
+        
+        function tiempoRelativo(fecha) {
+        const ahora = new Date();
+        const diffMs = ahora - fecha;
+        const diffMin = Math.floor(diffMs / 60000);
+        const diffHs = Math.floor(diffMin / 60);
+        
+        if (diffMin < 1) return "< 1 minuto";
+        if (diffMin < 60) return `Hace ${diffMin} minuto${diffMin === 1 ? "" : "s"}`;
+        return `Hace ${diffHs} hora${diffHs === 1 ? "" : "s"}`;
+        }
+        
+        function actualizarCotizaciones() {
+        fetch("https://dolar.guru/cotizaciones.php")
+        .then(res => res.json())
+        .then(data => {
+        tipos.forEach(({ id, nombre }) => {
+        const cotizacion = data.find(item => item.casa === nombre);
+        if (!cotizacion) return;
+        
+        const compraEl = document.getElementById(`${id}-c`);
+        const ventaEl = document.getElementById(`${id}-v`);
+        const tiempoEl = document.getElementById(`${id}-t`);
+        
+        if (compraEl) {
+        compraEl.textContent = `$${cotizacion.compra.toLocaleString("es-AR", {
+        minimumFractionDigits: 1,
+        maximumFractionDigits: 1,
+        })}`;
+        compraEl.classList.remove("highlight");
+        void compraEl.offsetWidth;
+        compraEl.classList.add("highlight");
+        }
+        
+        if (ventaEl) {
+        ventaEl.textContent = `$${cotizacion.venta.toLocaleString("es-AR", {
+        minimumFractionDigits: 1,
+        maximumFractionDigits: 1,
+        })}`;
+        ventaEl.classList.remove("highlight");
+        void ventaEl.offsetWidth;
+        ventaEl.classList.add("highlight");
+        }
+        
+        if (tiempoEl) {
+        const fecha = new Date(cotizacion.fechaActualizacion);
+        tiempoEl.dataset.timestamp = fecha.getTime();
+        tiempoEl.textContent = tiempoRelativo(fecha);
+        }
+        });
+        })
+        .catch(err => {
+        console.error("Error al obtener las cotizaciones:", err);
+        });
+        }
+        
+        // ⏱ Actualizar los textos de tiempo periódicamente
+        setInterval(() => {
+        const tiempoEls = document.querySelectorAll("[id$='-t']");
+        tiempoEls.forEach(el => {
+        const timestamp = el.dataset.timestamp;
+        if (timestamp) {
+        const fecha = new Date(parseInt(timestamp));
+        el.textContent = tiempoRelativo(fecha);
+        }
+        });
+        }, 60000);
+        
+        // Ejecutar al cargar la página
+        actualizarCotizaciones();
+    </script>
 
-  // Ejecutar al cargar la página
-  actualizarCotizaciones();
-</script>
-
-<!-- /////////////////////////////////////////SCRIPT PARA LA BARRITA QUE CARGA///////////////////////////////////////// -->
-<script>
-  const progressBar = document.getElementById("progress-bar");
-  const duration = 10000; // 10.000 (10 segundos)
-
-  function startProgressBar() {
-    // Reiniciar barra
-    progressBar.style.transition = "none";
-    progressBar.style.width = "0%";
-
-    // Forzar reflow para reiniciar animación
-    void progressBar.offsetWidth;
-
-    // Aplicar animación
-    progressBar.style.transition = `width ${duration}ms linear`;
-    progressBar.style.width = "100%";
-  }
-
-  // Iniciar por primera vez
-  startProgressBar();
-
-  //Reiniciar barrita
-    setInterval(() => {
-    startProgressBar();
-    actualizarCotizaciones();
-    }, duration
-    );
-
-</script>
+    <!-- /////////////////////////////////////////SCRIPT PARA LA BARRITA QUE CARGA///////////////////////////////////////// -->
+    <script>
+        const progressBar = document.getElementById("progress-bar");
+        const duration = 10000; // 10.000 (10 segundos)
+        
+        function startProgressBar() {
+        // Reiniciar barra
+        progressBar.style.transition = "none";
+        progressBar.style.width = "0%";
+        
+        // Forzar reflow para reiniciar animación
+        void progressBar.offsetWidth;
+        
+        // Aplicar animación
+        progressBar.style.transition = `width ${duration}ms linear`;
+        progressBar.style.width = "100%";
+        }
+        
+        // Iniciar por primera vez
+        startProgressBar();
+        
+        //Reiniciar barrita
+        setInterval(() => {
+        startProgressBar();
+        actualizarCotizaciones();
+        }, duration
+        );
+    </script>
 
 
 
 
 </body>
+
 </html>
