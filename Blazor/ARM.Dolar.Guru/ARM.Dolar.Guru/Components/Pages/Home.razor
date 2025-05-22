@@ -9,73 +9,226 @@
 
 <link rel="stylesheet" href="css/site.css">
 
-<PageTitle>Dashboard</PageTitle>
+@* <div class="row">
+    <div class="col-12 text-center mb-4">
+        <h1 class="display-4">Bienvenido a Dolar Guru</h1>
+    </div>
+</div> *@
 
-<div class="container mt-4">
-    <h1 class="mb-4 text-center">📊 Dashboard de Cotización del Dólar</h1>
+<div class="row">
+    <div class="col-md-4 col-sm-12 text-center mt-4 mb-4">
 
-    <!-- Tarjetas de estadísticas -->
-    <div class="row text-center">
-        <div class="col-md-4">
-            <div class="card text-white bg-primary shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title">Dólar Oficial</h5>
-                    <p class="card-text display-4 fw-bold">$@DolarOficial</p>
-                    <small>Máximo histórico: $@MaximoOficial</small>
+        <!-- Sección de titulares vertical -->
+        <div class="container mt-4">
+            <h1 class="text-center mb-4">📰 Qué predice la IA?</h1>
+
+            <div class="row">
+
+                <div class="col-md-12 mb-3">
+                    <div class="d-flex align-items-center bg-light p-3 rounded shadow-sm">
+                        <div class="container mt-4">
+                            <h2 class="text-center">📊 Proyección del Dólar en Argentina</h2>
+
+                            <div class="row">
+                                <div class="col-lg-4 col-md-6 col-sm-12 mb-3">
+                                    <div class="card text-white bg-primary shadow-sm">
+                                        <div class="card-body text-center">
+                                            <h5 class="card-title">Dentro de una semana</h5>
+                                            <p class="display-4 fw-bold">$1147 - $1174</p>
+                                            <small>Leve variación diaria, demanda en mercado paralelo</small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-4 col-md-6 col-sm-12 mb-3">
+                                    <div class="card text-white bg-success shadow-sm">
+                                        <div class="card-body text-center">
+                                            <h5 class="card-title">Dentro de un mes</h5>
+                                            <p class="display-4 fw-bold">$1107 - $1192</p>
+                                            <small>Inflación, política cambiaria, decisiones del gobierno</small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-4 col-md-6 col-sm-12 mb-3">
+                                    <div class="card text-white bg-danger shadow-sm">
+                                        <div class="card-body text-center">
+                                            <h5 class="card-title">Dentro de 6 meses</h5>
+                                            <p class="display-4 fw-bold">$1294 - $1563</p>
+                                            <small>Acuerdo con el FMI, inflación, estabilidad económica</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <p class="text-center mt-4"><strong>💡 Análisis:</strong>
+                                
+                                Las proyecciones del dólar en Argentina dependen de múltiples factores, como la inflación, la política monetaria del Banco Central y la situación económica global. Según los análisis recientes, aquí están algunas estimaciones:
+
+                                📅 **Dentro de una semana**:
+                                - Se espera que el dólar oficial se mantenga en torno a **$1147 - $1174**, con una leve variación diaria.
+                                - El dólar blue podría seguir una tendencia similar, dependiendo de la demanda en el mercado paralelo.
+
+                                📅 **Dentro de un mes**:
+                                - Las proyecciones indican un rango de **$1107 - $1192**, con fluctuaciones dependiendo de la política cambiaria.
+                                - La inflación y las decisiones del gobierno podrían influir en una aceleración o desaceleración del tipo de cambio.
+
+                                📅 **Dentro de 6 meses**:
+                                - Según estimaciones de economistas, el dólar oficial podría alcanzar valores cercanos a **$1294 - $1563** para fin de año.
+                                - La evolución dependerá de factores como el acuerdo con el FMI, la inflación y la estabilidad económica.
+
+                                💡 **Conclusión**:
+                                Si bien estas proyecciones ofrecen una idea general, el mercado argentino es altamente volátil y sujeto a cambios inesperados. 🚀
+                            
+                            </p>
+                        </div>
+
+                    </div>
                 </div>
+
+                <!-- Espacio publicitario -->
+                <div class="col-md-12 mb-3">
+                    <div class="text-center mb-4">
+                        <div class="ad-placeholder bg-light border rounded p-3">
+                            <p class="text-muted">Espacio para Google Ads aquí 📢</p>
+                        </div>
+                    </div>
+                </div>
+
+                @foreach (var noticia in Noticias)
+                {
+                    <div class="col-md-12 mb-3">
+                        <div class="d-flex align-items-center bg-light p-3 rounded shadow-sm">
+                            <img src="@noticia.ImagenUrl" alt="Imagen noticia" class="news-image me-3">
+                            <div>
+                                <h5 class="mb-1">@noticia.Titulo</h5>
+                                <p class="text-muted small">@noticia.Descripcion</p>
+                            </div>
+                        </div>
+                    </div>
+                }
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card text-white bg-success shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title">Dólar Blue</h5>
-                    <p class="card-text display-4 fw-bold">$@DolarBlue</p>
-                    <small>Máximo histórico: $@MaximoBlue</small>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card text-white bg-dark shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title">Promedio Últimos 7 días</h5>
-                    <p class="card-text display-4 fw-bold">$@PromedioDolar</p>
-                </div>
-            </div>
-        </div>
+
     </div>
 
-    <!-- Gráfico de tendencias -->
-    <div class="mt-5">
-        <h2 class="text-center">📈 Tendencia del Dólar</h2>
-        <canvas id="chart"></canvas>
-    </div>
 
-    <!-- Tabla de historial -->
-    <div class="mt-4">
-        <h2 class="text-center">📅 Historial de Cotizaciones</h2>
-        <div class="table-responsive">
-            <table class="table table-striped table-hover">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Fecha</th>
-                        <th>Tipo</th>
-                        <th>Valor</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var cotizacion in HistorialCotizaciones)
+    <div class="col-md-8 col-sm-12 text-center mt-4 mb-4">
+        <div class="container mt-4">
+            <h1 class="mb-4 text-center">📊 Dashboard de Cotización del Dólar</h1>
+
+
+
+            <div class="container mt-4">
+                <h2 class="text-center mb-4">💵 Cotización del Dólar</h2>
+
+                <div class="row">
+                    @foreach (var tipo in TiposDeDolar)
                     {
-                        <tr>
-                            <td>@cotizacion.Fecha.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)</td>
-                            <td>@cotizacion.Tipo</td>
-                            <td>$@cotizacion.Valor</td>
-                        </tr>
+                        <div class="col-lg-4 col-md-6 col-sm-12 mb-3">
+                            <div class="card text-white shadow-sm" style="background-color:@tipo.Color">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title">@tipo.Nombre</h5>
+                                    <p class="display-4 fw-bold">$@tipo.Venta</p>
+                                    <small>Compra: $@tipo.Compra</small>
+                                </div>
+                            </div>
+                        </div>
                     }
-                </tbody>
-            </table>
+                </div>
+            </div>
+
+            <!-- Gráfico mejorado -->
+            <div class="mt-5">
+                <h2 class="text-center">📈 Tendencia del Dólar</h2>
+                <canvas id="chart"></canvas>
+            </div>
+
+            <!-- Historial de cotizaciones -->
+            <div class="mt-4">
+                <h2 class="text-center">📅 Historial de Cotizaciones</h2>
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Tipo</th>
+                                <th>Valor</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var cotizacion in HistorialCotizaciones)
+                            {
+                                <tr>
+                                    <td>@cotizacion.Fecha.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture)</td>
+                                    <td>@cotizacion.Tipo</td>
+                                    <td>$@cotizacion.Valor</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
+@code {
+    private List<TipoDolar> TiposDeDolar = new()
+    {
+        new TipoDolar("Dólar Oficial", 1110, 1160, "#007bff"),
+        new TipoDolar("Dólar Blue", 1155, 1175, "#28a745"),
+        new TipoDolar("Dólar Bolsa", 1147.7m, 1149.4m, "#ffc107"),
+        new TipoDolar("Contado con liquidación", 1162m, 1168.9m, "#ff5733"),
+        new TipoDolar("Mayorista", 1137, 1146, "#6f42c1"),
+        new TipoDolar("Dólar Cripto", 1175.31m, 1179.9m, "#17a2b8"),
+        new TipoDolar("Dólar Tarjeta", 1443, 1508, "#dc3545")
+    };
+
+    private class TipoDolar
+    {
+        public string Nombre { get; set; }
+        public decimal Compra { get; set; }
+        public decimal Venta { get; set; }
+        public string Color { get; set; }
+
+        public TipoDolar(string nombre, decimal compra, decimal venta, string color)
+        {
+            Nombre = nombre;
+            Compra = compra;
+            Venta = venta;
+            Color = color;
+        }
+    }
+}
+
+@code {
+    private List<Noticia> Noticias = new()
+    {
+        new Noticia {
+            Titulo = "🔥 El dólar alcanza máximos históricos",
+            ImagenUrl = "img/dolar-alto.jpg",
+            Descripcion = "La divisa estadounidense marca un nuevo récord, generando incertidumbre en los mercados financieros."
+        },
+        new Noticia {
+            Titulo = "📈 Mercados atentos a cambios en la tasa de interés",
+            ImagenUrl = "img/tasa-interes.jpg",
+            Descripcion = "El Banco Central analiza una posible suba de tasas para frenar la inflación."
+        },
+        new Noticia {
+            Titulo = "💰 Criptomonedas recuperan terreno frente al dólar",
+            ImagenUrl = "img/cripto-subida.jpg",
+            Descripcion = "Bitcoin y Ethereum muestran repuntes después de semanas de caída."
+        }
+    };
+
+    private class Noticia
+    {
+        public string Titulo { get; set; } = string.Empty;
+        public string ImagenUrl { get; set; } = string.Empty;
+        public string Descripcion { get; set; } = string.Empty;
+    }
+}
 
 @code {
     private decimal DolarOficial = 900.50m;
@@ -83,6 +236,18 @@
     private decimal MaximoOficial = 1200.00m;
     private decimal MaximoBlue = 1450.00m;
     private decimal PromedioDolar = 980.25m;
+
+    private string[] Titulares = {
+        "🔥 El dólar alcanza máximos históricos.",
+        "📈 El mercado espera anuncios clave sobre tasas de interés.",
+        "🌎 Economía global afectada por inflación en EE.UU.",
+        "💰 Inversionistas atentos a la volatilidad del dólar.",
+        "🔎 Nuevo informe del FMI impacta el mercado cambiario."
+    };
+
+    private int IndiceTitular = 0;
+    private Timer? TimerNoticias;
+
 
     private List<Cotizacion> HistorialCotizaciones = new()
     {
@@ -98,4 +263,22 @@
         public string Tipo { get; set; } = string.Empty;
         public decimal Valor { get; set; }
     }
+
+    protected override void OnInitialized()
+    {
+        // Iniciar un Timer que actualiza los titulares cada 5 segundos sin bloquear la UI
+        TimerNoticias = new Timer(ActualizarTitular, null, 0, 5000);
+    }
+
+    private void ActualizarTitular(object? state)
+    {
+        IndiceTitular = (IndiceTitular + 1) % Titulares.Length;
+        InvokeAsync(StateHasChanged); // Asegura que la actualización ocurra en el hilo correcto de Blazor
+    }
+
+    public void Dispose()
+    {
+        TimerNoticias?.Dispose(); // Limpiar el Timer al salir de la página
+    }
+
 }
