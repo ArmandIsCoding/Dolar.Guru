@@ -1,0 +1,205 @@
+.chart-container {
+    position: relative;
+    height: 400px;
+    width: 100%;
+}
+
+.currency-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.guru-image:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.timeframe-btn.active {
+    background-color: #3b82f6;
+    color: white;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: white;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+    border-radius: 0.5rem;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+.news-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.news-thumbnail {
+    height: 180px;
+    object-fit: cover;
+}
+
+.ad-sidebar {
+    position: fixed;
+    top: 0;
+    height: 100vh;
+    width: 160px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 20px;
+    background-color: #f8fafc;
+    border-right: 1px solid #e2e8f0;
+    z-index: 10;
+}
+
+    .ad-sidebar.right {
+        right: 0;
+        border-right: none;
+        border-left: 1px solid #e2e8f0;
+    }
+
+.ad-placeholder {
+    background-color: #e2e8f0;
+    border: 1px dashed #94a3b8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #64748b;
+    font-weight: 500;
+}
+
+@media (max-width: 1280px) {
+    .ad-sidebar {
+        display: none;
+    }
+}
+
+h1 {
+    font-size: 50px;
+}
+
+    h1 span {
+        color: #acacac;
+        font-size: 32px;
+    }
+
+.carousel-container {
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+    /*background: #111;*/
+    padding: 0.4rem 0;
+    cursor: grab;
+}
+
+.carousel-track {
+    display: flex;
+    gap: 1rem;
+    will-change: transform;
+}
+
+.card {
+    background: white;
+    color: black;
+    border-radius: 8px;
+    padding: 1rem;
+    min-width: 200px;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    flex-shrink: 0;
+}
+
+.value {
+    font-size: 1.2rem;
+    margin-top: 0.5rem;
+}
+
+.change {
+    font-weight: bold;
+    margin-top: 0.25rem;
+    color: green;
+}
+
+.dragging {
+    cursor: grabbing;
+    user-select: none;
+}
+
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none; /* Oculto por defecto */
+    align-items: center;
+    justify-content: center;
+    z-index: 9998;
+}
+
+/* Caja del modal */
+.modal {
+    background-color: white;
+    padding: 1rem;
+    border-radius: 8px;
+    position: relative;
+    width: 90%;
+    max-width: 800px;
+    aspect-ratio: 16 / 9;
+    box-shadow: 0 0 20px rgba(0,0,0,0.4);
+}
+
+/* Botón de cerrar */
+.modal-close {
+    position: absolute;
+    top: -16px; /* Lo sube un poco */
+    right: -16px; /* Lo empuja fuera del borde para evitar superposición */
+    font-size: 1.5rem;
+    background: white;
+    border: none;
+    border-radius: 9999px;
+    width: 32px;
+    height: 32px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    border-radius: 6px;
+}
+
+@keyframes stripes {
+    0% {
+        background-position: 0 0;
+    }
+
+    100% {
+        background-position: 28.28px 0;
+    }
+}
+
+.highlight {
+    animation: flash 0.8s ease-in-out;
+}
+
+@keyframes flash {
+    0% {
+        background-color: rgba(255, 255, 0, 0.4);
+    }
+
+    100% {
+        background-color: transparent;
+    }
+}
