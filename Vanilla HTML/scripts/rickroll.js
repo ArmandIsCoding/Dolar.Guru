@@ -3,6 +3,9 @@
     iframe.src = "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&rel=0";
     document.getElementById('modal-backdrop').style.display = 'flex';
     startEmojiRain();
+
+    // Hace scroll hasta arriba de todo
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function closeModal() {

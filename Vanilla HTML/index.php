@@ -12,6 +12,56 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 
+<!-- <style>
+.carousel-container {
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+}
+
+.carousel-track {
+    display: flex;
+    width: max-content;
+    animation: scroll 20s linear infinite;
+}
+
+.card {
+    width: 200px;
+    padding: 20px;
+    margin: 0 10px;
+    background-color: #f4f4f4;
+    text-align: center;
+    border-radius: 10px;
+    flex-shrink: 0;
+}
+
+@keyframes scroll {
+    0% {
+        transform: translateX(0);
+    }
+    100% {
+        transform: translateX(-50%);
+    }
+}
+
+</style> -->
+
+<!-- <script>
+document.addEventListener("DOMContentLoaded", () => {
+    const container = document.getElementById("carousel");
+    const track = document.getElementById("track");
+
+    container.addEventListener("mouseenter", () => {
+        track.style.animationPlayState = "paused";
+    });
+
+    container.addEventListener("mouseleave", () => {
+        track.style.animationPlayState = "running";
+    });
+});
+</script> -->
+
+
 <body class="bg-gray-50" style="
     background-color: #e4eaf1;
     background-image: repeating-linear-gradient(45deg,rgba(28, 58, 92,0.05) 0,rgba(28, 100, 92,0.05) 1px,transparent 50px,transparent 20px);
@@ -37,53 +87,73 @@
         </div>
     </div>
 
-
     <div class="transform translate-y-[37px]">
         <!-- Contenedor para toda la página -->
-        <!-- Banner deslizante -->
-        <div class="carousel-container" id="carousel">
-            <div class="carousel-track" id="track">
-                <!-- Tarjetas -->
-                <div class="card">
-                    <div>💰 Dólar</div>
-                    <div class="value">USD 1.000,00</div>
-                    <div class="change">+0,25%</div>
-                </div>
-                <div class="card">
-                    <div>🪙 Bitcoin</div>
-                    <div class="value">USD 30.000,00</div>
-                    <div class="change" style="color:red;">-1,25%</div>
-                </div>
-                <div class="card">
-                    <div>⛽ Petróleo</div>
-                    <div class="value">USD 70,00</div>
-                    <div class="change">+0,45%</div>
-                </div>
-                <div class="card">
-                    <div>🏦 Merval</div>
-                    <div class="value">ARS 2.500.000</div>
-                    <div class="change">+0,75%</div>
-                </div>
-            </div>
-        </div>
+        <!-- Carousel Cards con ids sincronizados -->
+        <!-- <div class="carousel-track" id="track">
+            <div class="card">💰 Dólar<br><span id="oficial-v2" class="value">...</span><br></div>
+            <div class="card">🪙 Dólar Blue<br><span id="blue-v2" class="value">...</span><br></div>
+            <div class="card">📈 Dólar Bolsa<br><span id="bolsa-v2" class="value">...</span><br></div>
+            <div class="card">🏦 CCL<br><span id="contadoconliqui-v2" class="value">...</span><br></div>
+            <div class="card">💳 Tarjeta<br><span id="tarjeta-v2" class="value">...</span><br></div>
+            <div class="card">🏭 Mayorista<br><span id="mayorista-v2" class="value">...</span><br></div>
+            <div class="card">🔒 Cripto<br><span id="cripto-v2" class="value">...</span><br></div>
+        </div> -->
+        
 
         <div class="max-w-5xl mx-auto px-4">
             <!-- Contenedor para el resto de la página -->
             <div class="container mx-auto px-4 py-8 ">
+
+                <!-- Horizontal Ad Banner -->
+                <div class="ad-placeholder w-full h-32 rounded-lg mb-8 flex items-center justify-center">
+                    Ads Placeholder
+                </div>
+
                 <div class="mb-10">
                     <div class="bg-white rounded-xl flex flex-col md:flex-row items-center justify-center gap-10 p-8">
                         <!--Imagen del gurise -->
                         <div class="guru-image flex flex-col items-center transition duration-300 ease-in-out">
                             <div class="relative w-72 h-72 rounded-lg overflow-hidden shadow-xl">
-                                <img src="https://weddingtime.site/weddings/dg-resources/dolar-guru.png" alt="El Gurú del Dólar" class="object-cover w-full h-full object-[center_-50px]">
+                                <img src="https://dolar.guru/dg-resources/dolar-guru.png" alt="El Gurú del Dólar" class="object-cover w-full h-full object-[center_-50px]">
                             </div>
                         </div>
                         <!--Texto -->
                         <div class="flex flex-col max-w-xl text-lg ">
-                            <h1 class="text-[2rem] font-bold text-green-800"><i>🧙🏼‍♂️ EL GURISE DE LOS DOLLARS 💸 le-phpé</i></h1>
-                            <p class="text-gray-600 mb-5">(Qué tiempo loco ⛈️⚡)</p>
-                            <p class="text-gray-600">Acá vas a encontrar todo lo que tenés que saber sobre el movimiento del mercado argentino OPAAAAAAAAAAAAA</p>
+                            <h1 class="text-[2rem] font-bold text-green-800" style="margin-bottom: 12px;"><i>🧙🏼‍♂️⛈️⚡ El Gurú del dólar 💸💸</i></h1>
+                            <p class="text-gray-600 mb-4">
+                                Tené esta página siempre a mano, el Mago de los dólares basado en IA te mantendrá siempre la cotización más fresca posible.
+                            </p>
+                            <p class="text-gray-600 mb-4">
+                                La diferencia entre Dolar.Gurú y otras páginas es que nuestro Mago basado en IA (ver imagen adjunta, del mago) está siempre atento a las fluctuaciones del mercado y actualiza las cotizaciones en tiempo real, para que puedas tomar decisiones informadas al instante.
+                            </p>
+                            <!-- <p class="text-gray-600 mb-4">
+                                Además, si te gusta el sitio, ¡no dudes en compartirlo con tus amigos y familiares! Cuantos más seamos, mejor será la comunidad del Gurú del Dólar.
+                            </p> -->
+                            <p style="text-align: right;">
+                                <!-- Boton para compartir por whatsapp -->
+                                <a href="https://api.whatsapp.com/send?text=¡Hola! Te comparto esta página que me ayuda a seguir las cotizaciones del dólar en tiempo real y además trae suerte monetaria: https://dolar.guru" target="_blank" style="float: right;">
+                                    <img src="dg-resources/c_whatsapp.png" alt="WhatsApp" style="max-height: 80px; vertical-align: middle;">
+                                </a>
+                            </p>
                         </div>
+                        <script>
+                        function addToFavorites(e) {
+                            e.preventDefault();
+                            var url = window.location.href;
+                            var title = document.title;
+                            if (window.sidebar && window.sidebar.addPanel) {
+                                // Firefox <=22
+                                window.sidebar.addPanel(title, url, "");
+                            } else if (window.external && ('AddFavorite' in window.external)) {
+                                // IE
+                                window.external.AddFavorite(url, title);
+                            } else {
+                                // Other browsers (Chrome, Firefox 23+, Edge, etc.)
+                                alert('Presioná Ctrl+D (o Cmd+D en Mac) para agregar esta página a tus favoritos.');
+                            }
+                        }
+                        </script>
                     </div>
                 </div>
 
@@ -296,13 +366,13 @@
                     <div class="p-4 bg-green-600 rounded-lg shadow-xl">
                         <div class="flex justify-between items-center">
                             <div>
-                                <p class="text-sm text-white">First time offer:</p>
-                                <p class="text-2xl font-bold">REDEEM YOUR FREE DOLLARS HERE! 🤑 -----------> </p>
+                                <p class="text-sm text-white">Visitante número 1.000:</p>
+                                <p class="text-2xl font-bold">CLICK PARA GANAR 1.000 USD!!! 🤑 -----------> </p>
                             </div>
                             <!--<a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank"
                             rel="noopener noreferrer">-->
                             <button onclick="openModal()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-300">
-                                Redeem 💸
+                                Éxito 💸
                             </button>
                             <!--</a>-->
                         </div>
@@ -326,19 +396,19 @@
                 </div>
 
                 <!-- News Section -->
-                <div class="bg-white rounded-xl shadow-md p-6">
+                <!-- <div class="bg-white rounded-xl shadow-md p-6">
                     <div class="flex justify-between items-center mb-6">
                         <h2 class="text-2xl font-semibold text-gray-800">La posta</h2>
                     </div>
 
-                    <h4>IFRAME WORDPRESS</h4>
+                    <iframe src="https://dolar.guru/blog" width="100%" height="315" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
                     <div class="mt-8 text-center">
-                        <button class="px-6 py-2 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition duration-300">
+                        <a href="https://dolar.guru/blog" class="px-6 py-2 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition duration-300">
                             Ver todo
-                        </button>
+                        </a>
                     </div>
-                </div>
+                </div> -->
             </div>
         </div>
     </div>

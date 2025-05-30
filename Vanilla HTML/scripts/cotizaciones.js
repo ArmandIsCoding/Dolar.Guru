@@ -30,7 +30,9 @@ function actualizarCotizaciones() {
                 const compraEl = document.getElementById(`${id}-c`);
                 const ventaEl = document.getElementById(`${id}-v`);
                 const tiempoEl = document.getElementById(`${id}-t`);
+                const ventaCarouselEl = document.getElementById(`${id}-v2`);
 
+                // Actualiza tarjetas principales
                 if (compraEl) {
                     compraEl.textContent = `$${cotizacion.compra.toLocaleString("es-AR", {
                         minimumFractionDigits: 1,
@@ -55,6 +57,14 @@ function actualizarCotizaciones() {
                     const fecha = new Date(cotizacion.fechaActualizacion);
                     tiempoEl.dataset.timestamp = fecha.getTime();
                     tiempoEl.textContent = tiempoRelativo(fecha);
+                }
+
+                // Actualiza el valor del carousel
+                if (ventaCarouselEl) {
+                    ventaCarouselEl.textContent = `$${cotizacion.venta.toLocaleString("es-AR", {
+                        minimumFractionDigits: 1,
+                        maximumFractionDigits: 1,
+                    })}`;
                 }
             });
         })
