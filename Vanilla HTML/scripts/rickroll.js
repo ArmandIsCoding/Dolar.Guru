@@ -1,11 +1,9 @@
-﻿< !-- /////////////////////////////////////////SCRIPT PARA EL RICKROLL///////////////////////////////////////// -->
-    < script >
-    function openModal() {
-        const iframe = document.getElementById('youtube-frame');
-        iframe.src = "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&rel=0";
-        document.getElementById('modal-backdrop').style.display = 'flex';
-        startEmojiRain();
-    }
+﻿function openModal() {
+    const iframe = document.getElementById('youtube-frame');
+    iframe.src = "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&rel=0";
+    document.getElementById('modal-backdrop').style.display = 'flex';
+    startEmojiRain();
+}
 
 function closeModal() {
     const modal = document.getElementById('modal-backdrop');
@@ -78,4 +76,3 @@ function stopEmojiRain() {
     emojiCount = 0;
     document.getElementById('emoji-container').innerHTML = '';
 }
-    </script >

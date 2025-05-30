@@ -9,16 +9,16 @@ $currentFile = "datos_dolar.json";
 
 // Function to check if an update is needed
 function needsUpdate($file) {
-    echo "Checking if update is needed...\n";
+    echo "Checking if update is needed...\r\n\r\n\r\n";
 
     if (!file_exists($file)) {
-        echo "Current data file does not exist. Update needed.\n";
+        echo "Current data file does not exist. Update needed.\r\n\r\n\r\n";
         return true;
     }
 
     $data = json_decode(file_get_contents($file), true);
     if (empty($data)) {
-        echo "Current data file is empty. Update needed.\n";
+        echo "Current data file is empty. Update needed.\r\n\r\n\r\n";
         return true;
     }
 
@@ -29,34 +29,27 @@ function needsUpdate($file) {
     $minutes = intdiv($interval, 60);
     $seconds = $interval % 60;
 
-    echo "Last update was $minutes minutes and $seconds seconds ago.\n";
+    echo "Last update was $minutes minutes and $seconds seconds ago.\r\r\n\r\n\r\n";
 
     return $interval > 600; // 600 seconds = 10 minutes
 }
 
 // Function to append new data to the historical file
 function appendToHistorical($newData, $file) {
-    echo "Appending new data to historical file...\n";
+    echo "Appending new data to historical file...\r\n\r\n\r\n";
+
+    $timestamp = (new DateTime())->format('Y-m-d\TH:i:s.000\Z'); // Definir $timestamp aquí
 
     $historicalData = [];
 
     if (file_exists($file)) {
-        echo "Historical file exists.\n";
-        echo "Loading existing data...\n";
+        echo "Historical file exists.\r\n\r\n\r\n";
+        echo "Loading existing data...\r\n\r\n\r\n";
         $historicalData = json_decode(file_get_contents($file), true);
     } else {
-        echo "Historical file does not exist.\n";
-        echo "Creating new file...\n";
+        echo "Historical file does not exist.\r\n\r\n\r\n";
+        echo "Creating new file...\r\n\r\n\r\n";
     }
-
-    // Add new entries with the current timestamp
-    // $timestamp = (new DateTime())->format('Y-m-d\TH:i:s.000\Z');
-    // foreach ($newData as $entry) {
-    //     $historicalData[] = [
-    //         "fecha" => $timestamp,
-    //         "datos" => $entry
-    //     ];
-    // }
 
     $historicalData[] = [
         "fecha" => $timestamp,
@@ -65,16 +58,16 @@ function appendToHistorical($newData, $file) {
 
     file_put_contents($file, json_encode($historicalData, JSON_PRETTY_PRINT));
 
-    echo "Data appended successfully.\n";
+    echo "Data appended successfully.\r\n\r\n\r\n";
 }
 
 // Update if needed
 if (needsUpdate($currentFile)) {
-    echo "Fetching data from API...\n";
+    echo "Fetching data from API...\r\n\r\n\r\n";
     $response = file_get_contents($apiUrl);
 
     if ($response !== false) {
-        echo "Data fetched successfully.\n";
+        echo "Data fetched successfully.\r\n\r\n\r\n";
         $data = json_decode($response, true);
 
         // Add current timestamp to each entry
@@ -84,21 +77,21 @@ if (needsUpdate($currentFile)) {
         }
 
         // Save current data
-        echo "Saving current data...\n";
+        echo "Saving current data...\r\n\r\n\r\n";
         file_put_contents($currentFile, json_encode($data, JSON_PRETTY_PRINT));
-        echo "Current data saved successfully.\n";
+        echo "Current data saved successfully.\r\n\r\n\r\n";
 
         // Append to historical data
         appendToHistorical($data, $historicalFile);
     } else {
-        echo "Error fetching data from API.\n";
+        echo "Error fetching data from API.\r\n\r\n\r\n";
         // Optional: log errors
-        file_put_contents("error.log", date('c') . " - Error al obtener datos\n", FILE_APPEND);
+        file_put_contents("error.log", date('c') . " - Error al obtener datos\r\n\r\n\r\n", FILE_APPEND);
     }
 } else {
-    echo "No update needed.\n";
-    echo "Last data is recent.\n";
+    echo "No update needed.\r\n\r\n\r\n";
+    echo "Last data is recent.\r\n\r\n\r\n";
 }
 
-echo "Script execution completed.\n";
+echo "Script execution completed.\r\n\r\n\r\n";
 ?>
