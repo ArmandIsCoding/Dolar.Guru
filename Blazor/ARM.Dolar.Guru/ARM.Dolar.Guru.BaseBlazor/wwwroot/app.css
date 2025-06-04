@@ -1,0 +1,66 @@
+/* Fondo principal del header/topbar */
+.top-row.navbar {
+    background: linear-gradient(135deg, #1E90FF, #00BFFF); /* Oficial */
+    color: white;
+    border-bottom: 3px solid #00BFFF;
+}
+
+/* Marca del sitio */
+.navbar-brand {
+    color: white;
+    font-weight: bold;
+}
+
+/* Botón del menú (hamburguesa) */
+.navbar-toggler {
+    background-color: #00BFFF;
+    border: none;
+    box-shadow: none;
+}
+
+/* Fondo del panel lateral */
+.nav-scrollable {
+    background-color: #163960; /* Fondo azul oscuro para mejor contraste */
+    border-right: 1px solid #0c223b;
+    min-height: 100vh;
+}
+
+/* Cada ítem del menú */
+.nav-item {
+    margin-bottom: 0.25rem;
+}
+
+/* Enlace de navegación */
+.nav-link {
+    color: #aad8ff; /* Azul claro */
+    font-weight: 500;
+    border-radius: 0.375rem;
+    padding: 0.5rem 0.75rem;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+    /* Hover del nav-link */
+    .nav-link:hover {
+        background-color: #285d8e; /* Azul intermedio */
+        color: white;
+    }
+
+    /* Activo */
+    .nav-link.active {
+        background: linear-gradient(135deg, #1E90FF, #00BFFF);
+        color: white !important;
+        font-weight: bold;
+    }
+
+/* Iconos */
+.bi[class*='-nav-menu'] {
+    margin-right: 0.5rem;
+    color: #aad8ff;
+    transition: color 0.2s;
+}
+
+/* Icono activo */
+.nav-link.active .bi[class*='-nav-menu'],
+.nav-link:hover .bi[class*='-nav-menu'] {
+    color: white;
+}

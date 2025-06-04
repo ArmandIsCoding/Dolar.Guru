@@ -1,0 +1,239 @@
+﻿@page "/"
+@rendermode InteractiveServer
+
+@using System.Net.Http.Json
+@using System.Globalization
+
+<PageTitle>Home</PageTitle>
+
+<style>
+    .card-hover {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+        .card-hover:hover {
+            transform: scale(1.03);
+            box-shadow: 0 0 25px rgba(0, 0, 0, 0.3);
+        }
+</style>
+
+@if (cotizacionesDolar is null)
+{
+    <p class="text-center">💵 Cargando cotizaciones del dólar...</p>
+}
+else
+{
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-primary text-white fw-bold fs-5">
+            💵 Cotizaciones del Dólar
+        </div>
+        <div class="card-body">
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                @foreach (var cotizacion in cotizacionesDolar)
+                {
+                    var estilo = estilosDolar.ContainsKey(cotizacion.Nombre) ? estilosDolar[cotizacion.Nombre] : estilosDolar["Default"];
+                    var icono = iconosDolar.ContainsKey(cotizacion.Nombre) ? iconosDolar[cotizacion.Nombre] : "bi-cash-coin";
+                    var horas = (int)(DateTime.UtcNow - cotizacion.FechaActualizacion.ToUniversalTime()).TotalHours;
+
+                    <div class="col">
+                        <div class="card h-100 text-white border-0 shadow-lg card-hover"
+                             style="background: linear-gradient(135deg, @estilo.Color1, @estilo.Color2);">
+                            <div class="card-body d-flex flex-column justify-content-between">
+                                <div class="mb-3">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <h5 class="card-title fw-bold mb-0">
+                                            <i class="bi @icono me-2 fs-4"></i>@cotizacion.Nombre
+                                        </h5>
+                                        <span class="badge bg-light text-dark">ARS/USD</span>
+                                    </div>
+                                    <p class="mt-2"><i class="bi bi-clock-history me-1"></i>Hace @horas horas</p>
+                                </div>
+
+                                <div class="d-flex justify-content-around border-top pt-3 mt-auto">
+                                    <div class="text-center">
+                                        <i class="bi bi-arrow-down-circle-fill fs-4 mb-1"></i><br />
+                                        <small class="fw-light">Compra</small><br />
+                                        <span class="fs-5 fw-bold">$@cotizacion.Compra</span>
+                                    </div>
+                                    <div class="text-center">
+                                        <i class="bi bi-arrow-up-circle-fill fs-4 mb-1"></i><br />
+                                        <small class="fw-light">Venta</small><br />
+                                        <span class="fs-5 fw-bold">$@cotizacion.Venta</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+}
+
+@if (cotizacionesOtros is null)
+{
+    <p class="text-center">💵 Cargando otras cotizaciones...</p>
+}
+else
+{
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-secondary text-white fw-bold fs-5">
+            💵 Otras Cotizaciones
+             - 
+            <small><span>Todos los valores son expresados en relación al <strong>Peso Argentino</strong></span></small>
+        </div>
+        <div class="card-body">
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                @foreach (var cotizacion in cotizacionesOtros)
+                {
+                    var estilo = estilosOtros.ContainsKey(cotizacion.Nombre) ? estilosOtros[cotizacion.Nombre] : estilosOtros["Default"];
+                    var icono = iconosOtros.ContainsKey(cotizacion.Nombre) ? iconosOtros[cotizacion.Nombre] : "bi-cash-coin";
+                    var horas = (int)(DateTime.UtcNow - cotizacion.FechaActualizacion.ToUniversalTime()).TotalHours;
+
+                    <div class="col">
+                        <div class="card h-100 text-white border-0 shadow-lg card-hover"
+                             style="background: linear-gradient(135deg, @estilo.Color1, @estilo.Color2);">
+                            <div class="card-body d-flex flex-column justify-content-between">
+                                <div class="mb-3">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <h5 class="card-title fw-bold mb-0">
+                                            <i class="bi @icono me-2 fs-4"></i>@cotizacion.Nombre
+                                        </h5>
+                                        <span class="badge bg-light text-dark">@cotizacion.Moneda / ARS</span>
+                                    </div>
+                                    <p class="mt-2"><i class="bi bi-clock-history me-1"></i>Hace @horas horas</p>
+                                </div>
+
+                                <div class="d-flex justify-content-around border-top pt-3 mt-auto">
+                                    <div class="text-center">
+                                        <i class="bi bi-arrow-down-circle-fill fs-4 mb-1"></i><br />
+                                        <small class="fw-light">Compra</small><br />
+                                        <span class="fs-5 fw-bold">$@cotizacion.Compra</span>
+                                    </div>
+                                    <div class="text-center">
+                                        <i class="bi bi-arrow-up-circle-fill fs-4 mb-1"></i><br />
+                                        <small class="fw-light">Venta</small><br />
+                                        <span class="fs-5 fw-bold">$@cotizacion.Venta</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+}
+
+<Disclaimer />
+
+@code {
+    record Cotizacion(string Nombre, decimal Compra, decimal Venta, DateTime FechaActualizacion);
+
+    // Nuevo record que representa la estructura recibida desde /cotizaciones
+    public class ApiCotizacionOtros
+    {
+        public string Moneda { get; set; } = string.Empty;
+        public string Casa { get; set; } = string.Empty;
+        public string Nombre { get; set; } = string.Empty;
+        public decimal Compra { get; set; }
+        public decimal Venta { get; set; }
+        public string FechaActualizacion { get; set; } = string.Empty;
+    }
+
+    record CotizacionOtros(string Moneda, string Nombre, decimal Compra, decimal Venta, DateTime FechaActualizacion);
+
+    // Estilos e íconos para la primera consulta (/v1/dolares)
+    Dictionary<string, Estilo> estilosDolar = new()
+        {
+            ["Oficial"] = new Estilo("#1E90FF", "#00BFFF"),
+            ["Blue"] = new Estilo("#8A2BE2", "#6A5ACD"),
+            ["Bolsa"] = new Estilo("#3CB371", "#2E8B57"),
+            ["Contado con liquidación"] = new Estilo("#FF6347", "#FF4500"),
+            ["Tarjeta"] = new Estilo("#FF69B4", "#FF1493"),
+            ["Mayorista"] = new Estilo("#4682B4", "#5F9EA0"),
+            ["Cripto"] = new Estilo("#FFD700", "#FFA500"),
+            ["Default"] = new Estilo("#343A40", "#6C757D")
+        };
+
+    Dictionary<string, string> iconosDolar = new()
+        {
+            ["Oficial"] = "bi-bank",
+            ["Blue"] = "bi-briefcase-fill",
+            ["Bolsa"] = "bi-graph-up",
+            ["Contado con liquidación"] = "bi-building",
+            ["Tarjeta"] = "bi-credit-card-fill",
+            ["Mayorista"] = "bi-diagram-3-fill",
+            ["Cripto"] = "bi-currency-bitcoin"
+        };
+
+    // Estilos e íconos para la segunda consulta (/v1/cotizaciones)
+    Dictionary<string, Estilo> estilosOtros = new()
+        {
+            ["Dólar"] = new Estilo("#007BFF", "#0056b3"),
+            ["Euro"] = new Estilo("#6c757d", "#343a40"),
+            ["Real Brasileño"] = new Estilo("#28a745", "#1e7e34"),
+            ["Peso Chileno"] = new Estilo("#17a2b8", "#117a8b"),
+            ["Peso Uruguayo"] = new Estilo("#ffc107", "#e0a800"),
+            ["Default"] = new Estilo("#6c757d", "#adb5bd")
+        };
+
+    Dictionary<string, string> iconosOtros = new()
+        {
+            ["Dólar"] = "bi-currency-dollar",
+            ["Euro"] = "bi-currency-euro",
+            ["Real Brasileño"] = "bi-currency-bitcoin",
+            ["Peso Chileno"] = "bi-cash-stack",
+            ["Peso Uruguayo"] = "bi-wallet2"
+        };
+
+    List<Cotizacion>? cotizacionesDolar;
+    List<CotizacionOtros>? cotizacionesOtros;
+
+    record Estilo(string Color1, string Color2);
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var http = new HttpClient();
+
+            // Primera consulta - dolares
+            var resultDolar = await http.GetFromJsonAsync<List<ApiCotizacion>>("https://dolarapi.com/v1/dolares");
+            cotizacionesDolar = resultDolar?.Select(c =>
+                new Cotizacion(
+                    Nombre: c.Nombre,
+                    Compra: c.Compra,
+                    Venta: c.Venta,
+                    FechaActualizacion: DateTime.Parse(c.FechaActualizacion, null, DateTimeStyles.AdjustToUniversal))
+            ).ToList();
+
+            // Segunda consulta - otras cotizaciones
+            var resultOtros = await http.GetFromJsonAsync<List<ApiCotizacionOtros>>("https://dolarapi.com/v1/cotizaciones");
+            cotizacionesOtros = resultOtros?.Select(c =>
+                new CotizacionOtros(
+                    Moneda: c.Moneda,
+                    Nombre: c.Nombre,
+                    Compra: c.Compra,
+                    Venta: c.Venta,
+                    FechaActualizacion: DateTime.Parse(c.FechaActualizacion, null, DateTimeStyles.AdjustToUniversal))
+            ).ToList();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error al obtener cotizaciones: " + ex.Message);
+            cotizacionesDolar = new();
+            cotizacionesOtros = new();
+        }
+    }
+
+    public class ApiCotizacion
+    {
+        public string Moneda { get; set; } = string.Empty;
+        public string Casa { get; set; } = string.Empty;
+        public string Nombre { get; set; } = string.Empty;
+        public decimal Compra { get; set; }
+        public decimal Venta { get; set; }
+        public string FechaActualizacion { get; set; } = string.Empty;
+    }
+}

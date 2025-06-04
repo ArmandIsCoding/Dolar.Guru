@@ -1,0 +1,29 @@
+﻿@inherits LayoutComponentBase
+
+<div class="page">
+    <div class="sidebar">
+        <NavMenu />
+    </div>
+
+    <main>
+        @*         <div class="top-row px-4">
+            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+        </div> *@
+
+        <div class="top-row px-4">
+            <a href="https://api.whatsapp.com/send?text=¡Hola! Te comparto esta página que me ayuda a seguir las cotizaciones del dólar en tiempo real y además trae suerte monetaria: https://dolar.guru" target="_blank" style="float: right;">
+                <img src="c_whatsapp.png" alt="WhatsApp" style="max-height: 64px; vertical-align: middle;">
+            </a>
+        </div>
+
+        <article class="content px-4" style="padding-top: 24px;">
+            @Body
+        </article>
+    </main>
+</div>
+
+<div id="blazor-error-ui">
+    An unhandled error has occurred.
+    <a href="" class="reload">Reload</a>
+    <a class="dismiss">🗙</a>
+</div>
