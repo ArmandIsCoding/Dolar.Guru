@@ -1,51 +1,46 @@
 ﻿<div class="container-fluid my-4">
     <div class="row">
         <div class="col-12">
-            <div class="card shadow">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h3 class="card-title mb-0">
-                        📢 Aviso Importante sobre <strong>Cotizaciones</strong> y <strong>Predicciones</strong>
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h3 class="card-title mb-0 fw-semibold">
+                        📢 Declaración Científica sobre <strong>Cotizaciones</strong> y <strong>Predicciones</strong>
                     </h3>
-                    <div>
-                        <!-- Botones Collapse y Remove con Bootstrap -->
-@*                         <button class="btn btn-sm btn-outline-secondary me-2" type="button" data-bs-toggle="collapse" data-bs-target="#cardBody" aria-expanded="true" aria-controls="cardBody" title="Colapsar/Expandir">
-                            <i class="bi bi-arrows-collapse"></i>
-                        </button> *@
-                        <button class="btn btn-sm btn-outline-danger" type="button" aria-label="Cerrar tarjeta" title="Cerrar" onclick="this.closest('.card').remove()">
-                            <i class="bi bi-x-lg"></i>
-                        </button>
-                    </div>
+                    <button class="btn btn-sm btn-outline-light" type="button" aria-label="Cerrar tarjeta" title="Cerrar" onclick="this.closest('.card').remove()">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
                 </div>
 
                 <div class="collapse show" id="cardBody">
                     <div class="card-body">
                         <section class="mb-4">
-                            <h4>📌 Información sobre las Cotizaciones</h4>
-                            <p>
-                                Todos los valores de compra y venta mostrados en este sitio están expresados en <strong>peso argentino (ARS)</strong>. Las tasas de cambio pueden fluctuar constantemente debido a la volatilidad del mercado.
+                            <h5 class="fw-bold">📌 Acerca de las Cotizaciones Monetarias</h5>
+                            <p class="text-justify">
+                                Todos los valores de compra y venta presentados en esta plataforma están expresados en <strong>pesos argentinos (ARS)</strong>. La información refleja estimaciones dinámicas sujetas a variabilidad de mercado y a eventos macroeconómicos de alta frecuencia.
                             </p>
                         </section>
 
                         <section class="mb-4">
-                            <h4>🔍 Fuentes y Actualización</h4>
-                            <p>
-                                Los datos provienen de fuentes confiables y se actualizan periódicamente. Sin embargo, pueden existir ligeras discrepancias con las cotizaciones en entidades bancarias o plataformas de inversión.
+                            <h5 class="fw-bold">🔬 Origen de Datos y Metodología</h5>
+                            <p class="text-justify">
+                                Esta plataforma integra datos provenientes de fuentes nacionales e internacionales, incluyendo medios de comunicación, indicadores financieros, entidades oficiales y flujos sociales. Los datos son procesados mediante modelos estadísticos, algoritmos de inteligencia artificial y técnicas de aprendizaje automático en tiempo real.
                             </p>
                         </section>
 
                         <section>
-                            <h4>⚠️ Advertencias y Responsabilidad</h4>
-                            <ul class="list-unstyled">
-                                <li>💰 Este sitio no representa una recomendación financiera ni de inversión.</li>
-                                <li>📊 Los valores expuestos pueden diferir de los montos oficiales en el momento de la operación.</li>
-                                <li>🏦 Siempre verifica las cotizaciones directamente en entidades financieras antes de tomar decisiones económicas.</li>
+                            <h5 class="fw-bold">⚠️ Consideraciones y Limitaciones</h5>
+                            <ul class="list-unstyled mb-0">
+                                <li>✔️ Este sistema tiene fines experimentales y de investigación científica.</li>
+                                <li>📈 Las predicciones ofrecidas no constituyen asesoramiento financiero.</li>
+                                <li>🏛️ Recomendamos contrastar los valores con fuentes oficiales antes de realizar operaciones económicas.</li>
+                                <li>🧠 Los modelos predictivos están sujetos a error, ruido exógeno y variabilidad contextual.</li>
                             </ul>
                         </section>
                     </div>
                 </div>
 
-                <div class="card-footer text-end text-muted fst-italic">
-                    📅 Última actualización: <span id="fecha-actualizacion">@DateTime.Now.ToLongDateString()</span>
+                <div class="card-footer text-end text-muted small fst-italic">
+                    Última actualización de datos: <span id="fecha-actualizacion">@DateTime.Now.ToLongDateString()</span>
                 </div>
             </div>
         </div>

@@ -1,0 +1,214 @@
+﻿@page "/tabla"
+@{
+    var Title = "Tabla de cotizaciones";
+}
+@attribute [StreamRendering]
+@rendermode InteractiveServer
+
+@using System.Net.Http.Json
+@using System.Globalization
+
+<PageTitle>@Title</PageTitle>
+
+<h1>@Title</h1>
+
+<div class="w-100 py-3 mb-4 bg-light border-bottom shadow-sm rounded px-3">
+    <div class="d-flex justify-content-between align-items-center flex-wrap">
+        <h5 class="mb-2 mb-md-0 text-primary fw-bold">📈 Cotizaciones actualizadas al instante</h5>
+
+        <button class="btn btn-outline-primary fw-semibold shadow-sm px-4 py-2 rounded-pill d-flex align-items-center gap-2"
+                @onclick="RecargarCotizaciones"
+                disabled="@cargando">
+
+            @if (cargando)
+            {
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                <span>Cargando...</span>
+            }
+            else
+            {
+                <span>🔄 Recargar cotizaciones</span>
+            }
+        </button>
+    </div>
+</div>
+
+@if (cotizacionesDolar == null || !cotizacionesDolar.Any() || cotizacionesOtros == null || !cotizacionesOtros.Any())
+{
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-primary text-white fw-bold fs-5">
+            💵 Cargando cotizaciones del dólar...
+        </div>
+        <div class="card-body">
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+
+                <div class="col-md-12">
+                    <p>
+
+                        Por favor, espere mientras se cargan las cotizaciones del dólar.
+
+                        <img src="dolar-guru.png" style="max-height: 332px;" />
+                    </p>
+
+
+
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Cargando...</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-primary text-white fw-bold fs-5">
+            💵 Cotizaciones del Dólar
+        </div>
+        <div class="card-body">
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th><strong>Nombre</strong></th>
+                            <th>Moneda</th>
+                            <th>Compra</th>
+                            <th>Venta</th>
+                            <th>Fecha Actualización</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var cotizacion in cotizacionesDolar)
+                        {
+                            <tr>
+                                <td><strong>@cotizacion.Nombre</strong></td>
+                                <td>@cotizacion.Moneda</td>
+                                <td>@cotizacion.Compra.ToString("C", CultureInfo.CurrentCulture)</td>
+                                <td>@cotizacion.Venta.ToString("C", CultureInfo.CurrentCulture)</td>
+                                <td>@cotizacion.FechaActualizacion.ToLocalTime().ToString("g")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-secondary text-white fw-bold fs-5">
+            💵 Otras Cotizaciones
+            -
+            <small><span>Todos los valores son expresados en relación al <strong>Peso Argentino</strong></span></small>
+        </div>
+        <div class="card-body">
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th><strong>Nombre</strong></th>
+                            <th>Moneda</th>
+                            <th>Compra</th>
+                            <th>Venta</th>
+                            <th>Fecha Actualización</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var cotizacion in cotizacionesOtros)
+                        {
+                            <tr>
+                                <td><strong>@cotizacion.Nombre</strong></td>
+                                <td>@cotizacion.Moneda</td>
+                                <td>@cotizacion.Compra.ToString("C", CultureInfo.CurrentCulture)</td>
+                                <td>@cotizacion.Venta.ToString("C", CultureInfo.CurrentCulture)</td>
+                                <td>@cotizacion.FechaActualizacion.ToLocalTime().ToString("g")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+
+<Disclaimer />
+
+@code {
+    private bool cargando = false;
+    List<Cotizacion>? cotizacionesDolar;
+    List<CotizacionOtros>? cotizacionesOtros;
+
+    private async Task RecargarCotizaciones()
+    {
+        cargando = true;
+        cotizacionesDolar = null;
+        cotizacionesOtros = null;
+        // StateHasChanged(); // Fuerza renderizado para mostrar "cargando"
+
+        try
+        {
+            var http = new HttpClient();
+
+            var resultDolar = await http.GetFromJsonAsync<List<ApiCotizacion>>("https://dolarapi.com/v1/dolares");
+            cotizacionesDolar = resultDolar?.Select(c =>
+                new Cotizacion(
+                    Moneda: c.Moneda,
+                    Nombre: c.Nombre,
+                    Compra: c.Compra,
+                    Venta: c.Venta,
+                    FechaActualizacion: DateTime.Parse(c.FechaActualizacion, null, DateTimeStyles.AdjustToUniversal))
+            ).ToList();
+
+            var resultOtros = await http.GetFromJsonAsync<List<ApiCotizacionOtros>>("https://dolarapi.com/v1/cotizaciones");
+            cotizacionesOtros = resultOtros?.Select(c =>
+                new CotizacionOtros(
+                    Moneda: c.Moneda,
+                    Nombre: c.Nombre,
+                    Compra: c.Compra,
+                    Venta: c.Venta,
+                    FechaActualizacion: DateTime.Parse(c.FechaActualizacion, null, DateTimeStyles.AdjustToUniversal))
+            ).ToList();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error al recargar cotizaciones: " + ex.Message);
+            cotizacionesDolar = new();
+            cotizacionesOtros = new();
+        }
+        finally
+        {
+            cargando = false;
+            StateHasChanged(); // Fuerza el renderizado después de cargar los datos
+        }
+    }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await RecargarCotizaciones();
+    }
+
+    record Cotizacion(string Moneda, string Nombre, decimal Compra, decimal Venta, DateTime FechaActualizacion);
+    public class ApiCotizacion
+    {
+        public string Moneda { get; set; } = string.Empty;
+        public string Casa { get; set; } = string.Empty;
+        public string Nombre { get; set; } = string.Empty;
+        public decimal Compra { get; set; }
+        public decimal Venta { get; set; }
+        public string FechaActualizacion { get; set; } = string.Empty;
+    }
+
+    record CotizacionOtros(string Moneda, string Nombre, decimal Compra, decimal Venta, DateTime FechaActualizacion);
+    public class ApiCotizacionOtros
+    {
+        public string Moneda { get; set; } = string.Empty;
+        public string Casa { get; set; } = string.Empty;
+        public string Nombre { get; set; } = string.Empty;
+        public decimal Compra { get; set; }
+        public decimal Venta { get; set; }
+        public string FechaActualizacion { get; set; } = string.Empty;
+    }
+}

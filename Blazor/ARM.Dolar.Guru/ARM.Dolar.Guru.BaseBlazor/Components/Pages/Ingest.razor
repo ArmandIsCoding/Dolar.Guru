@@ -1,0 +1,78 @@
+﻿@page "/ingesta"
+@rendermode InteractiveServer
+
+@{
+    var Title = "Ingesta de Información";
+}
+
+<PageTitle>@Title</PageTitle>
+
+<div class="container py-4">
+    <div class="text-center mb-5">
+        <h1 class="fw-bold text-primary">🌐 Ingesta Masiva de Información</h1>
+        <p class="text-muted fs-5">
+            Este sistema experimental integra mecanismos de ingesta continua de datos heterogéneos —noticias económicas, indicadores financieros, comunicados oficiales y tendencias globales— con modelos de predicción basados en inteligencia artificial.
+            A través de aprendizaje automático, se generan estimaciones dinámicas del comportamiento del dólar en Argentina, adaptándose a los contextos macroeconómicos en tiempo real.
+        </p>
+        <p class="text-muted small text-center">
+            Proyecto en desarrollo. Publicación preliminar. DOI: <a href="#">10.13140/RG.2.2.11035.21286</a>
+        </p>
+    </div>
+
+    <div class="row">
+        @foreach (var grupo in OrigenesPorCategoria)
+        {
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100 border-primary shadow-sm">
+                    <div class="card-header bg-primary text-white fw-semibold">
+                        @grupo.Key
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group list-group-flush">
+                            @foreach (var origen in grupo.Value)
+                            {
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <span>@origen</span>
+                                    <span class="badge bg-success">Activo</span>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<Disclaimer />
+
+@code {
+    Dictionary<string, List<string>> OrigenesPorCategoria = new()
+    {
+        ["📰 Medios Nacionales"] = new()
+        {
+            "Clarín", "La Nación", "Infobae", "Página/12", "TN", "Ámbito Financiero", "Crónica", "BAE Negocios"
+        },
+        ["🌍 Medios Internacionales"] = new()
+        {
+            "BBC", "CNN", "Reuters", "Al Jazeera", "The Guardian", "Le Monde", "The Wall Street Journal", "El País"
+        },
+        ["🏛️ Entidades Gubernamentales"] = new()
+        {
+            "AFIP", "BCRA", "Ministerio de Economía", "INDEC", "ANSES", "Gobierno de EEUU", "Banco Mundial", "FMI"
+        },
+        ["💹 Portales Financieros"] = new()
+        {
+            "Bloomberg", "Yahoo Finance", "Investing.com", "CoinMarketCap", "TradingView", "DolarHoy", "Rava Bursátil"
+        },
+        ["🤖 Plataformas de IA y Datos"] = new()
+        {
+            "Google News", "OpenAI Embeddings", "Bing News", "APIs financieras REST", "Scrapers personalizados", "Feeds RSS"
+        },
+        ["🧠 Proveedores de Machine Learning"] = new()
+        {
+            "Modelos locales", "Redes neuronales recurrentes", "Modelos BERT entrenados", "Clasificadores bayesianos"
+        }
+    };
+}
+
