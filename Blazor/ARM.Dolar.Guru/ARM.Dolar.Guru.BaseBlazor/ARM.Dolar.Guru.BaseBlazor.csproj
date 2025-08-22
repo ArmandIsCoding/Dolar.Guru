@@ -6,4 +6,13 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\ARM.Dolar.Guru.Models\ARM.Dolar.Guru.Models.csproj" />
+    <ProjectReference Include="..\ARM.Dolar.Guru.Services\ARM.Dolar.Guru.Services.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\js\" />
+  </ItemGroup>
+
 </Project>

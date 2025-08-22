@@ -1,4 +1,5 @@
 using ARM.Dolar.Guru.BaseBlazor.Components;
+using ARM.Dolar.Guru.Services;
 
 namespace ARM.Dolar.Guru.BaseBlazor
 {
@@ -13,6 +14,8 @@ namespace ARM.Dolar.Guru.BaseBlazor
                 .AddInteractiveServerComponents();
 
             builder.Services.AddHttpClient();
+
+            builder.Services.AddSingleton<CotizacionesService>();
 
             var app = builder.Build();
 
