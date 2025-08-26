@@ -8,6 +8,56 @@
     {
         private readonly string connectionString = "Server=server;Database=DolarGuru;User Id=sa;Password=123456;TrustServerCertificate=True;";
 
+        public async Task<List<ProyeccionDolar>> ObtenerUltimaProyeccionAsync()
+        {
+            using var conn = new SqlConnection(connectionString);
+            await conn.OpenAsync();
+
+            var cmd = new SqlCommand("SELECT TOP 1 JsonData FROM ProyeccionesDolarJson ORDER BY FechaEjecucion DESC", conn);
+            var json = (string?)await cmd.ExecuteScalarAsync();
+
+            return json is null
+                ? new List<ProyeccionDolar>()
+                : JsonSerializer.Deserialize<List<ProyeccionDolar>>(json) ?? new();
+        }
+
+        public async Task<Dictionary<string, List<(DateTime Fecha, decimal Compra)>>> ObtenerHistoricoAgrupadoAsync()
+        {
+            var resultado = new Dictionary<string, List<(DateTime, decimal)>>();
+
+            using var conn = new SqlConnection(connectionString);
+            await conn.OpenAsync();
+
+            var cmd = new SqlCommand("SELECT TOP 30 FechaEjecucion, JsonData FROM CotizacionesDolarJson ORDER BY FechaEjecucion DESC", conn);
+            using var reader = await cmd.ExecuteReaderAsync();
+
+            while (await reader.ReadAsync())
+            {
+                var fecha = reader.GetDateTime(0);
+                var json = reader.GetString(1);
+                var cotizaciones = JsonSerializer.Deserialize<List<ApiCotizacion>>(json);
+
+                foreach (var c in cotizaciones ?? Enumerable.Empty<ApiCotizacion>())
+                {
+                    if (!resultado.TryGetValue(c.Nombre, out List<(DateTime, decimal)>? value))
+                    {
+                        value = [];
+                        resultado[c.Nombre] = value;
+                    }
+
+                    value.Add((fecha, c.Compra));
+                }
+            }
+
+            // Ordenar cada lista cronológicamente
+            foreach (var key in resultado.Keys.ToList())
+            {
+                resultado[key] = [.. resultado[key].OrderBy(x => x.Item1)];
+            }
+
+            return resultado;
+        }
+
         public async Task<(List<Cotizacion>, List<CotizacionOtros>)> ObtenerUltimasCotizacionesAsync()
         {
             using var conn = new SqlConnection(connectionString);

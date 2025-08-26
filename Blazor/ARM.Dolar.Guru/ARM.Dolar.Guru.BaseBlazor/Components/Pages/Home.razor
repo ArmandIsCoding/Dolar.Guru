@@ -15,10 +15,10 @@
         transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
 
-    .card-hover:hover {
-        transform: scale(1.03);
-        box-shadow: 0 0 25px rgba(0, 0, 0, 0.3);
-    }
+        .card-hover:hover {
+            transform: scale(1.03);
+            box-shadow: 0 0 25px rgba(0, 0, 0, 0.3);
+        }
 </style>
 
 <div class="w-100 py-3 mb-4 bg-light border-bottom shadow-sm rounded px-3">
@@ -28,6 +28,7 @@
         <button class="btn btn-outline-primary fw-semibold shadow-sm px-4 py-2 rounded-pill d-flex align-items-center gap-2"
                 @onclick="RecargarCotizaciones"
                 disabled="@cargando">
+
             @if (cargando)
             {
                 <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
@@ -35,13 +36,17 @@
             }
             else
             {
-                <span>🔄 Recargar cotizaciones</span>
+                <span>🔄 Renovar cotizaciones ahora</span>
+                <span class="text-muted small ms-3" style="color:@(segundosRestantes <= 5 ? "red" : "gray")">
+                    ⏳ Actualización en: @segundosRestantes s
+                </span>
             }
         </button>
+
     </div>
 </div>
 
-@if (cotizacionesDolar is null || cotizacionesOtros is null)
+@if (cotizacionesDolar is null || cotizacionesOtros is null || cargando)
 {
     <div class="text-center py-5">
         <img src="dolar-guru.png" style="max-height: 332px;" />
@@ -82,12 +87,12 @@ else
                                     <div class="text-center">
                                         <i class="bi bi-arrow-down-circle-fill fs-4 mb-1"></i><br />
                                         <small class="fw-light">Compra</small><br />
-                                        <span class="fs-5 fw-bold">$@cotizacion.Compra</span>
+                                        <span class="fs-5 fw-bold">@cotizacion.Compra.ToString("C")</span>
                                     </div>
                                     <div class="text-center">
                                         <i class="bi bi-arrow-up-circle-fill fs-4 mb-1"></i><br />
                                         <small class="fw-light">Venta</small><br />
-                                        <span class="fs-5 fw-bold">$@cotizacion.Venta</span>
+                                        <span class="fs-5 fw-bold">@cotizacion.Venta.ToString("C")</span>
                                     </div>
                                 </div>
                             </div>
@@ -129,12 +134,12 @@ else
                                     <div class="text-center">
                                         <i class="bi bi-arrow-down-circle-fill fs-4 mb-1"></i><br />
                                         <small class="fw-light">Compra</small><br />
-                                        <span class="fs-5 fw-bold">$@cotizacion.Compra</span>
+                                        <span class="fs-5 fw-bold">@cotizacion.Compra.ToString("C")</span>
                                     </div>
                                     <div class="text-center">
                                         <i class="bi bi-arrow-up-circle-fill fs-4 mb-1"></i><br />
                                         <small class="fw-light">Venta</small><br />
-                                        <span class="fs-5 fw-bold">$@cotizacion.Venta</span>
+                                        <span class="fs-5 fw-bold">@cotizacion.Venta.ToString("C")</span>
                                     </div>
                                 </div>
                             </div>
@@ -146,12 +151,16 @@ else
     </div>
 }
 
+<Proyeccion />
 <Disclaimer />
 
 @code {
     private bool cargando = false;
-    List<Cotizacion>? cotizacionesDolar;
-    List<CotizacionOtros>? cotizacionesOtros;
+    private List<Cotizacion>? cotizacionesDolar;
+    private List<CotizacionOtros>? cotizacionesOtros;
+
+    private int segundosRestantes = 30;
+    private System.Timers.Timer? timer;
 
     protected override async Task OnInitializedAsync()
     {
@@ -161,7 +170,38 @@ else
     private async Task RecargarCotizaciones()
     {
         cargando = true;
+        IniciarContador();
+
         (cotizacionesDolar, cotizacionesOtros) = await CotizacionesService.ObtenerUltimasCotizacionesAsync();
+
         cargando = false;
+    }
+
+    private void IniciarContador()
+    {
+        segundosRestantes = 30;
+        timer?.Dispose();
+
+        timer = new System.Timers.Timer(1000);
+        timer.Elapsed += async (_, _) =>
+        {
+            if (segundosRestantes > 0)
+            {
+                segundosRestantes--;
+                await InvokeAsync(StateHasChanged);
+            }
+            else
+            {
+                timer?.Stop();
+                await InvokeAsync(async () =>
+                {
+                    await RecargarCotizaciones();
+                    IniciarContador();
+                });
+            }
+        };
+
+        timer.AutoReset = true;
+        timer.Start();
     }
 }

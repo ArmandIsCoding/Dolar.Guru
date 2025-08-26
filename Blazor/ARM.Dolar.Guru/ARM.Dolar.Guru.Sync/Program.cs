@@ -11,7 +11,14 @@ namespace ARM.Dolar.Guru.Sync
     {
         static async Task Main(string[] args)
         {
+            var reloj = System.Diagnostics.Stopwatch.StartNew();
+
             Console.WriteLine("⏳ Descargando cotizaciones...");
+
+            // Conexión a la base de datos
+            var connectionString = "Server=server;Database=DolarGuru;User Id=sa;Password=123456;TrustServerCertificate=True;";
+            using var conn = new SqlConnection(connectionString);
+            await conn.OpenAsync();
 
             var http = new HttpClient();
 
@@ -47,20 +54,44 @@ namespace ARM.Dolar.Guru.Sync
 
             Console.WriteLine("✅ Datos descargados. Guardando en la base...");
 
-            await GuardarEnBaseJson(resultDolar, resultOtros);
+            await GuardarEnBaseJson(resultDolar, resultOtros, conn);
+
+            Console.WriteLine("🧠 Generando proyecciones...");
+            var proyecciones = await GenerarProyeccionesAsync(conn);
+            await GuardarProyeccionesSiCambianAsync(conn, proyecciones);
+
+
+            await conn.CloseAsync();
+
+            reloj.Stop();
+            RegistrarLog($"✅ Proceso finalizado en {reloj.Elapsed.TotalSeconds:F1} segundos.");
 
             Console.WriteLine("🎉 Proceso finalizado.");
         }
 
-        static async Task GuardarEnBaseJson(List<ApiCotizacion>? cotizacionesDolar, List<ApiCotizacionOtros>? cotizacionesOtros)
+        static async Task GuardarEnBaseJson(List<ApiCotizacion>? cotizacionesDolar, List<ApiCotizacionOtros>? cotizacionesOtros, SqlConnection conn)
         {
-            var connectionString = "Server=server;Database=DolarGuru;User Id=sa;Password=123456;TrustServerCertificate=True;";
 
-            using var conn = new SqlConnection(connectionString);
-            await conn.OpenAsync();
 
             var jsonDolar = JsonSerializer.Serialize(cotizacionesDolar ?? new());
             var jsonOtros = JsonSerializer.Serialize(cotizacionesOtros ?? new());
+
+            var ultimoJsonDolar = await ObtenerUltimoJson(conn, "CotizacionesDolarJson");
+            var ultimoJsonOtros = await ObtenerUltimoJson(conn, "CotizacionesOtrosJson");
+
+            var ahora = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
+
+            if (jsonDolar == ultimoJsonDolar && jsonOtros == ultimoJsonOtros)
+            {
+                var mensaje = $"🟡 SIN CAMBIOS - {ahora}";
+                Console.WriteLine(mensaje);
+                RegistrarLog(mensaje);
+                return;
+            }
+
+            var mensajeActualizando = $"🟢 ACTUALIZANDO COTIZACIONES - {ahora}";
+            Console.WriteLine(mensajeActualizando);
+            RegistrarLog(mensajeActualizando);
 
             var cmdDolar = new SqlCommand("INSERT INTO CotizacionesDolarJson (JsonData) VALUES (@Json)", conn);
             cmdDolar.Parameters.AddWithValue("@Json", jsonDolar);
@@ -71,5 +102,120 @@ namespace ARM.Dolar.Guru.Sync
             await cmdOtros.ExecuteNonQueryAsync();
         }
 
+        static async Task<string?> ObtenerUltimoJson(SqlConnection conn, string tabla)
+        {
+            var cmd = new SqlCommand($"SELECT TOP 1 JsonData FROM {tabla} ORDER BY FechaEjecucion DESC", conn);
+            var result = await cmd.ExecuteScalarAsync();
+            return result as string;
+        }
+
+        static void RegistrarLog(string mensaje)
+        {
+            var carpetaLogs = Path.Combine(AppContext.BaseDirectory, "logs");
+            Directory.CreateDirectory(carpetaLogs); // ✅ Crea la carpeta si no existe
+
+            var nombreArchivo = $"{DateTime.Now:yyyy-MM-dd}.log";
+            var rutaLog = Path.Combine(carpetaLogs, nombreArchivo);
+
+            var entrada = $"[{DateTime.Now:HH:mm:ss}] {mensaje}";
+            File.AppendAllText(rutaLog, entrada + Environment.NewLine);
+        }
+
+        static async Task<List<ProyeccionDolar>> GenerarProyeccionesAsync(SqlConnection conn)
+        {
+            var historico = await ObtenerHistoricoAgrupadoAsync(conn);
+            var proyecciones = new List<ProyeccionDolar>();
+
+            foreach (var kvp in historico)
+            {
+                var nombre = kvp.Key;
+                var datos = kvp.Value;
+                if (datos.Count < 5) continue;
+
+                var icono = nombre.ToLower() switch
+                {
+                    var n when n.Contains("blue") => "bi-cash-coin",
+                    var n when n.Contains("oficial") => "bi-bank",
+                    var n when n.Contains("mep") => "bi-graph-up",
+                    var n when n.Contains("cripto") => "bi-currency-bitcoin",
+                    _ => "bi-currency-exchange"
+                };
+
+                var actual = datos.Last().Compra;
+                var semana = datos.Skip(Math.Max(0, datos.Count - 7)).Average(x => x.Compra);
+                var mes = datos.Skip(Math.Max(0, datos.Count - 30)).Average(x => x.Compra);
+
+                var variacionSemana = actual - semana;
+                var variacionMes = actual - mes;
+                var confianza = Math.Min(1.0, datos.Count / 30.0);
+
+                proyecciones.Add(new ProyeccionDolar
+                {
+                    Nombre = nombre,
+                    Icono = icono,
+                    ValorSemana = Math.Round(actual + variacionSemana, 2),
+                    ValorMes = Math.Round(actual + variacionMes, 2),
+                    Justificacion = $"Basado en {datos.Count} registros. Δ semana: {variacionSemana:+0.00;-0.00}, Δ mes: {variacionMes:+0.00;-0.00}.",
+                    Confianza = Math.Round(confianza, 2)
+                });
+            }
+
+            return proyecciones;
+        }
+
+        static async Task GuardarProyeccionesSiCambianAsync(SqlConnection conn, List<ProyeccionDolar> nuevas)
+        {
+            var jsonNuevo = JsonSerializer.Serialize(nuevas);
+            var cmd = new SqlCommand("SELECT TOP 1 JsonData FROM ProyeccionesDolarJson ORDER BY FechaEjecucion DESC", conn);
+            var jsonViejo = (string?)await cmd.ExecuteScalarAsync();
+
+            var ahora = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
+
+            if (jsonViejo == jsonNuevo)
+            {
+                var mensaje = $"🟡 PROYECCIONES SIN CAMBIOS - {ahora}";
+                Console.WriteLine(mensaje);
+                RegistrarLog(mensaje);
+                return;
+            }
+
+            var insertCmd = new SqlCommand("INSERT INTO ProyeccionesDolarJson (JsonData) VALUES (@Json)", conn);
+            insertCmd.Parameters.AddWithValue("@Json", jsonNuevo);
+            await insertCmd.ExecuteNonQueryAsync();
+
+            var mensajeActualizando = $"🧠 PROYECCIONES ACTUALIZADAS - {ahora}";
+            Console.WriteLine(mensajeActualizando);
+            RegistrarLog(mensajeActualizando);
+        }
+
+        static async Task<Dictionary<string, List<(DateTime Fecha, decimal Compra)>>> ObtenerHistoricoAgrupadoAsync(SqlConnection conn)
+        {
+            var resultado = new Dictionary<string, List<(DateTime, decimal)>>();
+            var cmd = new SqlCommand("SELECT TOP 30 FechaEjecucion, JsonData FROM CotizacionesDolarJson ORDER BY FechaEjecucion DESC", conn);
+            using var reader = await cmd.ExecuteReaderAsync();
+
+            while (await reader.ReadAsync())
+            {
+                var fecha = reader.GetDateTime(0);
+                var json = reader.GetString(1);
+                var cotizaciones = JsonSerializer.Deserialize<List<ApiCotizacion>>(json);
+
+                foreach (var c in cotizaciones ?? Enumerable.Empty<ApiCotizacion>())
+                {
+                    if (!resultado.TryGetValue(c.Nombre, out var lista))
+                    {
+                        lista = new();
+                        resultado[c.Nombre] = lista;
+                    }
+
+                    lista.Add((fecha, c.Compra));
+                }
+            }
+
+            foreach (var key in resultado.Keys.ToList())
+                resultado[key] = [.. resultado[key].OrderBy(x => x.Item1)];
+
+            return resultado;
+        }
     }
 }

@@ -1,4 +1,4 @@
-﻿@page "/tabla"
+﻿@page "/proyecciones"
 @{
     var Title = "Tabla de cotizaciones";
 }
@@ -7,10 +7,11 @@
 
 @using System.Net.Http.Json
 @using System.Globalization
+@using ARM.Dolar.Guru.Models
+@using ARM.Dolar.Guru.Services
+@inject CotizacionesService CotizacionesService
 
 <PageTitle>@Title</PageTitle>
-
-<h1>@Title</h1>
 
 <div class="w-100 py-3 mb-4 bg-light border-bottom shadow-sm rounded px-3">
     <div class="d-flex justify-content-between align-items-center flex-wrap">
@@ -44,13 +45,9 @@
 
                 <div class="col-md-12">
                     <p>
-
                         Por favor, espere mientras se cargan las cotizaciones del dólar.
-
                         <img src="dolar-guru.png" style="max-height: 332px;" />
                     </p>
-
-
 
                     <div class="spinner-border text-primary" role="status">
                         <span class="visually-hidden">Cargando...</span>
@@ -73,7 +70,6 @@ else
                     <thead>
                         <tr>
                             <th><strong>Nombre</strong></th>
-                            <th>Moneda</th>
                             <th>Compra</th>
                             <th>Venta</th>
                             <th>Fecha Actualización</th>
@@ -84,7 +80,6 @@ else
                         {
                             <tr>
                                 <td><strong>@cotizacion.Nombre</strong></td>
-                                <td>@cotizacion.Moneda</td>
                                 <td>@cotizacion.Compra.ToString("C", CultureInfo.CurrentCulture)</td>
                                 <td>@cotizacion.Venta.ToString("C", CultureInfo.CurrentCulture)</td>
                                 <td>@cotizacion.FechaActualizacion.ToLocalTime().ToString("g")</td>
@@ -131,6 +126,11 @@ else
             </div>
         </div>
     </div>
+
+
+
+
+    <Proyeccion />
 }
 
 <Disclaimer />
@@ -140,75 +140,132 @@ else
     List<Cotizacion>? cotizacionesDolar;
     List<CotizacionOtros>? cotizacionesOtros;
 
+    private LineChartConfig config;
+    private Chart chart;
+
+    private int segundosRestantes = 30;
+    private System.Timers.Timer? timer;
+
+    List<ProyeccionDolar> proyeccionesDolar = new();
+
     private async Task RecargarCotizaciones()
     {
         cargando = true;
-        cotizacionesDolar = null;
-        cotizacionesOtros = null;
-        // StateHasChanged(); // Fuerza renderizado para mostrar "cargando"
-
-        try
-        {
-            var http = new HttpClient();
-
-            var resultDolar = await http.GetFromJsonAsync<List<ApiCotizacion>>("https://dolarapi.com/v1/dolares");
-            cotizacionesDolar = resultDolar?.Select(c =>
-                new Cotizacion(
-                    Moneda: c.Moneda,
-                    Nombre: c.Nombre,
-                    Compra: c.Compra,
-                    Venta: c.Venta,
-                    FechaActualizacion: DateTime.Parse(c.FechaActualizacion, null, DateTimeStyles.AdjustToUniversal))
-            ).ToList();
-
-            var resultOtros = await http.GetFromJsonAsync<List<ApiCotizacionOtros>>("https://dolarapi.com/v1/cotizaciones");
-            cotizacionesOtros = resultOtros?.Select(c =>
-                new CotizacionOtros(
-                    Moneda: c.Moneda,
-                    Nombre: c.Nombre,
-                    Compra: c.Compra,
-                    Venta: c.Venta,
-                    FechaActualizacion: DateTime.Parse(c.FechaActualizacion, null, DateTimeStyles.AdjustToUniversal))
-            ).ToList();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine("Error al recargar cotizaciones: " + ex.Message);
-            cotizacionesDolar = new();
-            cotizacionesOtros = new();
-        }
-        finally
-        {
-            cargando = false;
-            StateHasChanged(); // Fuerza el renderizado después de cargar los datos
-        }
+        IniciarContador();
+        CleanChart();
+        System.Threading.Thread.Sleep(1000);
+        (cotizacionesDolar, cotizacionesOtros) = await CotizacionesService.ObtenerUltimasCotizacionesAsync();
+        proyeccionesDolar = await CotizacionesService.ObtenerUltimaProyeccionAsync();
+        await InnitChart();
+        cargando = false;
     }
-
 
     protected override async Task OnInitializedAsync()
     {
         await RecargarCotizaciones();
     }
 
-    record Cotizacion(string Moneda, string Nombre, decimal Compra, decimal Venta, DateTime FechaActualizacion);
-    public class ApiCotizacion
+    private void IniciarContador()
     {
-        public string Moneda { get; set; } = string.Empty;
-        public string Casa { get; set; } = string.Empty;
-        public string Nombre { get; set; } = string.Empty;
-        public decimal Compra { get; set; }
-        public decimal Venta { get; set; }
-        public string FechaActualizacion { get; set; } = string.Empty;
+        segundosRestantes = 30;
+
+        timer?.Dispose(); // Limpia el anterior si existe
+
+        timer = new System.Timers.Timer(1000); // 1 segundo
+        timer.Elapsed += async (_, _) =>
+        {
+            if (segundosRestantes > 0)
+            {
+                segundosRestantes--;
+                await InvokeAsync(StateHasChanged);
+            }
+            else
+            {
+                timer?.Stop();
+                await InvokeAsync(async () =>
+                {
+                    await RecargarCotizaciones();
+                    IniciarContador(); // Reinicia el ciclo
+                });
+            }
+        };
+
+        timer.AutoReset = true;
+        timer.Start();
     }
 
-    record CotizacionOtros(string Moneda, string Nombre, decimal Compra, decimal Venta, DateTime FechaActualizacion);
-    public class ApiCotizacionOtros
+    private void CleanChart()
     {
-        public string Moneda { get; set; } = string.Empty;
-        public string Casa { get; set; } = string.Empty;
-        public string Nombre { get; set; } = string.Empty;
-        public decimal Compra { get; set; }
-        public decimal Venta { get; set; }
-        public string FechaActualizacion { get; set; } = string.Empty;
+        config = new LineChartConfig
+        {
+            Options = new Options
+            {
+                Responsive = true,
+                Plugins = new Plugins
+                {
+                    Legend = new Legend
+                    {
+                        Display = false,
+                        Position = LegendPosition.Bottom
+                    }
+                }
+            },
+            Data = new LineData
+            {
+                Labels = new List<string>(),
+                Datasets = new List<LineDataset>()
+            }
+        };
+    }
+
+    private async Task InnitChart()
+    {
+        var historicoAgrupado = await CotizacionesService.ObtenerHistoricoAgrupadoAsync();
+
+        config = new LineChartConfig
+        {
+            Options = new Options
+            {
+                Responsive = true,
+                Plugins = new Plugins
+                {
+                    Legend = new Legend
+                    {
+                        Display = true,
+                        Position = LegendPosition.Bottom
+                    }
+                }
+            },
+            Data = new LineData()
+        };
+
+        // Usamos las fechas del primer grupo como Labels
+        var fechas = historicoAgrupado.Values.First()
+            .Select(h => h.Fecha.ToString("dd/MM HH:mm"))
+            .ToList();
+
+        config.Data.Labels = fechas;
+
+        foreach (var kvp in historicoAgrupado)
+        {
+            var dataset = new LineDataset
+            {
+                Label = kvp.Key,
+                Data = kvp.Value.Select(h => (decimal?)h.Compra).ToList(),
+                BorderColor = GenerarColorHex(kvp.Key),
+                Fill = false
+            };
+
+            config.Data.Datasets.Add(dataset);
+        }
+    }
+
+    private string GenerarColorHex(string nombre)
+    {
+        var hash = nombre.GetHashCode();
+        var r = (hash & 0xFF0000) >> 16;
+        var g = (hash & 0x00FF00) >> 8;
+        var b = (hash & 0x0000FF);
+        return $"#{r:X2}{g:X2}{b:X2}";
     }
 }

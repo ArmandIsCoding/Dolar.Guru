@@ -1,0 +1,136 @@
+﻿@using ARM.Dolar.Guru.Models
+@using ARM.Dolar.Guru.Services
+@inject CotizacionesService CotizacionesService
+
+@if (config?.Data?.Datasets?.Any() == true && !cargando)
+{
+    <div class="card mb-12 shadow-sm">
+        <div class="card-header bg-primary text-white fw-bold fs-5">
+            💵 Histórico y proyección inteligente del Dólar 🤖
+        </div>
+        <div class="card-body">
+            <div class="col-12 col-md-12 mb-3 col-sm-12">
+                <span class="text-light-emphasis small">Proyecciones generadas mediante modelos de inteligencia artificial entrenados sobre series temporales de cotizaciones reales, aplicando técnicas de machine learning, análisis de patrones históricos, y estimación probabilística multivariada. El sistema evalúa tendencias recientes, volatilidad, y correlaciones entre tipos de cambio para anticipar posibles escenarios futuros con un índice de confianza calculado dinámicamente.</span>
+            </div>
+            <div class="row">
+                <div class="col-12 col-md-12 mb-3 col-sm-12">
+                    <div class="card text-white shadow-lg border-0" style="border-color: #0d6efd; border: thick !important; border-width: 6px !important; padding: 43px !important;">
+                        <Chart Config="@config" @ref="@chart" Height="250px" />
+                    </div>
+                </div>
+                <div class="col-12 col-md-12 mb-3 col-sm-12">
+                    <div class="card text-white shadow-lg border-0" style="background: linear-gradient(135deg, #0d6efd, #6610f2);">
+                        <div class="card-body p-4">
+                            <h4 class="card-title fw-bold mb-4">
+                                🔮 Proyección de cotizaciones para la semana y el mes
+                            </h4>
+                            <div class="card h-100 text-dark border-0 shadow-sm" style="background-color: white; padding: 12px;">
+                                🤖 La confianza del modelo se calcula en función de la cantidad y consistencia de datos históricos disponibles para cada tipo de dólar. Cuanto mayor la cobertura y menor la volatilidad, más confiable es la proyección.
+                            </div>
+
+                            <br />
+                            <div class="row row-cols-1 row-cols-md-2 g-4">
+                                @foreach (var proyeccion in proyeccionesDolar)
+                                {
+                                    <div class="col">
+                                        <div class="card h-100 text-dark border-0 shadow-sm">
+                                            <div class="card-body">
+                                                <h5 class="card-title fw-bold">
+                                                    <i class="bi @proyeccion.Icono me-2 text-primary fs-4"></i>@proyeccion.Nombre
+                                                </h5>
+                                                <p class="mb-2">
+                                                    <span class="badge bg-success">Semana: @proyeccion.ValorSemana.ToString("C")</span>
+                                                    <span class="badge bg-warning text-dark ms-2">Mes: @proyeccion.ValorMes.ToString("C")</span>
+                                                </p>
+                                                <p class="small text-muted">
+                                                    <i class="bi bi-info-circle me-1"></i>@proyeccion.Justificacion
+                                                    <div class="mt-3">
+                                                        <label class="small text-muted">Confianza del modelo:</label>
+                                                        <div>
+                                                            @for (int i = 1; i <= 5; i++)
+                                                            {
+                                                                <i class="bi @(i <= Math.Round(proyeccion.Confianza * 5) ? "bi-star-fill text-warning" : "bi-star text-muted")"></i>
+                                                            }
+                                                            <small class="text-muted ms-2">@($"{proyeccion.Confianza * 100:F0}%")</small>
+                                                        </div>
+                                                    </div>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private bool cargando = true;
+    private LineChartConfig config;
+    private Chart chart;
+    private List<ProyeccionDolar> proyeccionesDolar = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await RecargarData();
+    }
+
+    private async Task RecargarData()
+    {
+        cargando = true;
+
+        // Cotizaciones para el gráfico
+        var historicoAgrupado = await CotizacionesService.ObtenerHistoricoAgrupadoAsync();
+        config = new LineChartConfig
+        {
+            Options = new Options
+            {
+                Responsive = true,
+                Plugins = new Plugins
+                {
+                    Legend = new Legend
+                    {
+                        Display = true,
+                        Position = LegendPosition.Bottom
+                    }
+                }
+            },
+            Data = new LineData()
+        };
+
+        var fechas = historicoAgrupado.Values.First().Select(h => h.Fecha.ToString("dd/MM HH:mm")).ToList();
+        config.Data.Labels = fechas;
+
+        foreach (var kvp in historicoAgrupado)
+        {
+            var dataset = new LineDataset
+            {
+                Label = kvp.Key,
+                Data = kvp.Value.Select(h => (decimal?)h.Compra).ToList(),
+                BorderColor = GenerarColorHex(kvp.Key),
+                Fill = false
+            };
+
+            config.Data.Datasets.Add(dataset);
+        }
+
+        // Proyecciones
+        proyeccionesDolar = await CotizacionesService.ObtenerUltimaProyeccionAsync();
+
+        cargando = false;
+    }
+
+    private string GenerarColorHex(string nombre)
+    {
+        var hash = nombre.GetHashCode();
+        var r = (hash & 0xFF0000) >> 16;
+        var g = (hash & 0x00FF00) >> 8;
+        var b = (hash & 0x0000FF);
+        return $"#{r:X2}{g:X2}{b:X2}";
+    }
+}
