@@ -1,9 +1,15 @@
 ﻿using ARM.Dolar.Guru.Models;
+using HtmlAgilityPack;
 using Microsoft.Data.SqlClient;
 using System.Globalization;
 using System.Net.Http;
+using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
+using System.Text.Json;
+using System.Text.RegularExpressions;
+using System.Web;
+
 
 namespace ARM.Dolar.Guru.Sync
 {
@@ -12,13 +18,18 @@ namespace ARM.Dolar.Guru.Sync
         static async Task Main(string[] args)
         {
             var reloj = System.Diagnostics.Stopwatch.StartNew();
-
-            Console.WriteLine("⏳ Descargando cotizaciones...");
+            Console.WriteLine("🚀 Iniciando proceso de sincronización...");
 
             // Conexión a la base de datos
             var connectionString = "Server=server;Database=DolarGuru;User Id=sa;Password=123456;TrustServerCertificate=True;";
             using var conn = new SqlConnection(connectionString);
             await conn.OpenAsync();
+
+            Console.WriteLine("🧾 Extrayendo Dólar Futuro Rava...");
+            var futuros = await ExtraerDolarFuturoRavaAsync(conn);
+            Console.WriteLine($"✅ {futuros.Count} contratos extraídos y guardados en la base.");
+
+            Console.WriteLine("⏳ Descargando cotizaciones...");
 
             var http = new HttpClient();
 
@@ -68,6 +79,45 @@ namespace ARM.Dolar.Guru.Sync
 
             Console.WriteLine("🎉 Proceso finalizado.");
         }
+
+
+        public static async Task<List<FuturoRavaRofex>> ExtraerDolarFuturoRavaAsync(SqlConnection conn)
+        {
+            var url = "https://www.rava.com/cotizaciones/futuros";
+            var httpClient = new HttpClient();
+            var html = await httpClient.GetStringAsync(url);
+
+            var doc = new HtmlDocument();
+            doc.LoadHtml(html);
+
+            var nodo = doc.DocumentNode.SelectSingleNode("//futuros-p");
+            var datosRaw = nodo?.GetAttributeValue(":datos", null);
+
+            if (string.IsNullOrWhiteSpace(datosRaw))
+                return new();
+
+            var jsonClean = HttpUtility.HtmlDecode(datosRaw);
+            var jsonDoc = JsonDocument.Parse(jsonClean);
+
+            // 👉 Extraemos solo el bloque ROFEX
+            var futurosJson = jsonDoc.RootElement.GetProperty("ROFEX").GetRawText();
+
+            // ✅ Guardamos el JSON en la base
+            await GuardarFuturosJsonAsync(conn, futurosJson);
+
+            // ✅ Deserializamos los contratos
+            var contratos = JsonSerializer.Deserialize<List<FuturoRavaRofex>>(futurosJson);
+
+            return contratos ?? [];
+        }
+
+        static async Task GuardarFuturosJsonAsync(SqlConnection conn, string futurosJson)
+        {
+            var cmd = new SqlCommand("INSERT INTO FuturoRavaJson (JsonData) VALUES (@Json)", conn);
+            cmd.Parameters.AddWithValue("@Json", futurosJson);
+            await cmd.ExecuteNonQueryAsync();
+        }
+
 
         static async Task GuardarEnBaseJson(List<ApiCotizacion>? cotizacionesDolar, List<ApiCotizacionOtros>? cotizacionesOtros, SqlConnection conn)
         {
