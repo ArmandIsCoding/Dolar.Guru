@@ -64,3 +64,12 @@
 .nav-link:hover .bi[class*='-nav-menu'] {
     color: white;
 }
+
+.nav-link {
+    margin-right: 12px;
+}
+
+.nav-link.active {
+    font-weight: bold;
+    color: var(--accent, #ffc107) !important;
+}

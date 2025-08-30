@@ -16,6 +16,7 @@ namespace ARM.Dolar.Guru.BaseBlazor
             builder.Services.AddHttpClient();
 
             builder.Services.AddSingleton<CotizacionesService>();
+            builder.Services.AddSingleton<NewsService>();
 
             var app = builder.Build();
 

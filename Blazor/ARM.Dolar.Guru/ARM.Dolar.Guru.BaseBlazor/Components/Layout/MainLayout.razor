@@ -1,43 +1,72 @@
 ﻿@inherits LayoutComponentBase
 
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
+<!-- Barra de navegación horizontal -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+    <div class="container-fluid">
+        <!-- Marca -->
+        <a class="navbar-brand fw-bold" href="">💰 Dólar Gurú</a>
 
-    <main>
-        @*         <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
-        </div> *@
+        <!-- Botón hamburguesa móvil -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuPrincipal"
+                aria-controls="menuPrincipal" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
 
-        <div class="top-row px-4">
-            <a href="https://api.whatsapp.com/send?text=¡Hola! Te comparto esta página que me ayuda a seguir las cotizaciones del dólar en tiempo real y además trae suerte monetaria: https://dolar.guru" target="_blank" style="float: right;">
-                <img src="c_whatsapp.png" alt="WhatsApp" style="max-height: 64px; vertical-align: middle;">
+        <!-- Ítems del menú -->
+        <div class="collapse navbar-collapse" id="menuPrincipal">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                        <i class="bi bi-house-door-fill me-1"></i> Home
+                    </NavLink>
+                </li>
+                <li class="nav-item">
+                    <NavLink class="nav-link" href="proyecciones">
+                        <i class="bi bi-robot me-1"></i> Dólar Futuro
+                    </NavLink>
+                </li>
+                <li class="nav-item">
+                    <NavLink class="nav-link" href="news">
+                        <i class="bi bi-newspaper me-1"></i> Lo que hay que saber
+                    </NavLink>
+                </li>
+                <li class="nav-item">
+                    <NavLink class="nav-link" href="ingesta">
+                        <i class="bi bi-plus-square-fill me-1"></i> Ingesta de Datos
+                    </NavLink>
+                </li>
+            </ul>
+
+            <!-- Acción a la derecha -->
+            <a href="https://api.whatsapp.com/send?text=¡Hola! Te comparto esta página..."
+               target="_blank" class="btn btn-success btn-sm">
+                <i class="bi bi-whatsapp"></i> Compartir
             </a>
         </div>
+    </div>
+</nav>
 
-        <article class="content px-4" style="padding-top: 24px;">
-            @Body
-        </article>
+<!-- Contenido principal -->
+<main class="container-fluid px-4 py-3">
+    @Body
+</main>
 
-        <footer class="bg-dark text-white py-4 mt-5 border-top shadow-sm">
-            <div class="container text-center">
-                <h6 class="fw-bold mb-2">🔬 Proyecto Científico & Tecnológico</h6>
-                <p class="mb-2 small">
-                    Esta plataforma utiliza modelos matemáticos avanzados, inteligencia artificial y aprendizaje automático
-                    para analizar grandes volúmenes de noticias nacionales e internacionales.
-                </p>
-                <p class="mb-0 small">
-                    El objetivo es <strong>predecir el valor del dólar en Argentina</strong> a partir de información en tiempo real
-                    y procesamiento de datos multifuente.
-                </p>
-                <hr class="bg-secondary my-3" />
-                <small class="text-muted">© @DateTime.Now.Year · Investigación experimental</small>
-            </div>
-        </footer>
-
-    </main>
-</div>
+<!-- Footer -->
+<footer class="bg-dark text-white py-4 mt-5 border-top shadow-sm">
+    <div class="container text-center">
+        <h6 class="fw-bold mb-2">🔬 Proyecto Científico & Tecnológico</h6>
+        <p class="mb-2 small">
+            Esta plataforma utiliza modelos matemáticos avanzados, inteligencia artificial y aprendizaje automático
+            para analizar grandes volúmenes de noticias nacionales e internacionales.
+        </p>
+        <p class="mb-0 small">
+            El objetivo es <strong>predecir el valor del dólar en Argentina</strong> a partir de información en tiempo real
+            y procesamiento de datos multifuente.
+        </p>
+        <hr class="bg-secondary my-3" />
+        <small class="text-info">© @DateTime.Now.Year · Investigación experimental</small>
+    </div>
+</footer>
 
 <div id="blazor-error-ui">
     An unhandled error has occurred.

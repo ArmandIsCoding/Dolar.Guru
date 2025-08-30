@@ -14,11 +14,10 @@
     .card-hover {
         transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
-
-        .card-hover:hover {
-            transform: scale(1.03);
-            box-shadow: 0 0 25px rgba(0, 0, 0, 0.3);
-        }
+    .card-hover:hover {
+        transform: scale(1.03);
+        box-shadow: 0 0 25px rgba(0, 0, 0, 0.3);
+    }
 </style>
 
 <div class="w-100 py-3 mb-4 bg-light border-bottom shadow-sm rounded px-3">
@@ -62,7 +61,7 @@ else
             💵 Cotizaciones del Dólar
         </div>
         <div class="card-body">
-            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            <div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-4">
                 @foreach (var cotizacion in cotizacionesDolar)
                 {
                     var tipo = TipoDolarHelper.Parse(cotizacion.Nombre);
@@ -109,7 +108,7 @@ else
             <small class="ms-2 text-light">Valores expresados en relación al <strong>Peso Argentino</strong></small>
         </div>
         <div class="card-body">
-            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            <div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-4">
                 @foreach (var cotizacion in cotizacionesOtros)
                 {
                     var tipo = TipoDivisaHelper.Parse(cotizacion.Nombre);

@@ -13,7 +13,7 @@
 
 <PageTitle>@Title</PageTitle>
 
-<div class="w-100 py-3 mb-4 bg-light border-bottom shadow-sm rounded px-3">
+@* <div class="w-100 py-3 mb-4 bg-light border-bottom shadow-sm rounded px-3">
     <div class="d-flex justify-content-between align-items-center flex-wrap">
         <h5 class="mb-2 mb-md-0 text-primary fw-bold">📈 Cotizaciones actualizadas al instante</h5>
 
@@ -32,9 +32,9 @@
             }
         </button>
     </div>
-</div>
+</div> *@
 
-@if (cotizacionesDolar == null || !cotizacionesDolar.Any() || cotizacionesOtros == null || !cotizacionesOtros.Any())
+@* @if (cotizacionesDolar == null || !cotizacionesDolar.Any() || cotizacionesOtros == null || !cotizacionesOtros.Any())
 {
     <div class="card mb-4 shadow-sm">
         <div class="card-header bg-primary text-white fw-bold fs-5">
@@ -133,139 +133,143 @@ else
     <Proyeccion />
 }
 
+ *@
+
+
+<Proyeccion />
 <Disclaimer />
 
 @code {
-    private bool cargando = false;
-    List<Cotizacion>? cotizacionesDolar;
-    List<CotizacionOtros>? cotizacionesOtros;
+    // private bool cargando = false;
+    // List<Cotizacion>? cotizacionesDolar;
+    // List<CotizacionOtros>? cotizacionesOtros;
 
-    private LineChartConfig config;
-    private Chart chart;
+    // private LineChartConfig config;
+    // private Chart chart;
 
-    private int segundosRestantes = 30;
-    private System.Timers.Timer? timer;
+    // private int segundosRestantes = 30;
+    // private System.Timers.Timer? timer;
 
-    List<ProyeccionDolar> proyeccionesDolar = new();
+    // List<ProyeccionDolar> proyeccionesDolar = new();
 
-    private async Task RecargarCotizaciones()
-    {
-        cargando = true;
-        IniciarContador();
-        CleanChart();
-        System.Threading.Thread.Sleep(1000);
-        (cotizacionesDolar, cotizacionesOtros) = await CotizacionesService.ObtenerUltimasCotizacionesAsync();
-        proyeccionesDolar = await CotizacionesService.ObtenerUltimaProyeccionAsync();
-        await InnitChart();
-        cargando = false;
-    }
+    // private async Task RecargarCotizaciones()
+    // {
+    //     cargando = true;
+    //     IniciarContador();
+    //     CleanChart();
+    //     System.Threading.Thread.Sleep(1000);
+    //     (cotizacionesDolar, cotizacionesOtros) = await CotizacionesService.ObtenerUltimasCotizacionesAsync();
+    //     proyeccionesDolar = await CotizacionesService.ObtenerUltimaProyeccionAsync();
+    //     await InnitChart();
+    //     cargando = false;
+    // }
 
-    protected override async Task OnInitializedAsync()
-    {
-        await RecargarCotizaciones();
-    }
+    // protected override async Task OnInitializedAsync()
+    // {
+    //     await RecargarCotizaciones();
+    // }
 
-    private void IniciarContador()
-    {
-        segundosRestantes = 30;
+    // private void IniciarContador()
+    // {
+    //     segundosRestantes = 30;
 
-        timer?.Dispose(); // Limpia el anterior si existe
+    //     timer?.Dispose(); // Limpia el anterior si existe
 
-        timer = new System.Timers.Timer(1000); // 1 segundo
-        timer.Elapsed += async (_, _) =>
-        {
-            if (segundosRestantes > 0)
-            {
-                segundosRestantes--;
-                await InvokeAsync(StateHasChanged);
-            }
-            else
-            {
-                timer?.Stop();
-                await InvokeAsync(async () =>
-                {
-                    await RecargarCotizaciones();
-                    IniciarContador(); // Reinicia el ciclo
-                });
-            }
-        };
+    //     timer = new System.Timers.Timer(1000); // 1 segundo
+    //     timer.Elapsed += async (_, _) =>
+    //     {
+    //         if (segundosRestantes > 0)
+    //         {
+    //             segundosRestantes--;
+    //             await InvokeAsync(StateHasChanged);
+    //         }
+    //         else
+    //         {
+    //             timer?.Stop();
+    //             await InvokeAsync(async () =>
+    //             {
+    //                 await RecargarCotizaciones();
+    //                 IniciarContador(); // Reinicia el ciclo
+    //             });
+    //         }
+    //     };
 
-        timer.AutoReset = true;
-        timer.Start();
-    }
+    //     timer.AutoReset = true;
+    //     timer.Start();
+    // }
 
-    private void CleanChart()
-    {
-        config = new LineChartConfig
-        {
-            Options = new Options
-            {
-                Responsive = true,
-                Plugins = new Plugins
-                {
-                    Legend = new Legend
-                    {
-                        Display = false,
-                        Position = LegendPosition.Bottom
-                    }
-                }
-            },
-            Data = new LineData
-            {
-                Labels = new List<string>(),
-                Datasets = new List<LineDataset>()
-            }
-        };
-    }
+    // private void CleanChart()
+    // {
+    //     config = new LineChartConfig
+    //     {
+    //         Options = new Options
+    //         {
+    //             Responsive = true,
+    //             Plugins = new Plugins
+    //             {
+    //                 Legend = new Legend
+    //                 {
+    //                     Display = false,
+    //                     Position = LegendPosition.Bottom
+    //                 }
+    //             }
+    //         },
+    //         Data = new LineData
+    //         {
+    //             Labels = new List<string>(),
+    //             Datasets = new List<LineDataset>()
+    //         }
+    //     };
+    // }
 
-    private async Task InnitChart()
-    {
-        var historicoAgrupado = await CotizacionesService.ObtenerHistoricoAgrupadoAsync();
+    // private async Task InnitChart()
+    // {
+    //     var historicoAgrupado = await CotizacionesService.ObtenerHistoricoAgrupadoAsync();
 
-        config = new LineChartConfig
-        {
-            Options = new Options
-            {
-                Responsive = true,
-                Plugins = new Plugins
-                {
-                    Legend = new Legend
-                    {
-                        Display = true,
-                        Position = LegendPosition.Bottom
-                    }
-                }
-            },
-            Data = new LineData()
-        };
+    //     config = new LineChartConfig
+    //     {
+    //         Options = new Options
+    //         {
+    //             Responsive = true,
+    //             Plugins = new Plugins
+    //             {
+    //                 Legend = new Legend
+    //                 {
+    //                     Display = true,
+    //                     Position = LegendPosition.Bottom
+    //                 }
+    //             }
+    //         },
+    //         Data = new LineData()
+    //     };
 
-        // Usamos las fechas del primer grupo como Labels
-        var fechas = historicoAgrupado.Values.First()
-            .Select(h => h.Fecha.ToString("dd/MM HH:mm"))
-            .ToList();
+    //     // Usamos las fechas del primer grupo como Labels
+    //     var fechas = historicoAgrupado.Values.First()
+    //         .Select(h => h.Fecha.ToString("dd/MM HH:mm"))
+    //         .ToList();
 
-        config.Data.Labels = fechas;
+    //     config.Data.Labels = fechas;
 
-        foreach (var kvp in historicoAgrupado)
-        {
-            var dataset = new LineDataset
-            {
-                Label = kvp.Key,
-                Data = kvp.Value.Select(h => (decimal?)h.Compra).ToList(),
-                BorderColor = GenerarColorHex(kvp.Key),
-                Fill = false
-            };
+    //     foreach (var kvp in historicoAgrupado)
+    //     {
+    //         var dataset = new LineDataset
+    //         {
+    //             Label = kvp.Key,
+    //             Data = kvp.Value.Select(h => (decimal?)h.Compra).ToList(),
+    //             BorderColor = GenerarColorHex(kvp.Key),
+    //             Fill = false
+    //         };
 
-            config.Data.Datasets.Add(dataset);
-        }
-    }
+    //         config.Data.Datasets.Add(dataset);
+    //     }
+    // }
 
-    private string GenerarColorHex(string nombre)
-    {
-        var hash = nombre.GetHashCode();
-        var r = (hash & 0xFF0000) >> 16;
-        var g = (hash & 0x00FF00) >> 8;
-        var b = (hash & 0x0000FF);
-        return $"#{r:X2}{g:X2}{b:X2}";
-    }
+    // private string GenerarColorHex(string nombre)
+    // {
+    //     var hash = nombre.GetHashCode();
+    //     var r = (hash & 0xFF0000) >> 16;
+    //     var g = (hash & 0x00FF00) >> 8;
+    //     var b = (hash & 0x0000FF);
+    //     return $"#{r:X2}{g:X2}{b:X2}";
+    // }
 }

@@ -1,0 +1,59 @@
+﻿@page "/news"
+@using ARM.Dolar.Guru.Models
+@using ARM.Dolar.Guru.Services
+@inject NewsService NewsService
+
+<h3 class="mb-4">📰 Lo que tenés que saber</h3>
+
+@if (noticias is null)
+{
+    <p>Cargando noticias...</p>
+}
+else if (!noticias.Any())
+{
+    <p>No hay noticias disponibles por el momento.</p>
+}
+else
+{
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        @foreach (var n in noticias)
+        {
+            <div class="col">
+                <div class="card h-100 shadow-sm border-0 bg-dark text-white card-hover">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title fw-bold mb-2">@n.Titulo</h5>
+                        @if (!string.IsNullOrEmpty(n.Resumen))
+                        {
+                            <p class="card-text">@((MarkupString)n.Resumen)</p>
+                        }
+                        <div class="mt-auto">
+                            <small class="text-secondary">
+                                📅 @n.FechaPublicacion.ToString("dd/MM/yyyy HH:mm")
+                                @if (!string.IsNullOrEmpty(n.Fuente))
+                                {
+                                    <span> · 📰 @n.Fuente</span>
+                                }
+                            </small>
+                            <br />
+                            @if (!string.IsNullOrEmpty(n.Url))
+                            {
+                                <a class="btn btn-warning btn-sm mt-2" href="@n.Url" target="_blank">
+                                    Leer más <i class="bi bi-box-arrow-up-right"></i>
+                                </a>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    private List<NewsItem> noticias;
+
+    protected override async Task OnInitializedAsync()
+    {
+        noticias = await NewsService.ObtenerUltimasNoticiasAsync(100);
+    }
+}

@@ -1,8 +1,9 @@
 ﻿namespace ARM.Dolar.Guru.Services
 {
-    using Microsoft.Data.SqlClient;
-    using System.Text.Json;
     using ARM.Dolar.Guru.Models;
+    using Microsoft.Data.SqlClient;
+    using System.Globalization;
+    using System.Text.Json;
 
     public class CotizacionesService
     {
@@ -21,14 +22,14 @@
                 : JsonSerializer.Deserialize<List<ProyeccionDolar>>(json) ?? new();
         }
 
-        public async Task<Dictionary<string, List<(DateTime Fecha, decimal Compra)>>> ObtenerHistoricoAgrupadoAsync()
+        public async Task<Dictionary<string, List<(DateTime Fecha, decimal Compra)>>> ObtenerHistoricoAgrupadoAsync(int take)
         {
             var resultado = new Dictionary<string, List<(DateTime, decimal)>>();
 
             using var conn = new SqlConnection(connectionString);
             await conn.OpenAsync();
 
-            var cmd = new SqlCommand("SELECT TOP 30 FechaEjecucion, JsonData FROM CotizacionesDolarJson ORDER BY FechaEjecucion DESC", conn);
+            var cmd = new SqlCommand($"SELECT TOP {take} FechaEjecucion, JsonData FROM CotizacionesDolarJson ORDER BY FechaEjecucion DESC", conn);
             using var reader = await cmd.ExecuteReaderAsync();
 
             while (await reader.ReadAsync())
@@ -56,6 +57,39 @@
             }
 
             return resultado;
+        }
+
+        public async Task<List<(DateTime FechaVencimiento, decimal Ultimo)>> ObtenerHistoricoFuturosAsync()
+        {
+            var lista = new List<(DateTime FechaVencimiento, decimal Ultimo)>();
+
+            using var conn = new SqlConnection(connectionString);
+            await conn.OpenAsync();
+
+            var cmd = new SqlCommand("SELECT TOP 1 FechaEjecucion, JsonData FROM FuturoRavaJson ORDER BY FechaEjecucion DESC", conn);
+
+            using var reader = await cmd.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                var fechaEjecucion = reader.GetDateTime(0);
+                var json = reader.GetString(1);
+
+                var contratos = JsonSerializer.Deserialize<List<FuturoRavaRofex>>(json);
+
+                foreach (var c in contratos ?? Enumerable.Empty<FuturoRavaRofex>())
+                {
+                    if (DateTime.TryParse(c.Vencimiento, out var fechaVto))
+                    {
+                        // Convertimos double a decimal de forma segura
+                        decimal ultimoValor = Convert.ToDecimal(c.Ultimo);
+
+                        lista.Add((fechaVto, ultimoValor));
+                    }
+                }
+            }
+
+            // Ordenar por vencimiento
+            return lista.OrderBy(x => x.FechaVencimiento).ToList();
         }
 
         public async Task<(List<Cotizacion>, List<CotizacionOtros>)> ObtenerUltimasCotizacionesAsync()
@@ -115,5 +149,17 @@
 
             return [.. historico.OrderBy(h => h.Item1)];
         }
+
+        public async Task<List<FuturoRavaRofex>> ObtenerUltimosFuturosRavaAsync()
+        {
+            using var conn = new SqlConnection(connectionString);
+            await conn.OpenAsync();
+
+            var cmd = new SqlCommand("SELECT TOP 1 JsonData FROM FuturoRavaJson ORDER BY FechaEjecucion DESC", conn);
+            var json = (string?)await cmd.ExecuteScalarAsync();
+
+            return json is null ? [] : JsonSerializer.Deserialize<List<FuturoRavaRofex>>(json) ?? [];
+        }
+
     }
 }
