@@ -2,6 +2,7 @@
 {
     using ARM.Dolar.Guru.Models;
     using Microsoft.Data.SqlClient;
+    using System.Diagnostics.Contracts;
     using System.Globalization;
     using System.Text.Json;
 
@@ -78,12 +79,21 @@
 
                 foreach (var c in contratos ?? Enumerable.Empty<FuturoRavaRofex>())
                 {
+                    // Primero, nos aseguramos de que el vencimiento sea una fecha válida
                     if (DateTime.TryParse(c.Vencimiento, out var fechaVto))
                     {
-                        // Convertimos double a decimal de forma segura
-                        decimal ultimoValor = Convert.ToDecimal(c.Ultimo);
+                        // Declaramos la variable que va a contener el resultado de la conversión
+                        decimal ultimoValor;
 
-                        lista.Add((fechaVto, ultimoValor));
+                        // Ahora, intentamos convertir el string 'Ultimo' a decimal de forma SEGURA
+                        if (decimal.TryParse(c.Ultimo, NumberStyles.Any, CultureInfo.InvariantCulture, out ultimoValor))
+                        {
+                            // Solo si AMBAS conversiones (fecha y decimal) son exitosas,
+                            // agregamos el par de valores a la lista.
+                            lista.Add((fechaVto, ultimoValor));
+                        }
+                        // Si decimal.TryParse falla (porque c.Ultimo está vacío o no es un número),
+                        // simplemente no hacemos nada y continuamos con el siguiente contrato. ¡Sin errores!
                     }
                 }
             }

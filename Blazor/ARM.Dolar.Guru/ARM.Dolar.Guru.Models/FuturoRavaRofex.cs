@@ -1,4 +1,5 @@
 ﻿using System.Text.Json.Serialization;
+using ARM.Dolar.Guru.Models; // Asegúrate de que el namespace sea el correcto
 
 namespace ARM.Dolar.Guru.Models
 {
@@ -7,17 +8,54 @@ namespace ARM.Dolar.Guru.Models
         [JsonPropertyName("especie")]
         public string Especie { get; set; }
 
+        // Las propiedades que pueden ser número o string ahora usan el convertidor
+        [JsonPropertyName("ultimo")]
+        [JsonConverter(typeof(StringOrNumberConverter))]
+        public string Ultimo { get; set; }
+
+        [JsonPropertyName("variacion")]
+        [JsonConverter(typeof(StringOrNumberConverter))]
+        public string Variacion { get; set; }
+
+        [JsonPropertyName("varunit")]
+        [JsonConverter(typeof(StringOrNumberConverter))]
+        public string VarUnit { get; set; }
+
+        [JsonPropertyName("apertura")]
+        [JsonConverter(typeof(StringOrNumberConverter))]
+        public string Apertura { get; set; }
+
+        [JsonPropertyName("cantcompra")]
+        [JsonConverter(typeof(StringOrNumberConverter))]
+        public string CantCompra { get; set; }
+
+        [JsonPropertyName("preciocompra")]
+        [JsonConverter(typeof(StringOrNumberConverter))]
+        public string PrecioCompra { get; set; }
+
+        [JsonPropertyName("precioventa")]
+        [JsonConverter(typeof(StringOrNumberConverter))]
+        public string PrecioVenta { get; set; }
+
+        [JsonPropertyName("cantventa")]
+        [JsonConverter(typeof(StringOrNumberConverter))]
+        public string CantVenta { get; set; }
+
+        [JsonPropertyName("minimo")]
+        [JsonConverter(typeof(StringOrNumberConverter))]
+        public string Minimo { get; set; }
+
+        [JsonPropertyName("maximo")]
+        [JsonConverter(typeof(StringOrNumberConverter))]
+        public string Maximo { get; set; }
+
+        // --- El resto de las propiedades que no cambian ---
+
         [JsonPropertyName("simbolo")]
         public object Simbolo { get; set; }
 
         [JsonPropertyName("plazo")]
         public object Plazo { get; set; }
-
-        [JsonPropertyName("ultimo")]
-        public double Ultimo { get; set; }
-
-        [JsonPropertyName("variacion")]
-        public double Variacion { get; set; }
 
         [JsonPropertyName("varMTD")]
         public object VarMTD { get; set; }
@@ -25,32 +63,8 @@ namespace ARM.Dolar.Guru.Models
         [JsonPropertyName("varYTD")]
         public object VarYTD { get; set; }
 
-        [JsonPropertyName("varunit")]
-        public double VarUnit { get; set; }
-
         [JsonPropertyName("anterior")]
         public object Anterior { get; set; }
-
-        [JsonPropertyName("apertura")]
-        public object Apertura { get; set; }
-
-        [JsonPropertyName("cantcompra")]
-        public object CantCompra { get; set; }
-
-        [JsonPropertyName("preciocompra")]
-        public object PrecioCompra { get; set; }
-
-        [JsonPropertyName("precioventa")]
-        public object PrecioVenta { get; set; }
-
-        [JsonPropertyName("cantventa")]
-        public object CantVenta { get; set; }
-
-        [JsonPropertyName("minimo")]
-        public object Minimo { get; set; }
-
-        [JsonPropertyName("maximo")]
-        public object Maximo { get; set; }
 
         [JsonPropertyName("volnominal")]
         public object VolNominal { get; set; }

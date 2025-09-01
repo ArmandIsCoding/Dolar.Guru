@@ -25,7 +25,7 @@
         <h5 class="mb-2 mb-md-0 text-primary fw-bold">📈 Cotizaciones actualizadas al instante</h5>
 
         <button class="btn btn-outline-primary fw-semibold shadow-sm px-4 py-2 rounded-pill d-flex align-items-center gap-2"
-                @onclick="RecargarCotizaciones"
+                @onclick="BotonRecargarClick"
                 disabled="@cargando">
 
             @if (cargando)
@@ -159,48 +159,73 @@ else
     private List<CotizacionOtros>? cotizacionesOtros;
 
     private int segundosRestantes = 30;
-    private System.Timers.Timer? timer;
+    private const int INTERVALO_RECARGA = 30;
+    private CancellationTokenSource? cts;
 
     protected override async Task OnInitializedAsync()
     {
         await RecargarCotizaciones();
+        IniciarContador();
     }
 
     private async Task RecargarCotizaciones()
     {
         cargando = true;
-        IniciarContador();
+        await InvokeAsync(StateHasChanged); // Actualiza la UI para mostrar el spinner
 
         (cotizacionesDolar, cotizacionesOtros) = await CotizacionesService.ObtenerUltimasCotizacionesAsync();
 
         cargando = false;
+        segundosRestantes = INTERVALO_RECARGA; // Reinicia el contador visualmente
+        await InvokeAsync(StateHasChanged); // Actualiza la UI con los nuevos datos
     }
 
     private void IniciarContador()
     {
-        segundosRestantes = 30;
-        timer?.Dispose();
+        cts?.Cancel(); // Cancela cualquier contador anterior
+        cts = new CancellationTokenSource();
+        var token = cts.Token;
 
-        timer = new System.Timers.Timer(1000);
-        timer.Elapsed += async (_, _) =>
+        _ = Task.Run(async () =>
         {
-            if (segundosRestantes > 0)
+            while (!token.IsCancellationRequested)
             {
-                segundosRestantes--;
-                await InvokeAsync(StateHasChanged);
-            }
-            else
-            {
-                timer?.Stop();
                 await InvokeAsync(async () =>
                 {
-                    await RecargarCotizaciones();
-                    IniciarContador();
+                    if (segundosRestantes > 0)
+                    {
+                        segundosRestantes--;
+                    }
+                    else
+                    {
+                        segundosRestantes = INTERVALO_RECARGA; // Reinicia para la próxima vuelta
+                        await RecargarCotizaciones();
+                    }
+                    StateHasChanged();
                 });
-            }
-        };
 
-        timer.AutoReset = true;
-        timer.Start();
+                // Espera 1 segundo antes de la próxima iteración
+                await Task.Delay(1000, token);
+            }
+        }, token);
+    }
+
+    // Método para el botón de recarga manual
+    private async Task BotonRecargarClick()
+    {
+        cts?.Cancel(); // Detiene el contador automático
+        await RecargarCotizaciones();
+        IniciarContador(); // Lo reinicia
+    }
+
+    // Implementa IAsyncDisposable para limpiar el CancellationTokenSource
+    public async ValueTask DisposeAsync()
+    {
+        if (cts != null)
+        {
+            cts.Cancel();
+            cts.Dispose();
+            cts = null;
+        }
     }
 }
