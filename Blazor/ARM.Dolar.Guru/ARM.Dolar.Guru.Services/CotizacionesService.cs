@@ -29,6 +29,15 @@ public sealed class CotizacionesService(GuruDatabase database)
     public Task<List<FuturoRavaRofex>> ObtenerUltimosFuturosRavaAsync() =>
         Task.FromResult(Read<FuturoRavaRofex>("FuturoRavaJson", 1).FirstOrDefault().Items ?? []);
 
+    public Task<List<MarketIndex>> ObtenerIndicesAsync() =>
+        Task.FromResult(Read<MarketIndex>("IndicesMercadoJson", 1).FirstOrDefault().Items ?? []);
+
+    public Task<Dictionary<string, List<(DateTime Fecha, decimal Venta)>>> ObtenerSeriesVentaAsync() =>
+        Task.FromResult(Read<ApiCotizacion>("CotizacionesDolarJson", 50)
+            .SelectMany(row => row.Items.Select(c => (c.Nombre, row.Fecha, c.Venta)))
+            .GroupBy(c => c.Nombre).ToDictionary(g => g.Key,
+                g => g.OrderBy(x => x.Fecha).Select(x => (x.Fecha, x.Venta)).ToList()));
+
     public Task<(List<Cotizacion>, List<CotizacionOtros>)> ObtenerUltimasCotizacionesAsync()
     {
         var dollars = (Read<ApiCotizacion>("CotizacionesDolarJson", 1).FirstOrDefault().Items ?? [])

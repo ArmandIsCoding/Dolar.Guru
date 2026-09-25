@@ -10,7 +10,11 @@ dotnet run --project ARM.Dolar.Guru.Sync -- --quotes-only
 dotnet run --project ARM.Dolar.Guru.BaseBlazor
 ```
 
-Sin argumentos, Sync descarga también futuros y noticias. Cada fuente falla por separado;
+Sin argumentos, Sync descarga también futuros, noticias e índices de Rava (Nasdaq 100,
+S&P 500, Dow Jones, Merval, riesgo país, oro, petróleo WTI y soja Chicago).
+Los índices se guardan en `IndicesMercadoJson`, junto con la variación y el histórico
+de 30 días de la fuente; las tablas nuevas se crean al iniciar sin borrar datos existentes.
+`--quotes-only` sigue limitado a dólares, divisas y escenarios. Cada fuente falla por separado;
 el código de salida es 1 si alguna falla y 0 si todas completan. Se conservan los últimos
 datos válidos. El programa termina después de una pasada; no es un servicio residente.
 

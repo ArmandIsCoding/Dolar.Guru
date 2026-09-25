@@ -8,7 +8,7 @@ public sealed class GuruDatabase
     public string FilePath { get; }
     private readonly string connectionString;
     public static readonly string[] SnapshotTables =
-        ["CotizacionesDolarJson", "CotizacionesOtrosJson", "FuturoRavaJson", "ProyeccionesDolarJson"];
+        ["CotizacionesDolarJson", "CotizacionesOtrosJson", "FuturoRavaJson", "ProyeccionesDolarJson", "IndicesMercadoJson"];
 
     public GuruDatabase(string? path = null)
     {

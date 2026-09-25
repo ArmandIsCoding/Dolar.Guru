@@ -56,7 +56,22 @@ try
     Check(!result && Count(db, "CotizacionesDolarJson") == 2, "Failed dollar source preserves last good snapshot and returns failure");
     Check((await service.ObtenerUltimasCotizacionesAsync()).Item2.Single().Moneda == "EUR", "Another source still synchronizes after failure");
     Check((await service.ObtenerUltimaProyeccionAsync()).Count == 0, "Sparse history does not fabricate projections");
-    Console.WriteLine("All 11 integration checks passed.");
+    Check((await service.ObtenerIndicesAsync()).Count == 0, "An existing database gains an empty indices table without data loss");
+    var parsed = JsonSerializer.Deserialize<MarketIndex>("""{"especie":"NASDAQ 100","ultimo":"1234.56","variacion":null,"sparkline30d":"100.5,invalid,0,101.25"}""")!;
+    Check(parsed.Last == 1234.56m && parsed.Change is null && parsed.HistoryValues.SequenceEqual(new[] { 100.5m, 101.25m }), "Rava numeric strings, missing variation and historical samples parse safely");
+    var marketStub = new MarketStubHttp();
+    using var marketHttp = new HttpClient(marketStub);
+    var synchronizer = new MarketSynchronizer(db, marketHttp);
+    Check(await synchronizer.RunAsync(), "Full synchronization works with independent mocked market and news sources");
+    var indices = await service.ObtenerIndicesAsync();
+    Check(indices.Count == 8 && indices[0].Symbol == "NASDAQ 100" && indices[0].Last == 1234.56m
+        && indices[0].HistoryValues.Length == 3 && indices[0].Time == "18:59", "Global instruments, source timestamp and history survive SQLite round trip");
+    Check(await synchronizer.RunAsync() && Count(db, "IndicesMercadoJson") == 1, "Repeated market captures deduplicate");
+    marketStub.IncompleteIndices = true;
+    Check(!await synchronizer.RunAsync() && Count(db, "IndicesMercadoJson") == 1
+        && (await service.ObtenerIndicesAsync()).Count == 8, "Partial indices response preserves the last complete capture");
+    Check((await service.ObtenerSeriesVentaAsync())["Blue"].All(point => point.Venta == 1250.78m), "Card history uses selling prices, not buying prices");
+    Console.WriteLine("All 18 integration checks passed.");
 }
 finally
 {
@@ -86,4 +101,25 @@ sealed class StubHttp : HttpMessageHandler
             : new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(
                 """[{"moneda":"EUR","nombre":"Euro","compra":1400.12,"venta":1450.34,"fechaActualizacion":"2026-09-24T15:30:00Z"}]""",
                 System.Text.Encoding.UTF8, "application/json") });
+}
+
+sealed class MarketStubHttp : HttpMessageHandler
+{
+    public bool IncompleteIndices { get; set; }
+    protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+    {
+        string[] symbols = ["NASDAQ 100", "S&P 500", "DOW JONES", "MERVAL", "RIESGO PAIS", "ORO (F)", "PETROLEO WTI (F)", "SOJA CHICAGO"];
+        var path = request.RequestUri!.AbsolutePath;
+        var content = path switch
+        {
+            "/v1/dolares" => """[{"moneda":"USD","nombre":"Blue","casa":"blue","compra":1234.56,"venta":1250.78,"fechaActualizacion":"2026-09-24T15:30:00Z"}]""",
+            "/v1/cotizaciones" => """[{"moneda":"EUR","nombre":"Euro","compra":1400.12,"venta":1450.34,"fechaActualizacion":"2026-09-24T15:30:00Z"}]""",
+            "/api/prices/indices" => JsonSerializer.Serialize(new { datos = symbols.Take(IncompleteIndices ? 7 : 8).Select(symbol => new {
+                especie = symbol, ultimo = "1234.56", variacion = -0.25m, fecha = "2026-09-24T00:00:00Z", hora = "18:59", sparkline30d = "1200,1220,1234.56"
+            }) }),
+            "/api/prices/rofex" => """{"datos":[{"especie":"DLR/SEP26","ultimo":"1524.5","vencimiento":"2026-09-30"}]}""",
+            _ => """<rss version="2.0"><channel><title>Test feed</title><link>https://example.com</link><description>Integration fixture</description></channel></rss>"""
+        };
+        return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(content, System.Text.Encoding.UTF8, path.StartsWith("/v1/") || path.StartsWith("/api/") ? "application/json" : "application/rss+xml") });
+    }
 }

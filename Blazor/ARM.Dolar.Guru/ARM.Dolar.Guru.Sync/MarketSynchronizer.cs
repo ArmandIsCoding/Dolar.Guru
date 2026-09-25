@@ -24,6 +24,7 @@ public sealed class MarketSynchronizer(GuruDatabase database, HttpClient http)
         };
         if (!quotesOnly)
         {
+            results.Add(await Attempt("Índices y commodities Rava", Indices));
             results.Add(await Attempt("Futuros Rava", Futures));
             foreach (var url in new[] { "https://www.clarin.com/rss/economia/", "https://www.perfil.com/feed" })
                 results.Add(await Attempt(url, () => News(url)));
@@ -67,6 +68,18 @@ public sealed class MarketSynchronizer(GuruDatabase database, HttpClient http)
             .OrderBy(c => c.Vencimiento).ToList();
         if (contracts is not { Count: > 0 }) throw new InvalidDataException("Sin contratos.");
         database.SaveSnapshot("FuturoRavaJson", JsonSerializer.Serialize(contracts));
+    }
+
+    private async Task Indices()
+    {
+        using var json = JsonDocument.Parse(await http.GetStringAsync("https://mercado.rava.com/api/prices/indices"));
+        string[] symbols = ["NASDAQ 100", "S&P 500", "DOW JONES", "MERVAL", "RIESGO PAIS", "ORO (F)", "PETROLEO WTI (F)", "SOJA CHICAGO"];
+        var indices = json.RootElement.GetProperty("datos").Deserialize<List<MarketIndex>>(JsonOptions)?
+            .Where(item => symbols.Contains(item.Symbol)).OrderBy(item => Array.IndexOf(symbols, item.Symbol)).ToList();
+        if (indices is null || symbols.Any(symbol => indices.Count(item => item.Symbol == symbol) != 1)
+            || indices.Any(item => item.Last <= 0 || !DateTime.TryParse(item.Date, CultureInfo.InvariantCulture, DateTimeStyles.None, out _)))
+            throw new InvalidDataException("Índices incompletos o inválidos; se conserva la captura anterior.");
+        database.SaveSnapshot("IndicesMercadoJson", JsonSerializer.Serialize(indices));
     }
 
     private async Task News(string url)

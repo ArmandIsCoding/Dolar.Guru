@@ -1,0 +1,18 @@
+@if (Values.Count >= 2)
+{
+    <svg class="sparkline" viewBox="0 0 160 42" preserveAspectRatio="none" role="img" aria-label="@Label">
+        <polyline points="@Points" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" vector-effect="non-scaling-stroke" />
+    </svg>
+}
+@code {
+    [Parameter] public IReadOnlyList<decimal> Values { get; set; } = Array.Empty<decimal>();
+    [Parameter] public string Label { get; set; } = "Evolución histórica";
+    private string Points {
+        get {
+            var min = Values.Min();
+            var range = Values.Max() - min;
+            return string.Join(" ", Values.Select((value, i) => FormattableString.Invariant(
+                $"{2m + i * 156m / (Values.Count - 1):0.##},{(range == 0 ? 21 : 38 - (value - min) / range * 34):0.##}")));
+        }
+    }
+}
