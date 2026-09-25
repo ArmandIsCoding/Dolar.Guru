@@ -1,231 +1,171 @@
-﻿@page "/"
-@attribute [StreamRendering]
+@page "/"
 @rendermode InteractiveServer
-
-@using System.Globalization
-@using ARM.Dolar.Guru.BaseBlazor.Models
+@implements IAsyncDisposable
 @using ARM.Dolar.Guru.Models
 @using ARM.Dolar.Guru.Services
-@inject CotizacionesService CotizacionesService
+@using ARM.Dolar.Guru.BaseBlazor.Models
+@inject CotizacionesService Quotes
+@inject NewsService News
+@inject ILogger<Home> Logger
+<PageTitle>Dólar Gurú · El mercado, en perspectiva</PageTitle>
 
-<PageTitle>Home</PageTitle>
-
-<style>
-    .card-hover {
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-    .card-hover:hover {
-        transform: scale(1.03);
-        box-shadow: 0 0 25px rgba(0, 0, 0, 0.3);
-    }
-</style>
-
-<div class="w-100 py-3 mb-4 bg-light border-bottom shadow-sm rounded px-3">
-    <div class="d-flex justify-content-between align-items-center flex-wrap">
-        <h5 class="mb-2 mb-md-0 text-primary fw-bold">📈 Cotizaciones actualizadas al instante</h5>
-
-        <button class="btn btn-outline-primary fw-semibold shadow-sm px-4 py-2 rounded-pill d-flex align-items-center gap-2"
-                @onclick="BotonRecargarClick"
-                disabled="@cargando">
-
-            @if (cargando)
-            {
-                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                <span>Cargando...</span>
-            }
-            else
-            {
-                <span>🔄 Renovar cotizaciones ahora</span>
-                <span class="text-muted small ms-3" style="color:@(segundosRestantes <= 5 ? "red" : "gray")">
-                    ⏳ Actualización en: @segundosRestantes s
-                </span>
-            }
-        </button>
-
+<div class="ticker @(paused ? "paused" : "")">
+    <div class="ticker-label"><span class="status-dot"></span> MERCADO <button @onclick="() => paused = !paused" aria-label="@(paused ? "Reanudar marquesina" : "Pausar marquesina")">@(paused ? "▶" : "Ⅱ")</button></div>
+    <div class="ticker-window">
+        @if (dollars.Count > 0)
+        {
+            <div class="ticker-track">
+                @for (var copy = 0; copy < 2; copy++)
+                {
+                    <div class="ticker-group" aria-hidden="@(copy == 1 ? "true" : "false")">
+                    @foreach (var quote in dollars)
+                    {
+                        <span class="ticker-item"><strong>@quote.Nombre.ToUpperInvariant()</strong> @MarketFormat.Money(quote.Venta) <span class="ticker-unit">VENTA</span></span>
+                    }
+                    </div>
+                }
+            </div>
+        }
+        else { <span class="ticker-placeholder">Cotizaciones pendientes de sincronización · Dólar · Divisas · Futuros</span> }
     </div>
 </div>
-
-@if (cotizacionesDolar is null || cotizacionesOtros is null || cargando)
-{
-    <div class="text-center py-5">
-        <img src="dolar-guru.png" style="max-height: 332px;" />
-        <div class="spinner-border text-primary mt-3" role="status">
-            <span class="visually-hidden">Cargando...</span>
+<div class="shell">
+    <section class="hero">
+        <div>
+            <div class="eyebrow"><span class="little-line"></span> TU PUNTO DE VISTA FINANCIERO</div>
+            <h1>El mercado,<br /><em>en perspectiva.</em><span class="hero-dot">●</span></h1>
+            <p>Todos los dólares. Todas las miradas.<br />La información que necesitás, en un solo lugar.</p>
+            <div class="hero-links"><a href="#cotizaciones" class="primary-button">Explorar cotizaciones <span>↗</span></a><a href="/proyecciones" class="text-link">Ver el histórico →</a></div>
         </div>
-    </div>
-}
-else
-{
-    <div class="card mb-4 shadow-sm">
-        <div class="card-header bg-primary text-white fw-bold fs-5">
-            💵 Cotizaciones del Dólar
+        <div class="hero-brief">
+            <div class="brief-top"><span class="eyebrow">EL PULSO DEL DÓLAR</span><span class="round-arrow">↗</span></div>
+            <span class="brief-caption">Brecha blue / oficial</span>
+            <div class="brief-value">@(Gap is decimal gap ? gap.ToString("N1", MarketFormat.Culture) : "—")<span>%</span></div>
+            <div class="brief-rule"></div>
+            <p>Diferencia entre los precios de venta.<br />Una señal para leer el mercado.</p>
+            <a href="#cotizaciones">Compará todas las cotizaciones <span>↗</span></a>
         </div>
-        <div class="card-body">
-            <div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-4">
-                @foreach (var cotizacion in cotizacionesDolar)
-                {
-                    var tipo = TipoDolarHelper.Parse(cotizacion.Nombre);
-                    var estilo = Estilos.Dolar[tipo];
-                    var icono = Estilos.IconosDolar.ContainsKey(tipo) ? Estilos.IconosDolar[tipo] : "bi-cash-coin";
-                    var horas = (int)(DateTime.UtcNow - cotizacion.FechaActualizacion.ToUniversalTime()).TotalHours;
+    </section>
 
-                    <div class="col">
-                        <div class="card h-100 text-white border-0 shadow-lg card-hover"
-                             style="background: linear-gradient(135deg, @estilo.Color1, @estilo.Color2);">
-                            <div class="card-body d-flex flex-column justify-content-between">
-                                <div class="mb-3">
-                                    <div class="d-flex align-items-center justify-content-between">
-                                        <h5 class="card-title fw-bold mb-0">
-                                            <i class="bi @icono me-2 fs-4"></i>@cotizacion.Nombre
-                                        </h5>
-                                        <span class="badge bg-light text-dark">ARS/USD</span>
-                                    </div>
-                                    <p class="mt-2"><i class="bi bi-clock-history me-1"></i>Hace @horas horas</p>
-                                </div>
-                                <div class="d-flex justify-content-around border-top pt-3 mt-auto">
-                                    <div class="text-center">
-                                        <i class="bi bi-arrow-down-circle-fill fs-4 mb-1"></i><br />
-                                        <small class="fw-light">Compra</small><br />
-                                        <span class="fs-5 fw-bold">@cotizacion.Compra.ToString("C")</span>
-                                    </div>
-                                    <div class="text-center">
-                                        <i class="bi bi-arrow-up-circle-fill fs-4 mb-1"></i><br />
-                                        <small class="fw-light">Venta</small><br />
-                                        <span class="fs-5 fw-bold">@cotizacion.Venta.ToString("C")</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                }
+    <section id="cotizaciones" class="market-section">
+        <div class="section-heading">
+            <div><div class="eyebrow">01 / MERCADO CAMBIARIO</div><h2>El dólar, hoy.</h2></div>
+            <div class="refresh-control"><span>@(latest == DateTime.MinValue ? "Sin datos disponibles" : $"Fuente: {MarketFormat.Date(latest)}")</span><button class="outline-button" @onclick="Refresh" disabled="@busy">@(busy ? "Consultando…" : "↻ Actualizar")</button></div>
+        </div>
+        @if (error is not null) { <div class="notice" role="alert">@error</div> }
+        @if (latest != DateTime.MinValue && DateTime.UtcNow - latest > TimeSpan.FromHours(2))
+        { <div class="notice">Últimos valores disponibles. La fuente lleva más de dos horas sin actualizarse; puede corresponder a un cierre de mercado.</div> }
+        <div class="market-toolbar"><div class="segmented" aria-label="Tipo de cotizaciones"><button class="@(category == "dolar" ? "selected" : "")" @onclick='() => category = "dolar"'>Dólares</button><button class="@(category == "divisas" ? "selected" : "")" @onclick='() => category = "divisas"'>Otras divisas</button></div><span class="muted">Valores en pesos argentinos · ARS</span></div>
+        @if (busy && dollars.Count == 0)
+        { <div class="empty-state" role="status">Consultando el mercado…</div> }
+        else if (category == "dolar")
+        {
+            <div class="quote-grid">
+            @foreach (var q in dollars)
+            {
+                <article class="quote-card @(q.Nombre.Contains("Blue", StringComparison.OrdinalIgnoreCase) ? "featured" : "")">
+                    <div class="quote-top"><span class="currency-icon">US<span>↗</span></span><span class="quote-tag">USD / ARS</span></div>
+                    <h3>Dólar @q.Nombre</h3>
+                    <div class="quote-prices"><div><span>COMPRA</span><strong>@MarketFormat.Money(q.Compra)</strong></div><div><span>VENTA</span><strong>@MarketFormat.Money(q.Venta)</strong></div></div>
+                    <div class="quote-bottom"><span>@MarketFormat.Date(q.FechaActualizacion)</span><a href="/proyecciones" aria-label="Ver histórico del dólar">↗</a></div>
+                </article>
+            }
             </div>
-        </div>
-    </div>
-
-    <div class="card mb-4 shadow-sm">
-        <div class="card-header bg-secondary text-white fw-bold fs-5">
-            💵 Otras Cotizaciones
-            <small class="ms-2 text-light">Valores expresados en relación al <strong>Peso Argentino</strong></small>
-        </div>
-        <div class="card-body">
-            <div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-4">
-                @foreach (var cotizacion in cotizacionesOtros)
-                {
-                    var tipo = TipoDivisaHelper.Parse(cotizacion.Nombre);
-                    var estilo = Estilos.Otros[tipo];
-                    var icono = Estilos.IconosOtros.ContainsKey(tipo) ? Estilos.IconosOtros[tipo] : "bi-cash-coin";
-                    var horas = (int)(DateTime.UtcNow - cotizacion.FechaActualizacion.ToUniversalTime()).TotalHours;
-
-                    <div class="col">
-                        <div class="card h-100 text-white border-0 shadow-lg card-hover"
-                             style="background: linear-gradient(135deg, @estilo.Color1, @estilo.Color2);">
-                            <div class="card-body d-flex flex-column justify-content-between">
-                                <div class="mb-3">
-                                    <div class="d-flex align-items-center justify-content-between">
-                                        <h5 class="card-title fw-bold mb-0">
-                                            <i class="bi @icono me-2 fs-4"></i>@cotizacion.Nombre
-                                        </h5>
-                                        <span class="badge bg-light text-dark">@cotizacion.Moneda / ARS</span>
-                                    </div>
-                                    <p class="mt-2"><i class="bi bi-clock-history me-1"></i>Hace @horas horas</p>
-                                </div>
-                                <div class="d-flex justify-content-around border-top pt-3 mt-auto">
-                                    <div class="text-center">
-                                        <i class="bi bi-arrow-down-circle-fill fs-4 mb-1"></i><br />
-                                        <small class="fw-light">Compra</small><br />
-                                        <span class="fs-5 fw-bold">@cotizacion.Compra.ToString("C")</span>
-                                    </div>
-                                    <div class="text-center">
-                                        <i class="bi bi-arrow-up-circle-fill fs-4 mb-1"></i><br />
-                                        <small class="fw-light">Venta</small><br />
-                                        <span class="fs-5 fw-bold">@cotizacion.Venta.ToString("C")</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                }
+            @if (dollars.Count == 0 && !busy) { <div class="empty-state"><strong>El panel está listo. Faltan las primeras cotizaciones.</strong><p>Cuando se ejecute la sincronización, los valores aparecerán acá.</p><a href="/ingesta">Conocé nuestras fuentes →</a></div> }
+        }
+        else
+        {
+            <div class="quote-grid">
+            @foreach (var q in others.Where(x => x.Moneda != "USD"))
+            {
+                <article class="quote-card"><div class="quote-top"><span class="currency-icon">@q.Moneda</span><span class="quote-tag">@q.Moneda / ARS</span></div><h3>@q.Nombre</h3><div class="quote-prices"><div><span>COMPRA</span><strong>@MarketFormat.Money(q.Compra)</strong></div><div><span>VENTA</span><strong>@MarketFormat.Money(q.Venta)</strong></div></div><div class="quote-bottom">@MarketFormat.Date(q.FechaActualizacion)</div></article>
+            }
             </div>
-        </div>
-    </div>
-}
+            @if (others.Count == 0) { <div class="empty-state">Todavía no hay divisas sincronizadas.</div> }
+        }
+        <div class="source-note"><span class="status-dot"></span> Fuente: DolarAPI · El panel consulta la base cada 60 segundos. <a href="/ingesta">Cómo obtenemos los datos ↗</a></div>
+    </section>
 
-<Proyeccion />
-<Disclaimer />
+    <div class="analysis-grid">
+        <section class="panel history-panel"><MarketHistory /></section>
+        <section class="converter" id="conversor">
+            <div class="eyebrow">HERRAMIENTAS / 01</div><h2>Hacé tus<br /> números.</h2><p>De pesos a dólares. Y de vuelta.</p>
+            <label for="exchange">Tipo de dólar</label><select id="exchange" @bind="selected"><option value="">Seleccionar cotización</option>@foreach (var q in dollars) { <option value="@q.Nombre">@q.Nombre</option> }</select>
+            <div class="converter-label"><label for="amount">Tenés</label><button @onclick="() => toPesos = !toPesos" aria-label="Invertir conversión">⇄ Invertir</button></div>
+            <div class="amount-input"><input id="amount" type="number" min="0" max="1000000000000" step="any" @bind="amount" @bind:event="oninput" /><span>@(toPesos ? "USD" : "ARS")</span></div>
+            <span class="result-label">OBTENÉS APROXIMADAMENTE</span>
+            <output class="conversion-result">@(Converted is decimal value ? value.ToString("N2", MarketFormat.Culture) : "—") <small>@(toPesos ? "ARS" : "USD")</small></output>
+            <p class="converter-note">@(toPesos ? "Usamos el precio de compra." : "Usamos el precio de venta.") Sin comisiones ni impuestos adicionales.</p>
+        </section>
+    </div>
+
+    <section class="news-section">
+        <div class="section-heading"><div><div class="eyebrow">02 / EN CONTEXTO</div><h2>Más allá del número.</h2></div><a class="text-link" href="/news">Toda la actualidad ↗</a></div>
+        <div class="news-grid">
+        @foreach (var item in news)
+        {
+            <article class="news-card"><div class="news-category">@item.Fuente <span>↗</span></div><h3><a href="@MarketFormat.SafeUrl(item.Url)" target="_blank" rel="noopener noreferrer">@item.Titulo</a></h3><div class="news-date">@MarketFormat.Date(item.FechaPublicacion)</div></article>
+        }
+        </div>
+        @if (news.Count == 0) { <div class="empty-state">La próxima edición empieza con la primera sincronización de noticias.</div> }
+    </section>
+    <section class="editorial-banner"><div><span class="eyebrow">MENOS RUIDO. MÁS PERSPECTIVA.</span><h2>Entender también<br />es una buena inversión.</h2></div><a href="/ingesta">Conocé cómo funciona <span>↗</span></a></section>
+</div>
 
 @code {
-    private bool cargando = false;
-    private List<Cotizacion>? cotizacionesDolar;
-    private List<CotizacionOtros>? cotizacionesOtros;
-
-    private int segundosRestantes = 30;
-    private const int INTERVALO_RECARGA = 30;
-    private CancellationTokenSource? cts;
-
-    protected override async Task OnInitializedAsync()
-    {
-        await RecargarCotizaciones();
-        IniciarContador();
-    }
-
-    private async Task RecargarCotizaciones()
-    {
-        cargando = true;
-        await InvokeAsync(StateHasChanged); // Actualiza la UI para mostrar el spinner
-
-        (cotizacionesDolar, cotizacionesOtros) = await CotizacionesService.ObtenerUltimasCotizacionesAsync();
-
-        cargando = false;
-        segundosRestantes = INTERVALO_RECARGA; // Reinicia el contador visualmente
-        await InvokeAsync(StateHasChanged); // Actualiza la UI con los nuevos datos
-    }
-
-    private void IniciarContador()
-    {
-        cts?.Cancel(); // Cancela cualquier contador anterior
-        cts = new CancellationTokenSource();
-        var token = cts.Token;
-
-        _ = Task.Run(async () =>
-        {
-            while (!token.IsCancellationRequested)
-            {
-                await InvokeAsync(async () =>
-                {
-                    if (segundosRestantes > 0)
-                    {
-                        segundosRestantes--;
-                    }
-                    else
-                    {
-                        segundosRestantes = INTERVALO_RECARGA; // Reinicia para la próxima vuelta
-                        await RecargarCotizaciones();
-                    }
-                    StateHasChanged();
-                });
-
-                // Espera 1 segundo antes de la próxima iteración
-                await Task.Delay(1000, token);
-            }
-        }, token);
-    }
-
-    // Método para el botón de recarga manual
-    private async Task BotonRecargarClick()
-    {
-        cts?.Cancel(); // Detiene el contador automático
-        await RecargarCotizaciones();
-        IniciarContador(); // Lo reinicia
-    }
-
-    // Implementa IAsyncDisposable para limpiar el CancellationTokenSource
-    public async ValueTask DisposeAsync()
-    {
-        if (cts != null)
-        {
-            cts.Cancel();
-            cts.Dispose();
-            cts = null;
+    private List<Cotizacion> dollars = [];
+    private List<CotizacionOtros> others = [];
+    private List<NewsItem> news = [];
+    private bool busy, paused, toPesos;
+    private string category = "dolar", selected = "";
+    private string? error;
+    private decimal amount = 100000;
+    private DateTime latest;
+    private readonly CancellationTokenSource stop = new();
+    private Task? polling;
+    private decimal? Gap {
+        get {
+            var official = dollars.FirstOrDefault(x => x.Nombre.Equals("Oficial", StringComparison.OrdinalIgnoreCase));
+            var blue = dollars.FirstOrDefault(x => x.Nombre.Equals("Blue", StringComparison.OrdinalIgnoreCase));
+            return official?.Venta > 0 && blue is not null ? (blue.Venta / official.Venta - 1) * 100 : null;
         }
+    }
+    private decimal? Converted {
+        get {
+            var quote = dollars.FirstOrDefault(x => x.Nombre == selected);
+            if (quote is null || amount < 0 || amount > 1_000_000_000_000) return null;
+            return toPesos ? amount * quote.Compra : quote.Venta > 0 ? amount / quote.Venta : null;
+        }
+    }
+    protected override Task OnInitializedAsync() => Refresh();
+    protected override Task OnAfterRenderAsync(bool firstRender) {
+        if (firstRender) polling = Poll();
+        return Task.CompletedTask;
+    }
+    private async Task Refresh() {
+        if (busy) return;
+        busy = true;
+        try {
+            (dollars, others) = await Quotes.ObtenerUltimasCotizacionesAsync();
+            news = await News.ObtenerUltimasNoticiasAsync(3);
+            latest = dollars.Select(x => x.FechaActualizacion).DefaultIfEmpty(DateTime.MinValue).Max();
+            if (selected.Length == 0) selected = dollars.FirstOrDefault(x => x.Nombre == "Blue")?.Nombre ?? dollars.FirstOrDefault()?.Nombre ?? "";
+            error = null;
+        } catch (Exception ex) {
+            Logger.LogError(ex, "No se pudo consultar el panel");
+            error = "No pudimos actualizar el panel. Podés volver a intentar; conservamos los últimos valores visibles.";
+        } finally { busy = false; }
+    }
+    private async Task Poll() {
+        using var timer = new PeriodicTimer(TimeSpan.FromSeconds(60));
+        try {
+            while (await timer.WaitForNextTickAsync(stop.Token))
+                await InvokeAsync(async () => { await Refresh(); StateHasChanged(); });
+        } catch (OperationCanceledException) when (stop.IsCancellationRequested) { }
+    }
+    public async ValueTask DisposeAsync() {
+        await stop.CancelAsync();
+        if (polling is not null) await polling;
+        stop.Dispose();
     }
 }

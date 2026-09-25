@@ -1,78 +1,11 @@
-﻿@page "/ingesta"
-@rendermode InteractiveServer
-
-@{
-    var Title = "Ingesta de Información";
-}
-
-<PageTitle>@Title</PageTitle>
-
-<div class="container py-4">
-    <div class="text-center mb-5">
-        <h1 class="fw-bold text-primary">🌐 Ingesta Masiva de Información</h1>
-        <p class="text-muted fs-5">
-            Este sistema experimental integra mecanismos de ingesta continua de datos heterogéneos —noticias económicas, indicadores financieros, comunicados oficiales y tendencias globales— con modelos de predicción basados en inteligencia artificial.
-            A través de aprendizaje automático, se generan estimaciones dinámicas del comportamiento del dólar en Argentina, adaptándose a los contextos macroeconómicos en tiempo real.
-        </p>
-        <p class="text-muted small text-center">
-            Proyecto en desarrollo. Publicación preliminar. DOI: <a href="#">10.13140/RG.2.2.11035.21286</a>
-        </p>
+@page "/ingesta"
+<PageTitle>Fuentes y metodología · Dólar Gurú</PageTitle>
+<div class="shell page-content">
+    <header class="page-intro"><div class="eyebrow">CON TRANSPARENCIA</div><h1>Datos claros. Fuentes abiertas.</h1><p>Una buena decisión empieza por saber de dónde viene la información. Estas son nuestras fuentes y los límites de lo que mostramos.</p></header>
+    <div class="method-grid">
+        <article class="panel"><span class="eyebrow">01 / COTIZACIONES</span><h3>El pulso cambiario.</h3><p>Precios de compra y venta del dólar y otras divisas a través de <a href="https://dolarapi.com" target="_blank" rel="noopener noreferrer">DolarAPI</a>. Mostramos la fecha informada por la fuente, en hora argentina.</p></article>
+        <article class="panel"><span class="eyebrow">02 / FUTUROS</span><h3>El precio del tiempo.</h3><p>Contratos publicados por <a href="https://www.rava.com/cotizaciones/futuros" target="_blank" rel="noopener noreferrer">Rava Bursátil</a>. Su disponibilidad depende de la fuente; un contrato no garantiza el valor futuro de una moneda.</p></article>
+        <article class="panel"><span class="eyebrow">03 / ACTUALIDAD</span><h3>Las voces del mercado.</h3><p>Titulares de los feeds RSS de Clarín Economía y Perfil. Cada publicación enlaza a su medio original; Dólar Gurú no es autor de esos contenidos.</p></article>
     </div>
-
-    <div class="row">
-        @foreach (var grupo in OrigenesPorCategoria)
-        {
-            <div class="col-md-6 col-lg-4 mb-4">
-                <div class="card h-100 border-primary shadow-sm">
-                    <div class="card-header bg-primary text-white fw-semibold">
-                        @grupo.Key
-                    </div>
-                    <div class="card-body">
-                        <ul class="list-group list-group-flush">
-                            @foreach (var origen in grupo.Value)
-                            {
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    <span>@origen</span>
-                                    <span class="badge bg-success">Activo</span>
-                                </li>
-                            }
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        }
-    </div>
+    <section class="panel" style="margin-top:24px"><h2>Cómo leer el panel.</h2><p class="disclaimer">El sitio consulta los datos guardados cada 60 segundos. La frecuencia de descarga se configura en el proceso de sincronización. Si una fuente falla, conservamos su último dato válido. Las cotizaciones pueden permanecer sin cambios durante el cierre del mercado.</p><p class="disclaimer">La brecha compara los precios de venta blue y oficial. El conversor usa venta al pasar de pesos a dólares, y compra al pasar de dólares a pesos. No agrega impuestos ni comisiones. El histórico registra cambios observados: no contamos con datos anteriores al inicio de la recopilación salvo que hayan sido importados.</p><p class="disclaimer">Los escenarios son extrapolaciones respecto de promedios diarios. No utilizan IA ni aprendizaje automático y no ofrecen una probabilidad de acierto. La información es orientativa y no constituye una recomendación de inversión.</p></section>
 </div>
-
-<Disclaimer />
-
-@code {
-    Dictionary<string, List<string>> OrigenesPorCategoria = new()
-    {
-        ["📰 Medios Nacionales"] = new()
-        {
-            "Clarín", "La Nación", "Infobae", "Página/12", "TN", "Ámbito Financiero", "Crónica", "BAE Negocios"
-        },
-        ["🌍 Medios Internacionales"] = new()
-        {
-            "BBC", "CNN", "Reuters", "Al Jazeera", "The Guardian", "Le Monde", "The Wall Street Journal", "El País"
-        },
-        ["🏛️ Entidades Gubernamentales"] = new()
-        {
-            "AFIP", "BCRA", "Ministerio de Economía", "INDEC", "ANSES", "Gobierno de EEUU", "Banco Mundial", "FMI"
-        },
-        ["💹 Portales Financieros"] = new()
-        {
-            "Bloomberg", "Yahoo Finance", "Investing.com", "CoinMarketCap", "TradingView", "DolarHoy", "Rava Bursátil"
-        },
-        ["🤖 Plataformas de IA y Datos"] = new()
-        {
-            "Google News", "OpenAI Embeddings", "Bing News", "APIs financieras REST", "Scrapers personalizados", "Feeds RSS"
-        },
-        ["🧠 Proveedores de Machine Learning"] = new()
-        {
-            "Modelos locales", "Redes neuronales recurrentes", "Modelos BERT entrenados", "Clasificadores bayesianos"
-        }
-    };
-}
-

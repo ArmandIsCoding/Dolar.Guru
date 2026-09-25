@@ -17,7 +17,7 @@ namespace ARM.Dolar.Guru.Models
             // Si el token es un string, devuélvelo directamente
             if (reader.TokenType == JsonTokenType.String)
             {
-                return reader.GetString();
+                return reader.GetString() ?? string.Empty;
             }
 
             // Si el token es un número, conviértelo a string

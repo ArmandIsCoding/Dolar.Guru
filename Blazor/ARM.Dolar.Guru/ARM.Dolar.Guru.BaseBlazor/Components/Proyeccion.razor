@@ -1,214 +1,41 @@
-﻿@page "/proyeccion"
+@using System.Globalization
 @using ARM.Dolar.Guru.Models
 @using ARM.Dolar.Guru.Services
-@inject CotizacionesService CotizacionesService
-
-@if (!cargando)
-{
-    <div class="card mb-12 shadow-sm">
-        <div class="card-header bg-primary text-white fw-bold fs-5">
-            💵 Proyección inteligente basada en IA y Machine Learning del <strong>Dólar Futuro</strong> 🤖
-        </div>
-        <div class="card h-100 text-dark border-0 shadow-sm" style="background-color: white; padding: 12px;">
-            🤖 La confianza del modelo se calcula en función de la cantidad y consistencia de datos históricos disponibles para cada tipo de dólar.
-            Cuanto mayor la cobertura y menor la volatilidad, más confiable es la proyección.
-        </div>
-        <div class="card-body">
-            <!-- GRÁFICO FUTUROS -->
-            <div class="mb-4">
-                <h5>📊 Dólar Futuro (ROFEX)</h5>
-                <div class="card text-white shadow-lg border-0" style="border: thick solid #ffc107; padding: 20px;">
-                    <Chart Config="@configFuturos" Height="450px" />
-                </div>
-            </div>
-
-            <!-- TARJETAS FUTUROS -->
-            <div class="row row-cols-4 row-cols-md-3 row-cols-lg-5 g-2">
-                @foreach (var f in futurosRava)
-                {
-                    var esSuba = decimal.TryParse(f.Variacion.ToString(), out var v) && v >= 0;
-                    string FormatCurrency(object val) => decimal.TryParse(val?.ToString(), out var num) ? num.ToString("C") : "-";
-
-                    <div class="col">
-                        <div class="card h-100 text-white border-0 shadow-sm rounded-3 transition-all"
-                             style="background: linear-gradient(135deg, @(esSuba ? "#28a745" : "#dc3545"), #212529); font-size: 0.8rem;">
-                            <div class="card-body p-2 d-flex flex-column">
-                                @{
-                                    var partesEspecie = FormatearEspecie(f.Especie).Split("###");
-                                }
-
-                                <div class="fw-bold" style="font-size: large">@partesEspecie[0]</div>
-                                <div class="badge bg-light text-dark mb-1" style="font-size:0.65rem;">
-                                    @partesEspecie[1] <br /> Vto.: @f.Vencimiento
-                                </div>
-
-                                <div class="text-center mb-2">
-                                    <div class="fw-bold" style="font-size: 2.2rem;">@FormatCurrency(f.Ultimo)</div>
-                                    <span class="badge @(esSuba ? "bg-success" : "bg-danger")" style="font-size:0.7rem;">
-                                        <i class="bi @(esSuba ? "bi-arrow-up" : "bi-arrow-down") me-1"></i>
-                                        @f.Variacion%
-                                    </span>
-                                </div>
-
-                                <div class="d-flex justify-content-between">
-                                    <span>💲Compra: @FormatCurrency(f.PrecioCompra)</span>
-                                    <span>💲Venta: @FormatCurrency(f.PrecioVenta)</span>
-                                </div>
-                                <div class="d-flex justify-content-between">
-                                    <span>📉 Mín: @FormatCurrency(f.Minimo)</span>
-                                    <span>📈 Máx: @FormatCurrency(f.Maximo)</span>
-                                </div>
-
-                                <div class="mt-auto d-flex justify-content-between align-items-center small text-light opacity-75">
-                                    <span><i class="bi bi-clock"></i> @f.Hora</span>
-                                    <span>@f.Panel</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                }
-            </div>
-        </div>
-    </div>
-
-    <div class="card mb-12 shadow-sm" style="margin-top: 12px;">
-        <div class="card-header bg-primary text-white fw-bold fs-5">
-            💵 Histórico del <strong>Dólar</strong> en relación al peso argentino
-        </div>
-        <div class="card-body">
-
-            <!-- GRÁFICO HISTÓRICO -->
-            <div class="mb-4">
-                <h5>📈 Histórico</h5>
-                <div class="card text-white shadow-lg border-0" style="border: thick solid #0d6efd; padding: 20px;">
-                    <Chart Config="@configHistorico" Height="450px" />
-                </div>
-            </div>
-
-        </div>
-    </div>
-
-}
-
+@using ARM.Dolar.Guru.BaseBlazor.Models
+@inject CotizacionesService Quotes
+<div class="stack">
+    <section class="panel"><MarketHistory /></section>
+    <section class="panel">
+        <div class="eyebrow">MERCADO DE FUTUROS / RAVA</div><div class="section-heading compact"><h2>La curva de expectativas.</h2><span class="muted">Últimos contratos disponibles</span></div>
+        @if (futures.Count == 0) { <div class="empty-state">Todavía no hay contratos de futuros disponibles. El resto del panel sigue funcionando.</div> }
+        else {
+            <FuturesCurve />
+            <div class="table-scroll"><table class="market-table"><thead><tr><th>Contrato</th><th>Vencimiento</th><th>Último</th><th>Variación</th><th>Compra</th><th>Venta</th></tr></thead><tbody>
+                @foreach (var f in futures) { <tr><td>@f.Especie</td><td>@Expiry(f.Vencimiento)</td><td>@Price(f.Ultimo)</td><td class="@(f.Variacion?.StartsWith("-") == true ? "negative" : "positive")">@Percentage(f.Variacion)</td><td>@Price(f.PrecioCompra)</td><td>@Price(f.PrecioVenta)</td></tr> }
+            </tbody></table></div>
+        }
+        <p class="disclaimer">Los precios de futuros reflejan contratos de mercado, no predicciones garantizadas. Las fechas y horas informadas corresponden a la fuente.</p>
+    </section>
+    <section class="panel">
+        <div class="eyebrow">ESCENARIOS / EXPERIMENTAL</div><div class="section-heading compact"><h2>Una referencia estadística.</h2></div>
+        <p class="disclaimer">Extrapolación del precio de compra respecto de sus promedios de 7 y 30 días. No utiliza inteligencia artificial ni expresa probabilidades de acierto.</p>
+        @if (projections.Count == 0) { <div class="empty-state">Los escenarios se habilitan cuando hay al menos cinco días distintos de datos.</div> }
+        else {
+            <div class="table-scroll"><table class="market-table"><thead><tr><th>Dólar</th><th>Escenario semanal</th><th>Escenario mensual</th><th>Metodología</th></tr></thead><tbody>
+                @foreach (var p in projections) { <tr><td>@p.Nombre</td><td>@MarketFormat.Money(p.ValorSemana)</td><td>@MarketFormat.Money(p.ValorMes)</td><td>@p.Justificacion</td></tr> }
+            </tbody></table></div>
+        }
+    </section>
+    <p class="disclaimer">Información de referencia. Verificá valores y condiciones con tu entidad antes de operar. No constituye asesoramiento financiero.</p>
+</div>
 @code {
-    private bool cargando = true;
-    private LineChartConfig configHistorico;
-    private LineChartConfig configFuturos;
-    private List<FuturoRavaRofex> futurosRava = new();
-
-    protected override async Task OnInitializedAsync()
-    {
-        cargando = true;
-
-        // HISTÓRICO
-        var historico = await CotizacionesService.ObtenerHistoricoAgrupadoAsync(100);
-        configHistorico = new LineChartConfig
-        {
-            Options = new Options
-            {
-                Responsive = true,
-                Plugins = new Plugins
-                {
-                    Legend = new Legend { Display = true, Position = LegendPosition.Bottom }
-                }
-            },
-            Data = new LineData
-            {
-                Labels = historico.Values.First().Select(h => h.Fecha.ToString("dd/MM HH:mm")).ToList(),
-                Datasets = historico.Select(kvp => new LineDataset
-                {
-                    Label = kvp.Key,
-                    Data = kvp.Value.Select(h => (decimal?)h.Compra).ToList(),
-                    BorderColor = GenerarColorHex(kvp.Key),
-                    Fill = false
-                }).ToList()
-            }
-        };
-
-        // FUTUROS RAVA (para gráfico)
-        var futuros = await CotizacionesService.ObtenerHistoricoFuturosAsync();
-        configFuturos = new LineChartConfig
-        {
-            Options = new Options
-            {
-                Responsive = true,
-                Plugins = new Plugins
-                {
-                    Legend = new Legend { Display = true, Position = LegendPosition.Bottom }
-                }
-            },
-            Data = new LineData
-            {
-                Labels = futuros.Select(f => f.FechaVencimiento.ToString("dd/MM/yyyy")).ToList(),
-                Datasets = new List<LineDataset>
-                {
-                    new LineDataset
-                    {
-                        Label = "Dólar Futuro",
-                        Data = futuros.Select(f => (decimal?)f.Ultimo).ToList(),
-                        BorderColor = "#ffc107",
-                        BorderWidth = 2,
-                        Fill = false
-                    }
-                }
-            }
-        };
-
-        // FUTUROS RAVA (para tarjetas)
-        futurosRava = await CotizacionesService.ObtenerUltimosFuturosRavaAsync();
-
-        cargando = false;
+    private List<FuturoRavaRofex> futures = [];
+    private List<ProyeccionDolar> projections = [];
+    protected override async Task OnInitializedAsync() {
+        futures = await Quotes.ObtenerUltimosFuturosRavaAsync();
+        projections = await Quotes.ObtenerUltimaProyeccionAsync();
     }
-
-    string FormatearEspecie(string especie)
-    {
-        if (string.IsNullOrWhiteSpace(especie))
-            return string.Empty;
-
-        var partes = especie.Split('/');
-        if (partes.Length != 2)
-            return especie;
-
-        var subyacente = partes[0];
-        var codigo = partes[1];
-
-        var meses = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-        {
-            { "ENE", "Enero" }, { "FEB", "Febrero" }, { "MAR", "Marzo" }, { "ABR", "Abril" },
-            { "MAY", "Mayo" }, { "JUN", "Junio" }, { "JUL", "Julio" }, { "AGO", "Agosto" },
-            { "SEP", "Septiembre" }, { "OCT", "Octubre" }, { "NOV", "Noviembre" }, { "DIC", "Diciembre" }
-        };
-
-        if (codigo.Equals("SPOT", StringComparison.OrdinalIgnoreCase))
-            return $"{subyacente}/SPOT###{SubyacenteNombre(subyacente)} / Contado Inmediato";
-
-        if (codigo.Length < 5)
-            return especie;
-
-        var mesStr = codigo.Substring(0, 3);
-        var anioStr = codigo.Substring(3, 2);
-
-        var mesNombre = meses.ContainsKey(mesStr) ? meses[mesStr] : mesStr;
-        var anioNum = "20" + anioStr;
-
-        return $"{subyacente}/{codigo}###{SubyacenteNombre(subyacente)} / {mesNombre} {anioNum}";
-    }
-
-    string SubyacenteNombre(string cod) => cod switch
-    {
-        "DLR" => "Dólar",
-        "EUR" => "Euro",
-        "BRL" => "Real Brasileño",
-        "CLP" => "Peso Chileno",
-        _ => cod
-    };
-
-    private string GenerarColorHex(string nombre)
-    {
-        var hash = nombre.GetHashCode();
-        var r = (hash & 0xFF0000) >> 16;
-        var g = (hash & 0x00FF00) >> 8;
-        var b = (hash & 0x0000FF);
-        return $"#{r:X2}{g:X2}{b:X2}";
-    }
+    private static string Price(string? raw) => decimal.TryParse(raw, NumberStyles.Any, CultureInfo.InvariantCulture, out var value) ? MarketFormat.Money(value) : "—";
+    private static string Percentage(string? raw) => decimal.TryParse(raw, NumberStyles.Any, CultureInfo.InvariantCulture, out var value) ? value.ToString("N2", MarketFormat.Culture) + " %" : "—";
+    private static string Expiry(string raw) => DateTimeOffset.TryParse(raw, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var date) ? date.ToString("dd/MM/yyyy") : raw;
 }

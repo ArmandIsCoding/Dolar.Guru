@@ -8,6 +8,7 @@ namespace ARM.Dolar.Guru.BaseBlazor
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            builder.WebHost.UseStaticWebAssets();
 
             // Add services to the container.
             builder.Services.AddRazorComponents()
@@ -15,6 +16,9 @@ namespace ARM.Dolar.Guru.BaseBlazor
 
             builder.Services.AddHttpClient();
 
+            var database = new GuruDatabase(builder.Configuration["Database:Path"]);
+            database.Initialize();
+            builder.Services.AddSingleton(database);
             builder.Services.AddSingleton<CotizacionesService>();
             builder.Services.AddSingleton<NewsService>();
 
@@ -31,6 +35,7 @@ namespace ARM.Dolar.Guru.BaseBlazor
             app.UseHttpsRedirection();
 
             app.UseStaticFiles();
+            app.MapStaticAssets();
             app.UseAntiforgery();
 
             app.MapRazorComponents<App>()
