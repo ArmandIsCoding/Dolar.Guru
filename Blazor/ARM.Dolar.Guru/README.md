@@ -14,12 +14,18 @@ Sin argumentos, Sync descarga también futuros y noticias. Cada fuente falla por
 el código de salida es 1 si alguna falla y 0 si todas completan. Se conservan los últimos
 datos válidos. El programa termina después de una pasada; no es un servicio residente.
 
-La base se crea automáticamente en LocalApplicationData/DolarGuru/market.db. En macOS:
-`~/Library/Application Support/DolarGuru/market.db`. Ambos ejecutables comparten esa ruta
-cuando se ejecutan con el mismo usuario. Para usar una ubicación específica, definir
-`DOLAR_GURU_DB_PATH` con una ruta absoluta. En producción es obligatorio configurarla
-explícitamente, ya que IIS y la tarea programada pueden ejecutar con usuarios distintos.
-La variable prevalece sobre `Database:Path` (web) y `--database` (Sync).
+La ruta se configura en `Database:Path` en el `appsettings.json` de **cada proyecto**
+(BaseBlazor y Sync). Ambos archivos tienen `/Volumes/Storage/Dev/dolarGuru.db` para
+desarrollo. En Windows, cambiar ambos settings a la misma ruta absoluta válida,
+por ejemplo `C:\\DolarGuru\\data\\market.db` (en JSON las barras se escriben dobles).
+No hace falta recompilar; reiniciar la web y volver a ejecutar Sync.
+Sync carga su archivo junto al ejecutable, sin depender del directorio de trabajo,
+y lo incluye en la compilación y la publicación.
+
+`DOLAR_GURU_DB_PATH` prevalece sobre los settings de ambos procesos.
+En Sync, `--database` prevalece sobre su setting, pero no sobre esa variable.
+Si no hay una ruta absoluta válida, el proceso informa un error al iniciar;
+no se elige una base alternativa silenciosamente.
 
 ## Arquitectura
 

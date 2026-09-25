@@ -13,8 +13,9 @@ public sealed class GuruDatabase
     public GuruDatabase(string? path = null)
     {
         path = Environment.GetEnvironmentVariable("DOLAR_GURU_DB_PATH") ?? path;
-        FilePath = Path.GetFullPath(path ?? Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DolarGuru", "market.db"));
+        if (string.IsNullOrWhiteSpace(path) || !Path.IsPathFullyQualified(path))
+            throw new ArgumentException("Configure Database:Path o DOLAR_GURU_DB_PATH con una ruta absoluta válida para este sistema.", nameof(path));
+        FilePath = Path.GetFullPath(path);
         Directory.CreateDirectory(Path.GetDirectoryName(FilePath)!);
         connectionString = new SqliteConnectionStringBuilder
         {
