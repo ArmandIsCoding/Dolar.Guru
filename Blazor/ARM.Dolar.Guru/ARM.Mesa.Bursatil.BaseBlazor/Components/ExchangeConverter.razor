@@ -1,0 +1,41 @@
+@using ARM.Mesa.Bursatil.Models
+@using ARM.Mesa.Bursatil.BaseBlazor.Models
+<section class="converter" id="conversor">
+    <div class="converter-heading"><span class="tool-icon">⇄</span><div><span class="eyebrow">TU PRÓXIMO MOVIMIENTO</span><h2>Conversor</h2></div></div>
+    <label for="exchange">Cotización de referencia</label>
+    <select id="exchange" @bind="selected" @bind:after="NotifySelection">
+        <option value="">Seleccionar dólar</option>
+        @foreach (var quote in Quotes) { <option value="@quote.Nombre">Dólar @DisplayName(quote.Nombre)</option> }
+    </select>
+    <div class="converter-label"><label for="amount">Quiero convertir</label><button @onclick="() => toPesos = !toPesos" aria-label="Invertir conversión">⇄ Invertir</button></div>
+    <div class="amount-input"><span>@(toPesos ? "USD" : "ARS")</span><input id="amount" type="number" min="0" max="1000000000000" step="any" @bind="amount" @bind:event="oninput" /></div>
+    <div class="conversion-divider"><span>↓</span></div>
+    <span class="result-label">RECIBÍS APROXIMADAMENTE</span>
+    <output class="conversion-result" aria-live="polite">@(Converted is decimal value ? value.ToString("N2", MarketFormat.Culture) : "—") <small>@(toPesos ? "ARS" : "USD")</small></output>
+    <p class="conversion-rate">@(Rate is decimal rate ? $"1 USD = {MarketFormat.Money(rate)} ARS" : "Seleccioná una cotización")</p>
+    <p class="converter-note">Precio de @(toPesos ? "compra" : "venta"). Sin comisiones ni impuestos adicionales.</p>
+</section>
+@code {
+    [Parameter] public IReadOnlyList<Cotizacion> Quotes { get; set; } = Array.Empty<Cotizacion>();
+    [Parameter] public string? Instrument { get; set; }
+    [Parameter] public EventCallback<string?> InstrumentChanged { get; set; }
+    private string selected = "", previousInstrument = "";
+    private bool toPesos;
+    private decimal amount = 100000;
+    private Cotizacion? Quote => Quotes.FirstOrDefault(x => x.Nombre == selected);
+    private decimal? Rate => toPesos ? Quote?.Compra : Quote?.Venta;
+    private decimal? Converted => amount < 0 || amount > 1_000_000_000_000 || Rate is not > 0
+        ? null : toPesos ? amount * Rate : amount / Rate;
+    private Task NotifySelection() => InstrumentChanged.InvokeAsync(selected);
+    protected override void OnParametersSet()
+    {
+        if (!string.IsNullOrEmpty(Instrument) && Instrument != previousInstrument)
+        {
+            selected = Instrument;
+            previousInstrument = Instrument;
+        }
+        if (!Quotes.Any(x => x.Nombre == selected))
+            selected = Quotes.FirstOrDefault(x => x.Nombre == "Blue")?.Nombre ?? Quotes.FirstOrDefault()?.Nombre ?? "";
+    }
+    private static string DisplayName(string name) => name switch { "Bolsa" => "MEP", "Contado con liquidación" => "CCL", _ => name };
+}

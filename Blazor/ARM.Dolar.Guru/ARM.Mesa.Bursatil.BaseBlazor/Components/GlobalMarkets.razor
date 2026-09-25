@@ -1,0 +1,48 @@
+@using ARM.Mesa.Bursatil.Models
+@using ARM.Mesa.Bursatil.BaseBlazor.Models
+@using System.Globalization
+<section class="global-section" id="mercados">
+    <div class="section-heading"><div><span class="eyebrow">EL MUNDO TAMBIÉN MUEVE TU DÓLAR</span><h2>Radar global<span class="accent">.</span></h2></div><span class="market-source">Rava · variación informada por la fuente</span></div>
+    @if (Indices.Count == 0)
+    {
+        <div class="empty-state">La primera sincronización completa incorporará los índices y commodities.</div>
+    }
+    else
+    {
+        <div class="global-grid">
+            <div class="global-chart">
+                <div class="global-chart-header"><div><label for="global-instrument">Índice o commodity</label><select id="global-instrument" @bind="selected">@foreach (var item in Indices) { <option value="@item.Symbol">@Name(item.Symbol)</option> }</select></div><span class="chart-period">HISTÓRICO 30 D</span></div>
+                @if (Selected is MarketIndex index)
+                {
+                    <div class="global-value">@index.Last.ToString("N2", MarketFormat.Culture)<span class="@Tone(index.Change)">@Change(index.Change)</span></div>
+                    <p class="chart-caption">@Unit(index.Symbol) · Fecha / hora fuente: @SourceDate(index)</p>
+                    @if (index.HistoryValues.Length > 1) { <div class="large-spark @HistoryTone(index)"><Sparkline Values="index.HistoryValues" Label="@($"Histórico de 30 días de {Name(index.Symbol)} provisto por Rava")" /></div><div class="chart-axis"><span>Hace 30 días</span><span>Último dato histórico</span></div><p class="chart-caption">Rango histórico: @index.HistoryValues.Min().ToString("N2", MarketFormat.Culture) – @index.HistoryValues.Max().ToString("N2", MarketFormat.Culture). Escala ajustada; la curva puede no incluir el último precio.</p> }
+                    else { <div class="chart-empty">Este instrumento todavía no tiene una curva disponible.</div> }
+                }
+            </div>
+            <div class="global-list">
+                <div class="list-heading"><span>INSTRUMENTO</span><span>ÚLTIMO / VAR.</span></div>
+                @foreach (var row in Indices)
+                {
+                    <button class="global-list-row @(selected == row.Symbol ? "active" : "")" @onclick="() => selected = row.Symbol" aria-pressed="@(selected == row.Symbol)">
+                        <span><strong>@Name(row.Symbol)</strong><small>@Unit(row.Symbol)</small></span><span><strong>@row.Last.ToString("N2", MarketFormat.Culture)</strong><small class="@Tone(row.Change)">@Change(row.Change)</small></span>
+                    </button>
+                }
+            </div>
+        </div>
+    }
+</section>
+@code {
+    [Parameter] public IReadOnlyList<MarketIndex> Indices { get; set; } = Array.Empty<MarketIndex>();
+    private string selected = "NASDAQ 100";
+    private MarketIndex? Selected => Indices.FirstOrDefault(x => x.Symbol == selected) ?? Indices.FirstOrDefault();
+    protected override void OnParametersSet() {
+        if (!Indices.Any(x => x.Symbol == selected)) selected = Indices.FirstOrDefault()?.Symbol ?? "NASDAQ 100";
+    }
+    public static string Name(string symbol) => symbol switch { "PETROLEO WTI (F)" => "Petróleo WTI", "ORO (F)" => "Oro", "RIESGO PAIS" => "Riesgo país", "SOJA CHICAGO" => "Soja Chicago", _ => symbol };
+    public static string Unit(string symbol) => symbol switch { "PETROLEO WTI (F)" or "ORO (F)" => "USD · FUTURO", "SOJA CHICAGO" => "USD / TONELADA", "RIESGO PAIS" => "PUNTOS BÁSICOS", _ => "PUNTOS" };
+    public static string Change(decimal? change) => change is decimal value ? value.ToString("+0.00;-0.00;0.00", MarketFormat.Culture) + "%" : "—";
+    public static string Tone(decimal? change) => change > 0 ? "positive" : change < 0 ? "negative" : "neutral";
+    public static string HistoryTone(MarketIndex index) => index.HistoryValues.Length > 1 ? Tone(index.HistoryValues[^1] - index.HistoryValues[0]) : "neutral";
+    public static string SourceDate(MarketIndex index) => (DateTime.TryParse(index.Date, CultureInfo.InvariantCulture, DateTimeStyles.None, out var date) ? date.ToString("dd/MM") : "—") + " " + index.Time;
+}

@@ -1,0 +1,47 @@
+using ARM.Mesa.Bursatil.BaseBlazor.Components;
+using ARM.Mesa.Bursatil.Services;
+
+namespace ARM.Mesa.Bursatil.BaseBlazor
+{
+    public class Program
+    {
+        public static void Main(string[] args)
+        {
+            var builder = WebApplication.CreateBuilder(args);
+            builder.WebHost.UseStaticWebAssets();
+
+            // Add services to the container.
+            builder.Services.AddRazorComponents()
+                .AddInteractiveServerComponents();
+
+            builder.Services.AddHttpClient();
+
+            var database = new MarketDatabase(builder.Configuration["Database:Path"]);
+            database.Initialize();
+            builder.Services.AddSingleton(database);
+            builder.Services.AddSingleton<CotizacionesService>();
+            builder.Services.AddSingleton<NewsService>();
+
+            var app = builder.Build();
+
+            // Configure the HTTP request pipeline.
+            if (!app.Environment.IsDevelopment())
+            {
+                app.UseExceptionHandler("/Error");
+                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+                app.UseHsts();
+            }
+
+            app.UseHttpsRedirection();
+
+            app.UseStaticFiles();
+            app.MapStaticAssets();
+            app.UseAntiforgery();
+
+            app.MapRazorComponents<App>()
+                .AddInteractiveServerRenderMode();
+
+            app.Run();
+        }
+    }
+}

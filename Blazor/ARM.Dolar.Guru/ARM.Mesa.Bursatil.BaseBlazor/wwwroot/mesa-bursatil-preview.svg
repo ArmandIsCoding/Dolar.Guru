@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <title>Mesa Bursátil — El mercado, en perspectiva</title>
+  <defs>
+    <pattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse"><path d="M60 0H0V60" fill="none" stroke="#24352f" stroke-width="1"/></pattern>
+    <linearGradient id="shade"><stop stop-color="#0b0f14"/><stop offset="1" stop-color="#102a24"/></linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#shade)"/>
+  <rect width="1200" height="630" fill="url(#grid)" opacity=".45"/>
+  <rect x="70" y="65" width="72" height="72" rx="15" fill="#32e0b0"/>
+  <text x="106" y="112" fill="#0b0f14" font-family="Arial, sans-serif" font-weight="bold" font-size="29" text-anchor="middle">MB</text>
+  <text x="165" y="111" fill="#eaf1ef" font-family="Arial, sans-serif" font-weight="bold" font-size="36">mesa<tspan font-weight="normal">bursátil</tspan><tspan fill="#32e0b0">.</tspan></text>
+  <text x="70" y="273" fill="#eaf1ef" font-family="Arial, sans-serif" font-weight="bold" font-size="80">El mercado,</text>
+  <text x="70" y="367" fill="#32e0b0" font-family="Arial, sans-serif" font-weight="bold" font-size="80">en perspectiva.</text>
+  <text x="74" y="431" fill="#a6b7b2" font-family="Arial, sans-serif" font-size="25">Dólar · Índices · Futuros · Actualidad</text>
+  <path d="M75 510H1125" stroke="#375449"/>
+  <text x="75" y="565" fill="#32e0b0" font-family="Arial, sans-serif" font-size="24">mesabursatil.ar</text>
+  <text x="1125" y="565" text-anchor="end" fill="#a6b7b2" font-family="Arial, sans-serif" font-size="18" letter-spacing="3">TU TERMINAL DE MERCADO</text>
+  <path d="M930 355l130-130m-80 0h80v80" fill="none" stroke="#32e0b0" stroke-width="12" opacity=".4"/>
+</svg>

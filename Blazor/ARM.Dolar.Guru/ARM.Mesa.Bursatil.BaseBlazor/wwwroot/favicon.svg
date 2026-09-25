@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <title>Mesa Bursátil</title>
+  <rect width="64" height="64" rx="13" fill="#32e0b0"/>
+  <path d="M10 44V20h5l6 12 6-12h5v24h-5V29l-6 11-6-11v15zm28-24h8c8 0 12 9 6 13 7 4 3 11-4 11H38zm5 5v6h4c4 0 4-6 0-6zm0 11v4h5c3 0 3-4 0-4z" fill="#0b0f14"/>
+</svg>

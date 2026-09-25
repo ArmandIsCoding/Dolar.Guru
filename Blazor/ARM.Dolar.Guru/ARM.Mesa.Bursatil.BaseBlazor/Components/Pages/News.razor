@@ -1,0 +1,24 @@
+@page "/news"
+@rendermode InteractiveServer
+@using ARM.Mesa.Bursatil.Models
+@using ARM.Mesa.Bursatil.Services
+@using ARM.Mesa.Bursatil.BaseBlazor.Models
+@inject NewsService NewsService
+<PageTitle>Actualidad económica · Mesa Bursátil</PageTitle>
+<div class="shell page-content">
+    <header class="page-intro"><div class="eyebrow">EL MERCADO EN CONTEXTO</div><h1>Más allá del número.</h1><p>Las últimas publicaciones de nuestras fuentes. Abrí cada noticia para leerla en su medio original.</p></header>
+    <input class="news-search" type="search" aria-label="Buscar noticias por título o fuente" placeholder="Buscar por título o fuente…" @bind="search" @bind:event="oninput" />
+    <div class="news-grid news-page-grid">
+        @foreach (var item in Filtered)
+        {
+            <article class="news-card"><div class="news-category">@item.Fuente <span>↗</span></div><h3><a href="@MarketFormat.SafeUrl(item.Url)" target="_blank" rel="noopener noreferrer">@item.Titulo</a></h3><div class="news-date">@MarketFormat.Date(item.FechaPublicacion)</div></article>
+        }
+    </div>
+    @if (!Filtered.Any()) { <div class="empty-state">@(items.Count == 0 ? "Todavía no hay noticias sincronizadas." : "No encontramos noticias para esa búsqueda.")</div> }
+</div>
+@code {
+    private List<NewsItem> items = [];
+    private string search = "";
+    private IEnumerable<NewsItem> Filtered => items.Where(x => x.Titulo.Contains(search, StringComparison.OrdinalIgnoreCase) || (x.Fuente?.Contains(search, StringComparison.OrdinalIgnoreCase) ?? false));
+    protected override async Task OnInitializedAsync() => items = await NewsService.ObtenerUltimasNoticiasAsync(100);
+}

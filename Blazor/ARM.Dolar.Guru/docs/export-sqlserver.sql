@@ -1,4 +1,4 @@
--- Run against the OLD DolarGuru database; this is read-only.
+-- Run against the original SQL Server database; this is read-only.
 -- Save the complete single JSON value as UTF-8 (no headers, truncation or row-count messages).
 SET NOCOUNT ON;
 SELECT

@@ -1,0 +1,57 @@
+@using ARM.Mesa.Bursatil.Services
+@using ARM.Mesa.Bursatil.BaseBlazor.Models
+@using System.Globalization
+@inject CotizacionesService Quotes
+<div class="eyebrow">LA MIRADA LARGA</div>
+<div class="section-heading compact"><h2>Una curva. Más contexto.</h2><span class="quote-tag">COMPRA · ARS</span></div>
+<div class="history-controls">
+    <select aria-label="Dólar para el histórico" @bind="selected" @bind:after="Load">
+        @foreach (var name in names) { <option value="@name">Dólar @name</option> }
+    </select>
+    <div class="segmented" aria-label="Período del histórico">
+        @foreach (var range in new[] { 7, 30, 90 }) { <button class="@(days == range ? "selected" : "")" @onclick="() => days = range">@range D</button> }
+    </div>
+</div>
+@if (Visible.Count > 1)
+{
+    <div class="chart-value">@MarketFormat.Money(Visible[^1].Compra)<small>Último registro del período</small></div>
+    <svg class="history-chart" viewBox="0 0 720 200" role="img" aria-label="Evolución del precio de compra del dólar seleccionado">
+        <defs><linearGradient id="@gradientId" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#548774" stop-opacity=".22" /><stop offset="100%" stop-color="#548774" stop-opacity="0" /></linearGradient></defs>
+        <path d="M 0 30 H 720 M 0 90 H 720 M 0 150 H 720" stroke="#e4e9e9" stroke-dasharray="4 5" fill="none" />
+        <polygon points="@("0,200 " + Points + " 720,200")" fill="@($"url(#{gradientId})")" />
+        <polyline points="@Points" fill="none" stroke="#3a7563" stroke-width="3" stroke-linejoin="round" />
+    </svg>
+    <div class="chart-axis"><span>@MarketFormat.Date(Visible[0].Fecha)</span><span>@MarketFormat.Date(Visible[^1].Fecha)</span></div>
+    <p class="source-note">Rango visible: @MarketFormat.Money(Visible.Min(x => x.Compra)) — @MarketFormat.Money(Visible.Max(x => x.Compra)). Escala ajustada al período.</p>
+}
+else
+{
+    <div class="chart-empty"><span>↗</span><strong>La perspectiva se construye con tiempo.</strong><p>Necesitamos al menos dos registros en este período para dibujar una evolución real.</p></div>
+}
+@code {
+    private List<string> names = [];
+    private string selected = "";
+    private int days = 30;
+    private readonly string gradientId = "history-" + Guid.NewGuid().ToString("N");
+    private List<(DateTime Fecha, decimal Compra, decimal Venta)> values = [];
+    private List<(DateTime Fecha, decimal Compra, decimal Venta)> Visible => values.Where(x => x.Fecha >= DateTime.UtcNow.AddDays(-days)).ToList();
+    private string Points {
+        get {
+            var data = Visible;
+            if (data.Count < 2) return "";
+            var min = data.Min(x => x.Compra);
+            var span = data.Max(x => x.Compra) - min;
+            var time = Math.Max(1, (data[^1].Fecha - data[0].Fecha).TotalSeconds);
+            var sampled = data.Where((_, i) => i % Math.Max(1, data.Count / 500) == 0 || i == data.Count - 1);
+            return string.Join(" ", sampled.Select(x => FormattableString.Invariant(
+                $"{(x.Fecha - data[0].Fecha).TotalSeconds / time * 720:0.##},{(span == 0 ? 100 : 175 - (x.Compra - min) / span * 150):0.##}")));
+        }
+    }
+    protected override async Task OnInitializedAsync() {
+        var (quotes, _) = await Quotes.ObtenerUltimasCotizacionesAsync();
+        names = quotes.Select(x => x.Nombre).ToList();
+        selected = names.FirstOrDefault(x => x == "Blue") ?? names.FirstOrDefault() ?? "";
+        await Load();
+    }
+    private async Task Load() => values = await Quotes.ObtenerHistoricoAsync(selected);
+}
