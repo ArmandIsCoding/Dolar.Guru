@@ -11,7 +11,7 @@
     <div class="news-grid news-page-grid">
         @foreach (var item in Filtered)
         {
-            <article class="news-card"><div class="news-category">@item.Fuente <span>↗</span></div><h3><a href="@MarketFormat.SafeUrl(item.Url)" target="_blank" rel="noopener noreferrer">@item.Titulo</a></h3><div class="news-date">@MarketFormat.Date(item.FechaPublicacion)</div></article>
+            <article class="news-card"><div class="news-category">@item.Fuente <span>&#x2197;&#xFE0E;</span></div><h3><a href="@MarketFormat.SafeUrl(item.Url)" target="_blank" rel="noopener noreferrer">@item.Titulo</a></h3><div class="news-date">@MarketFormat.Date(item.FechaPublicacion)</div></article>
         }
     </div>
     @if (!Filtered.Any()) { <div class="empty-state">@(items.Count == 0 ? "Todavía no hay noticias sincronizadas." : "No encontramos noticias para esa búsqueda.")</div> }

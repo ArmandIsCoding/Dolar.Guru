@@ -657,7 +657,7 @@ option {
   overflow: hidden;
 }
 .futures-callout:after {
-  content: "↗";
+  content: "↗︎";
   font: 200px/1 var(--font);
   position: absolute;
   right: -19px;
@@ -2330,6 +2330,9 @@ option {
   }
   .analysis-grid {
     margin: 24px 0 30px;
+  }
+  .global-chart {
+    background: #111920;
   }
   .panel {
     padding: 22px;
