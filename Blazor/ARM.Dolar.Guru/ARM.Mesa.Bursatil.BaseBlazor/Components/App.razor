@@ -1,3 +1,6 @@
+@inject IConfiguration Configuration
+@inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment HostEnvironment
+
 <!DOCTYPE html>
 <html lang="es-AR">
 <head>
@@ -17,6 +20,10 @@
     <meta property="og:image:height" content="630" />
     <meta property="og:image:alt" content="Mesa Bursátil — El mercado, en perspectiva. mesabursatil.ar" />
     <meta name="theme-color" content="#0b0f14" />
+    @if (HostEnvironment.IsProduction() && !string.IsNullOrWhiteSpace(Configuration["Analytics:MeasurementId"]))
+    {
+        <script src="js/analytics.js" data-measurement-id="@Configuration["Analytics:MeasurementId"]"></script>
+    }
     <HeadOutlet />
 </head>
 <body>

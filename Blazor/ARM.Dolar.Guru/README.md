@@ -118,6 +118,7 @@ Los escenarios heredados conservan su texto original hasta la próxima sincroniz
 ```sh
 dotnet run --project ARM.Mesa.Bursatil.Tests
 dotnet build ARM.Mesa.Bursatil.sln -c Release
+node --test ARM.Mesa.Bursatil.Tests/analytics.test.cjs
 ```
 
 Las pruebas de integración usan SQLite real en un directorio temporal y un proveedor HTTP
@@ -127,6 +128,29 @@ Referencias: [SQLite y concurrencia](https://learn.microsoft.com/en-us/dotnet/st
 [publicación en IIS](https://learn.microsoft.com/en-us/aspnet/core/tutorials/publish-to-iis?view=aspnetcore-10.0).
 Dirección visual inspirada en la jerarquía de mercados de [Finanzas Argy](https://www.finanzasargy.com/),
 con una identidad propia para Mesa Bursátil.
+
+## Google Analytics 4
+
+Se reutiliza la propiedad **DolarGuru** y el flujo **DolarGuru home**, cuya URL es
+`https://mesabursatil.ar`. El ID público de medición es `G-5FH8L0YFGE`.
+`Analytics:MeasurementId` en la configuración de BaseBlazor controla la etiqueta;
+puede sobrescribirse con `Analytics__MeasurementId`. Dejarlo vacío desactiva la integración.
+
+La etiqueta sólo se incluye en el entorno `Production` y sólo carga Google en
+`mesabursatil.ar` o `www.mesabursatil.ar`. No mide localhost ni accesos por IP.
+La medición mejorada del flujo debe mantener activadas las vistas basadas en historial:
+GA4 registra la carga inicial y las navegaciones de Blazor, sin eventos manuales duplicados.
+No se agregan eventos con importes del conversor ni datos personales; las señales
+de Google y la personalización publicitaria están desactivadas en la etiqueta.
+
+Publicar nuevamente BaseBlazor para activar el cambio en IIS, conservando la ruta
+de base de datos del servidor. Después verificar una visita y una navegación entre
+páginas en los informes en tiempo real o DebugView de GA4. Las pruebas locales sólo
+validan inicialización y exclusiones; no acreditan recepción de eventos en producción.
+Esta integración básica no implementa un gestor de consentimiento: revisar el aviso
+de privacidad/cookies y los requisitos aplicables antes de habilitarla públicamente.
+
+Referencia: [medición de aplicaciones de una sola página en GA4](https://developers.google.com/analytics/devguides/collection/ga4/single-page-applications).
 
 ## Logs de la tarea Sync
 
@@ -156,4 +180,3 @@ Si falta `Logging:Directory`, se usa `C:\logs sitios IIS`. Si no se puede leer
 `appsettings.json`, se intenta registrar el error en esa carpeta predeterminada.
 Si no puede crearse el log, se informa por stderr y la ejecución falla antes de
 sincronizar: revisar la ruta y los permisos con la cuenta de la tarea.
-
