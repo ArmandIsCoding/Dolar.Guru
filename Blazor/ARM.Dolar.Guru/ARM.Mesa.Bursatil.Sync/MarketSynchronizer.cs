@@ -10,7 +10,7 @@ using HtmlAgilityPack;
 
 namespace ARM.Mesa.Bursatil.Sync;
 
-public sealed class MarketSynchronizer(MarketDatabase database, HttpClient http)
+public sealed class MarketSynchronizer(MarketDatabase database, HttpClient http, ExecutionLog? log = null)
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
 
@@ -33,10 +33,23 @@ public sealed class MarketSynchronizer(MarketDatabase database, HttpClient http)
         return results.All(success => success);
     }
 
-    private static async Task<bool> Attempt(string source, Func<Task> action)
+    private async Task<bool> Attempt(string source, Func<Task> action)
     {
-        try { await action(); Console.WriteLine($"OK · {source}"); return true; }
-        catch (Exception ex) { Console.Error.WriteLine($"ERROR · {source}: {ex.Message}"); return false; }
+        var elapsed = System.Diagnostics.Stopwatch.StartNew();
+        log?.Info($"Inicio de fuente: {source}");
+        try
+        {
+            await action();
+            var message = $"OK · {source}; Duración={elapsed.Elapsed.TotalSeconds:F3} s";
+            if (log is not null) log.Info(message); else Console.WriteLine(message);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            var message = $"ERROR · {source}; Duración={elapsed.Elapsed.TotalSeconds:F3} s";
+            if (log is not null) log.Error(message, ex); else Console.Error.WriteLine($"{message}: {ex}");
+            return false;
+        }
     }
 
     private async Task Quotes<T>(string url, string table)
@@ -140,3 +153,4 @@ public sealed class MarketSynchronizer(MarketDatabase database, HttpClient http)
         database.SaveSnapshot("ProyeccionesDolarJson", JsonSerializer.Serialize(projections));
     }
 }
+

@@ -73,7 +73,7 @@ dotnet publish ARM.Mesa.Bursatil.Sync -c Release -r win-x64 --self-contained fal
 6. Programar `ARM.Mesa.Bursatil.Sync.exe --database C:\MesaBursatil\data\market.db`
    cada 5 minutos, con un usuario que tenga acceso a la carpeta y a Internet.
    Configurar **No iniciar una nueva instancia** si la anterior sigue activa.
-   Capturar stdout/stderr en logs y revisar los códigos de salida.
+   Sync crea automáticamente un log por ejecución; revisar también los códigos de salida.
 7. Configurar el binding de IIS para `mesabursatil.ar`, su certificado HTTPS,
    `AllowedHosts` con `mesabursatil.ar` y WebSockets para los circuitos Blazor.
    Si se habilita `www.mesabursatil.ar`, agregar también su DNS, binding, certificado
@@ -127,3 +127,33 @@ Referencias: [SQLite y concurrencia](https://learn.microsoft.com/en-us/dotnet/st
 [publicación en IIS](https://learn.microsoft.com/en-us/aspnet/core/tutorials/publish-to-iis?view=aspnetcore-10.0).
 Dirección visual inspirada en la jerarquía de mercados de [Finanzas Argy](https://www.finanzasargy.com/),
 con una identidad propia para Mesa Bursátil.
+
+## Logs de la tarea Sync
+
+El `appsettings.json` publicado junto a `ARM.Mesa.Bursatil.Sync.exe` configura la carpeta:
+
+```json
+"Logging": {
+  "Directory": "C:\\logs sitios IIS"
+}
+```
+
+En el archivo JSON usar dos barras por separador, como en el ejemplo anterior.
+La ruta debe ser absoluta. La carpeta se crea automáticamente; el usuario que ejecuta
+la tarea de Windows necesita permiso de escritura en ella. No hace falta redirigir
+la consola ni modificar la acción de la tarea: basta publicar el Sync actualizado y
+su configuración. Se carga desde el directorio del ejecutable, independientemente
+del campo «Iniciar en» del Programador de tareas.
+
+Cada invocación crea un archivo `ARM.Mesa.Bursatil.Sync_<fecha UTC>_<PID>_<id único>.log`,
+incluso en modo `--initialize-only` o `--import`. Contiene inicio, modo, base utilizada,
+resultado y duración por fuente, excepciones completas y un resumen final con código
+0 (correcto) o 1 (error). Se escribe en UTF-8 y se vacía el búfer después de cada entrada
+para inspeccionarlo mientras corre. Un cierre forzado puede dejarlo sin resumen final.
+Los archivos anteriores se conservan; no hay eliminación automática.
+
+Si falta `Logging:Directory`, se usa `C:\logs sitios IIS`. Si no se puede leer
+`appsettings.json`, se intenta registrar el error en esa carpeta predeterminada.
+Si no puede crearse el log, se informa por stderr y la ejecución falla antes de
+sincronizar: revisar la ruta y los permisos con la cuenta de la tarea.
+

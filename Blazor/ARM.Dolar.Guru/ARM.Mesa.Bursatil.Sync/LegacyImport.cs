@@ -6,7 +6,7 @@ namespace ARM.Mesa.Bursatil.Sync;
 /// <summary>Imports the export in docs/export-sqlserver.sql, atomically and without a SQL Server runtime dependency.</summary>
 public static class LegacyImport
 {
-    public static async Task RunAsync(MarketDatabase database, string file)
+    public static async Task RunAsync(MarketDatabase database, string file, ExecutionLog? log = null)
     {
         using var json = JsonDocument.Parse(await File.ReadAllTextAsync(file));
         using var connection = database.Open();
@@ -46,6 +46,8 @@ public static class LegacyImport
                 imported += command.ExecuteNonQuery();
             }
         transaction.Commit();
-        Console.WriteLine($"Importación completada: {imported} registros nuevos.");
+        var message = $"Importación completada: {imported} registros nuevos.";
+        if (log is not null) log.Info(message); else Console.WriteLine(message);
     }
 }
+

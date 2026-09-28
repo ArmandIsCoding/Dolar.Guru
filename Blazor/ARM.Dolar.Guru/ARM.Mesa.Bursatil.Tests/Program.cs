@@ -52,7 +52,24 @@ try
     Check(failed && Count(db, "CotizacionesDolarJson") == 2, "Invalid import rolls back every inserted row");
 
     using var http = new HttpClient(new StubHttp());
-    var result = await new MarketSynchronizer(db, http).RunAsync(quotesOnly: true);
+    bool result;
+    var logDirectory = Path.Combine(temporary, "logs con espacios");
+    using (var firstLog = new ExecutionLog(logDirectory))
+    using (var secondLog = new ExecutionLog(logDirectory))
+    {
+        firstLog.Info("Primera ejecución");
+        secondLog.Info("Segunda ejecución");
+        Check(firstLog.FilePath != secondLog.FilePath && Directory.GetFiles(logDirectory).Length == 2,
+            "Overlapping executions create separate log files");
+        result = await new MarketSynchronizer(db, http, firstLog).RunAsync(quotesOnly: true);
+        using var firstReader = new StreamReader(new FileStream(firstLog.FilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite));
+        var contents = firstReader.ReadToEnd();
+        Check(contents.Contains("[ERROR]") && contents.Contains("System.Net.Http.HttpRequestException")
+            && contents.Contains("OK · Divisas") && contents.Contains("Duración="),
+            "Log can be inspected before disposal and includes source errors and subsequent successes");
+        using var secondReader = new StreamReader(new FileStream(secondLog.FilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite));
+        Check(!secondReader.ReadToEnd().Contains("Divisas"), "Execution logs do not mix entries");
+    }
     Check(!result && Count(db, "CotizacionesDolarJson") == 2, "Failed dollar source preserves last good snapshot and returns failure");
     Check((await service.ObtenerUltimasCotizacionesAsync()).Item2.Single().Moneda == "EUR", "Another source still synchronizes after failure");
     Check((await service.ObtenerUltimaProyeccionAsync()).Count == 0, "Sparse history does not fabricate projections");
@@ -71,7 +88,7 @@ try
     Check(!await synchronizer.RunAsync() && Count(db, "IndicesMercadoJson") == 1
         && (await service.ObtenerIndicesAsync()).Count == 8, "Partial indices response preserves the last complete capture");
     Check((await service.ObtenerSeriesVentaAsync())["Blue"].All(point => point.Venta == 1250.78m), "Card history uses selling prices, not buying prices");
-    Console.WriteLine("All 18 integration checks passed.");
+    Console.WriteLine("All integration checks passed.");
 }
 finally
 {
@@ -123,3 +140,5 @@ sealed class MarketStubHttp : HttpMessageHandler
         return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(content, System.Text.Encoding.UTF8, path.StartsWith("/v1/") || path.StartsWith("/api/") ? "application/json" : "application/rss+xml") });
     }
 }
+
+
