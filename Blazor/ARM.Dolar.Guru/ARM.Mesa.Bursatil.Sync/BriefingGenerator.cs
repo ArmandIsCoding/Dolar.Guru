@@ -37,9 +37,15 @@ public sealed class BriefingGenerator(MarketDatabase database, BriefingOptions o
         var inputCap = client.EstimateMaxInputTokens(sources, nowUtc);
         var outputCap = client.EstimateMaxOutputTokens();
         if (inputCap <= 0 || outputCap <= 0) throw new InvalidOperationException("Reserva de tokens inválida.");
+        if (inputCap > options.MaxInputTokensPerRequest)
+        {
+            report?.Invoke("La estimación conservadora de entrada excede MaxInputTokensPerRequest; reduzca MaxArticles. No se llamó a la API.");
+            return null;
+        }
         var reservation = decimal.Ceiling((inputCap * options.InputUsdPerMillion + outputCap * options.OutputUsdPerMillion) / 1_000_000m * 1_000_000m) / 1_000_000m;
         var service = new BriefingService(database);
-        if (!service.TryReserve(slot, fingerprint, nowUtc, reservation, options.MonthlyBudgetUsd, options.Provider, options.Model, out var reason))
+        if (!service.TryReserve(slot, fingerprint, nowUtc, reservation, options.MonthlyBudgetUsd, options.Provider, options.Model, out var reason,
+            options.IsFreeTier, options.MaxRequestsPer24Hours, options.MaxRequestsPerMonth))
         {
             report?.Invoke(reason);
             return null;
@@ -57,14 +63,17 @@ public sealed class BriefingGenerator(MarketDatabase database, BriefingOptions o
             var id = service.SaveDraft(edition);
             var cost = (result.InputTokens * options.InputUsdPerMillion + result.OutputTokens * options.OutputUsdPerMillion) / 1_000_000m;
             service.CompleteRun(slot, id, result.InputTokens, result.OutputTokens, cost);
-            report?.Invoke($"Borrador {id} guardado para revisión, NO publicado. Tokens={result.InputTokens}/{result.OutputTokens}; coste calculado USD {cost.ToString("F6", CultureInfo.InvariantCulture)}.");
+            var accounting = options.IsFreeTier ? "FreeTier declarado, sin cálculo de factura de Google"
+                : $"coste calculado USD {cost.ToString("F6", CultureInfo.InvariantCulture)}";
+            report?.Invoke($"Borrador {id} guardado para revisión, NO publicado. Tokens={result.InputTokens}/{result.OutputTokens}; {accounting}.");
             return id;
         }
-        catch
+        catch (Exception ex)
         {
             service.FailRun(slot);
             // Do not log provider payloads, article contents or credentials.
-            report?.Invoke("La síntesis falló. Se conserva la edición publicada y la reserva de coste; no se reintenta esta franja.");
+            if (ex is BriefingQuotaExceededException) report?.Invoke(ex.Message);
+            report?.Invoke("La síntesis falló. Se conserva la edición publicada y la reserva de solicitud/coste; no se reintenta esta franja.");
             throw;
         }
     }

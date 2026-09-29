@@ -29,6 +29,23 @@ public sealed class BriefingService(MarketDatabase database)
             CREATE INDEX IF NOT EXISTS IX_BriefingRuns_Month ON BriefingRuns(Month);
             """;
         command.ExecuteNonQuery();
+        // Additive migration, serialized across concurrent initializations; existing runs are paid.
+        using var transaction = connection.BeginTransaction(deferred: false);
+        command.Transaction = transaction;
+        command.CommandText = "PRAGMA table_info(BriefingRuns)";
+        bool hasBillingMode;
+        using (var reader = command.ExecuteReader())
+        {
+            hasBillingMode = false;
+            while (reader.Read())
+                if (reader.GetString(1) == "BillingMode") hasBillingMode = true;
+        }
+        if (!hasBillingMode)
+        {
+            command.CommandText = "ALTER TABLE BriefingRuns ADD COLUMN BillingMode TEXT NOT NULL DEFAULT 'Paid'";
+            command.ExecuteNonQuery();
+        }
+        transaction.Commit();
     }
 
     public NewsBriefing? GetLatestPublished() => ListPublished(1).FirstOrDefault();
@@ -117,9 +134,14 @@ public sealed class BriefingService(MarketDatabase database)
     // Atomic slot lock + conservative cost reservation. Unknown/failed requests retain their
     // reservation: a network timeout does not prove that the provider did not charge.
     public bool TryReserve(string slot, string fingerprint, DateTime nowUtc, decimal amount,
-        decimal monthlyLimit, string provider, string model, out string reason)
+        decimal monthlyLimit, string provider, string model, out string reason,
+        bool freeTier = false, int maxRequestsPer24Hours = 4, int maxRequestsPerMonth = 124)
     {
-        if (amount <= 0 || monthlyLimit <= 0) throw new ArgumentOutOfRangeException(nameof(amount));
+        if (nowUtc.Kind != DateTimeKind.Utc) throw new ArgumentException("La fecha debe ser UTC.");
+        if (freeTier ? amount != 0 || monthlyLimit != 0 || !string.Equals(provider, "Gemini", StringComparison.OrdinalIgnoreCase)
+            : amount <= 0 || monthlyLimit <= 0) throw new ArgumentOutOfRangeException(nameof(amount));
+        if (maxRequestsPer24Hours is < 1 or > 4 || maxRequestsPerMonth is < 1 or > 124)
+            throw new ArgumentOutOfRangeException(nameof(maxRequestsPer24Hours));
         using var connection = database.Open();
         using var transaction = connection.BeginTransaction(deferred: false);
         using var command = connection.CreateCommand();
@@ -133,22 +155,45 @@ public sealed class BriefingService(MarketDatabase database)
             return false;
         }
         var month = nowUtc.ToString("yyyy-MM", CultureInfo.InvariantCulture);
-        command.CommandText = "SELECT COALESCE(SUM(COALESCE(ChargedUsd,ReservedUsd)),0) FROM BriefingRuns WHERE Month=$month";
+        // Count all modes/models and statuses, including failed/unknown outcomes. Changing
+        // a key or restarting Sync must not refund a request. Rolling 24h avoids timezone resets.
+        command.CommandText = "SELECT COUNT(*) FROM BriefingRuns WHERE julianday(StartedAtUtc)>julianday($since)";
+        command.Parameters.AddWithValue("$since", nowUtc.AddHours(-24).ToString("O"));
+        if ((long)command.ExecuteScalar()! >= maxRequestsPer24Hours)
+        {
+            reason = "Límite local de solicitudes en 24 horas alcanzado; no se llamó a la API.";
+            return false;
+        }
+        command.CommandText = "SELECT COUNT(*) FROM BriefingRuns WHERE Month=$month";
         command.Parameters.AddWithValue("$month", month);
+        if ((long)command.ExecuteScalar()! >= maxRequestsPerMonth)
+        {
+            reason = "Límite local mensual de solicitudes alcanzado; no se llamó a la API.";
+            return false;
+        }
+        command.CommandText = "SELECT COUNT(*) FROM BriefingRuns WHERE julianday(StartedAtUtc)>julianday($minute)";
+        command.Parameters.AddWithValue("$minute", nowUtc.AddMinutes(-1).ToString("O"));
+        if ((long)command.ExecuteScalar()! > 0)
+        {
+            reason = "Ya se reservó una solicitud en el último minuto; no se llamó a la API.";
+            return false;
+        }
+        command.CommandText = "SELECT COALESCE(SUM(COALESCE(ChargedUsd,ReservedUsd)),0) FROM BriefingRuns WHERE Month=$month";
         var spent = Convert.ToDecimal(command.ExecuteScalar(), CultureInfo.InvariantCulture);
-        if (spent + amount > monthlyLimit)
+        if (!freeTier && spent + amount > monthlyLimit)
         {
             reason = "La reserva excede el presupuesto mensual de síntesis; no se llamó a la API.";
             return false;
         }
         command.CommandText = """
-            INSERT INTO BriefingRuns(Slot,Fingerprint,StartedAtUtc,Month,Status,ReservedUsd,Provider,Model)
-            VALUES($slot,$hash,$date,$month,'reserved',$amount,$provider,$model)
+            INSERT INTO BriefingRuns(Slot,Fingerprint,StartedAtUtc,Month,Status,ReservedUsd,Provider,Model,BillingMode)
+            VALUES($slot,$hash,$date,$month,'reserved',$amount,$provider,$model,$billing)
             """;
         command.Parameters.AddWithValue("$date", nowUtc.ToString("O"));
         command.Parameters.AddWithValue("$amount", (double)amount);
         command.Parameters.AddWithValue("$provider", provider);
         command.Parameters.AddWithValue("$model", model);
+        command.Parameters.AddWithValue("$billing", freeTier ? "FreeTier" : "Paid");
         command.ExecuteNonQuery();
         transaction.Commit();
         reason = "Reservado";

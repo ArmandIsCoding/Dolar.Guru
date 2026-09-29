@@ -37,7 +37,12 @@ try
     database.Initialize();
 
     var importIndex = Array.IndexOf(args, "--import");
-    if (BriefingCommands.HandleReview(args, database))
+    if (args.Contains("--briefing-check"))
+    {
+        BriefingCommands.CheckConfiguration(configuration, log.Info);
+        exitCode = 0;
+    }
+    else if (BriefingCommands.HandleReview(args, database))
     {
         exitCode = 0;
     }

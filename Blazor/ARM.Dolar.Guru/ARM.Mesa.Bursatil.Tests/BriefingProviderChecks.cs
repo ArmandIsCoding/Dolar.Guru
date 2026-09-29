@@ -112,6 +112,27 @@ internal static class BriefingProviderChecks
             && geminiStub.LastGoogleKey == "test-google-key-not-real" && !geminiStub.LastUri.Contains("key=")
             && gemini.EstimateMaxOutputTokens() == 10000,
             "Gemini key stays in a header and budget reserves a reasoning safety margin");
+        var freeOptions = BriefingFreeTierChecks.Options();
+        var freeClient = new HttpBriefingAiClient(geminiHttp, freeOptions, "synthetic-free-key");
+        var freeResult = await freeClient.GenerateAsync(sources, end);
+        Check(freeResult.InputTokens == 120 && freeResult.OutputTokens == 90
+            && geminiStub.LastUri == "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent",
+            "FreeTier uses the configured Gemini model and real usage parsing with zero rates");
+        freeOptions.MaxInputTokensPerRequest = 1000;
+        previous = geminiStub.CallCount;
+        await Reject(freeClient, sources, end, "Client itself blocks an oversized input before HTTP");
+        Check(geminiStub.CallCount == previous, "Oversized input never reaches the network");
+        freeOptions.MaxInputTokensPerRequest = 200000;
+        geminiStub.Status = HttpStatusCode.TooManyRequests;
+        geminiStub.Body = "synthetic-private-error-body";
+        try { await freeClient.GenerateAsync(sources, end); throw new Exception("Expected quota rejection"); }
+        catch (InvalidOperationException ex)
+        {
+            Check(ex.Message.Contains("429") && ex.Message.Contains("cuota") && !ex.ToString().Contains(geminiStub.Body)
+                && geminiStub.CallCount == previous + 1,
+                "FreeTier 429 explains quota failure without body leaks, retries or fallback");
+        }
+        geminiStub.Status = HttpStatusCode.OK;
         geminiStub.Body = GeminiResponse(edition, "MAX_TOKENS");
         await Reject(gemini, sources, end, "Gemini truncated output is rejected");
         geminiStub.Body = GeminiResponse(edition, "SAFETY");

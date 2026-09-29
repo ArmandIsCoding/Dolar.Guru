@@ -12,6 +12,11 @@ public static class BriefingCommands
         Enabled = bool.TryParse(configuration["Briefing:Enabled"], out var enabled) && enabled,
         Provider = configuration["Briefing:Provider"] ?? "OpenAI",
         Model = configuration["Briefing:Model"] ?? "",
+        BillingMode = configuration["Briefing:BillingMode"] ?? "Paid",
+        FreeTierConfirmed = bool.TryParse(configuration["Briefing:FreeTierConfirmed"], out var confirmed) && confirmed,
+        MaxRequestsPer24Hours = ReadInt(configuration, "MaxRequestsPer24Hours", 4),
+        MaxRequestsPerMonth = ReadInt(configuration, "MaxRequestsPerMonth", 124),
+        MaxInputTokensPerRequest = ReadInt(configuration, "MaxInputTokensPerRequest", 200000),
         MaxOutputTokens = ReadInt(configuration, "MaxOutputTokens", 5000),
         MonthlyBudgetUsd = ReadDecimal(configuration, "MonthlyBudgetUsd", 10m),
         InputUsdPerMillion = ReadDecimal(configuration, "InputUsdPerMillion", 0m),
@@ -42,10 +47,23 @@ public static class BriefingCommands
         if (!options.Enabled) { log.Info("El país en contexto: generación desactivada."); return; }
         options.Validate();
         var key = SyncConfiguration.ReadApiKey(configuration);
+        log.Info(options.IsFreeTier
+            ? "Síntesis Gemini en FreeTier: límites locales activos. La gratuidad depende del proyecto/modelo en Google; Sync no consulta ni cambia su facturación."
+            : "Síntesis en modo Paid: presupuesto y tarifas locales activos.");
         using var http = new HttpClient(new HttpClientHandler { AllowAutoRedirect = false })
         { Timeout = TimeSpan.FromSeconds(options.RequestTimeoutSeconds) };
         var client = new HttpBriefingAiClient(http, options, key);
         await new BriefingGenerator(database, options, client, log.Info).GenerateAsync(DateTime.UtcNow);
+    }
+
+    public static void CheckConfiguration(IConfiguration configuration, Action<string> report)
+    {
+        var options = ReadOptions(configuration);
+        options.Validate();
+        _ = SyncConfiguration.ReadApiKey(configuration);
+        report($"Configuración local válida. Proveedor={options.Provider}; Modelo={options.Model}; Modo={options.BillingMode}; Enabled={options.Enabled}.");
+        report($"Límites: {options.MaxRequestsPer24Hours} solicitudes/24 h, {options.MaxRequestsPerMonth}/mes UTC; entrada estimada máxima={options.MaxInputTokensPerRequest} tokens/solicitud.");
+        report("Clave presente (no se muestra). Sin llamadas a la API. Esta comprobación no valida la clave, cuota, facturación ni disponibilidad del modelo en Google; tampoco autoriza fuentes.");
     }
 
     // Local administrator CLI, not an unauthenticated web endpoint.

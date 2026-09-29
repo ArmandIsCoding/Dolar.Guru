@@ -18,7 +18,7 @@ La web no recibe la clave API y no tiene rutas públicas de administración edit
    de cables sindicados. La agrupación temática posterior es asistida por IA.
 3. Selecciona noticias recientes con contenido suficiente y autorización explícita para
    IA. Balancea grupos editoriales y limita material internacional; no rellena con noticias viejas.
-4. Si hay cobertura y presupuesto, envía **solo esos textos** al proveedor configurado.
+4. Si hay cobertura y cuota local (y presupuesto en modo pago), envía **solo esos textos** al proveedor configurado.
    No ofrece herramientas, navegación ni acceso a la base al modelo.
 5. Valida estructura, fechas, URLs, IDs y que cada fragmento de evidencia exista en la
    fuente correspondiente. Exige 4–6 temas, al menos tres grupos editoriales citados
@@ -56,12 +56,17 @@ Se necesitan al menos cuatro noticias con texto suficiente de tres grupos.
 
 | Campo | Uso |
 |---|---|
-| `Enabled` | `true` habilita llamadas facturables; dejar `false` hasta completar la configuración. |
+| `Enabled` | `true` habilita llamadas a la API; dejar `false` hasta completar la configuración. |
 | `Provider` | `OpenAI` (Responses) o `Gemini` (generateContent). |
 | `Model` | ID vigente y habilitado en tu cuenta, compatible con JSON estructurado. Sin modelo predeterminado. |
 | `ApiKey` | Clave del proveedor, solo en el archivo privado de Sync. No requiere variables de entorno. |
-| `MonthlyBudgetUsd` | Presupuesto local mensual UTC; por defecto 10 USD. |
-| `InputUsdPerMillion`, `OutputUsdPerMillion` | Tarifas **máximas** vigentes del modelo, en USD/millón de tokens. Cero impide generar. |
+| `BillingMode` | `Paid` (por defecto, compatible con configuraciones anteriores) o `FreeTier` (solo Gemini). |
+| `FreeTierConfirmed` | En `FreeTier`, debe ser `true` tras verificar proyecto/modelo gratuito en AI Studio. No verifica ni modifica Google. |
+| `MonthlyBudgetUsd` | En `Paid`, presupuesto local mensual UTC positivo, por defecto 10 USD. En `FreeTier`, debe ser 0 explícitamente. |
+| `InputUsdPerMillion`, `OutputUsdPerMillion` | En `Paid`, tarifas **máximas** vigentes positivas en USD/millón de tokens. En `FreeTier`, ambas deben ser 0. |
+| `MaxRequestsPer24Hours` | Máximo local de intentos en una ventana móvil de 24 h; por defecto 4, rango 1–4. |
+| `MaxRequestsPerMonth` | Máximo local de intentos por mes UTC; por defecto 124, rango 1–124. |
+| `MaxInputTokensPerRequest` | Máximo de entrada estimada (bytes de petición + margen); por defecto 200000, rango 1000–250000. Si se excede, no llama a la API; reducir `MaxArticles`. |
 | `MaxOutputTokens` | Límite de salida; por defecto 5000. Una respuesta truncada no se publica. |
 | `ScheduleHours` | `[8,12,16,20]`, hora argentina UTC−03. Hasta cuatro franjas diarias. |
 | `LookbackHours` | Ventana de noticias, por defecto 24 h. |
@@ -69,7 +74,7 @@ Se necesitan al menos cuatro noticias con texto suficiente de tres grupos.
 | `MinPublishers` | Por defecto 3; mínimo obligatorio 3. |
 | `RequestTimeoutSeconds` | Por defecto 90 s. Sin reintentos automáticos. |
 
-Elegir el modelo y copiar sus tarifas actuales desde la documentación del proveedor;
+Para `Paid`, elegir el modelo y copiar sus tarifas actuales desde la documentación del proveedor;
 usar el precio más alto aplicable a entrada/salida para ese contexto, incluido
 razonamiento, sin asumir descuentos de caché. No usar cuotas del chat como presupuesto
 de API. La app no activa facturación, no crea cuentas y no genera claves.
@@ -86,16 +91,31 @@ Usar la plantilla `ARM.Mesa.Bursatil.Sync/appsettings.Production.example.json`
 {
   "Briefing": {
     "Enabled": false,
-    "Provider": "OpenAI",
-    "Model": "",
+    "Provider": "Gemini",
+    "Model": "gemini-3.8-flash",
+    "BillingMode": "FreeTier",
+    "FreeTierConfirmed": false,
     "ApiKey": "PEGAR_LA_CLAVE_AQUI",
+    "MonthlyBudgetUsd": 0,
     "InputUsdPerMillion": 0,
-    "OutputUsdPerMillion": 0
+    "OutputUsdPerMillion": 0,
+    "MaxRequestsPer24Hours": 4,
+    "MaxRequestsPerMonth": 124,
+    "MaxInputTokensPerRequest": 200000
   }
 }
 ```
 
-Completar modelo y tarifas antes de poner `Enabled=true`. También se pueden
+La plantilla está preparada para probar Gemini gratis, pero **desactivada y sin clave**.
+Verificar que el proyecto de la clave siga en **Nivel gratuito**, y que el modelo
+elegido tenga cuota y soporte JSON estructurado. Después poner `FreeTierConfirmed=true`.
+`gemini-3.8-flash` es el ejemplo verificado en la documentación el 29/09/2026;
+la disponibilidad y cuota exactas deben revisarse en el proyecto **Mesa Bursatil**, no
+inferirse de otro proyecto ni de la suscripción del chat. No habilitar facturación
+para este piloto. El nivel gratuito puede usar los textos enviados para mejorar
+productos de Google: no enviar datos privados y revisar las condiciones de las fuentes.
+
+Completar la clave y validar la configuración antes de poner `Enabled=true`. También se pueden
 sobrescribir `Database:Path`, `Logging:Directory` y otras opciones en ese archivo.
 La autorización de fuentes `AllowAiUse` sigue siendo necesaria.
 
@@ -130,6 +150,10 @@ migraciones son aditivas; conservan las noticias y sus IDs. Recomendado almacena
 SQLite fuera del directorio publicado. Ejecutar desde la carpeta publicada de Sync:
 
 ```powershell
+# Validación LOCAL de configuración y presencia de clave. No consulta Google ni descarga noticias.
+# Funciona con Enabled=false; FreeTierConfirmed debe estar en true para validar FreeTier.
+.\ARM.Mesa.Bursatil.Sync.exe --settings 'C:\MesaBursatil\config\appsettings.Production.json' --briefing-check
+
 # Descarga feeds y mercados. Si IA está habilitada, intenta la franja editorial actual.
 .\ARM.Mesa.Bursatil.Sync.exe
 
@@ -149,7 +173,8 @@ SQLite fuera del directorio publicado. Ejecutar desde la carpeta publicada de Sy
 .\ARM.Mesa.Bursatil.Sync.exe --briefing-reject 1
 ```
 
-Reemplazar `1` por el ID real. Todos aceptan `--database 'C:\ruta\market.db'`;
+Si se usa archivo externo, agregar `--settings 'C:\MesaBursatil\config\appsettings.Production.json'`
+a TODOS los comandos y a la tarea de Windows. Reemplazar `1` por el ID real. Todos aceptan `--database 'C:\ruta\market.db'`;
 `MESA_BURSATIL_DB_PATH` sigue teniendo prioridad. Los comandos editoriales no descargan
 mercados. No se publica ningún borrador automáticamente. Un borrador de más de 48 h
 no puede aprobarse: generar uno nuevo. Por ahora no hay edición manual de borradores
@@ -164,8 +189,9 @@ se vuelve a llamar a la API, aunque haya otra franja disponible.
 
 ## Costes y fallos
 
-`BriefingRuns` registra franja, proveedor/modelo, reserva USD, uso y coste calculado
-con las tarifas configuradas. Antes de cada llamada se reserva una cota conservadora
+`BriefingRuns` registra franja, proveedor/modelo, `BillingMode`, reserva USD, uso y coste calculado
+con las tarifas configuradas. Las filas previas se conservan con `BillingMode=Paid`.
+En `Paid`, antes de cada llamada se reserva una cota conservadora
 de entrada (bytes de la petición más margen) y de salida. Las reservas pendientes o
 fallidas cuentan contra el presupuesto: un timeout no prueba que la llamada fuese gratis.
 Un proceso interrumpido no reintenta esa franja. Los errores no sobrescriben una edición.
@@ -174,6 +200,32 @@ Este límite es **local a esta base y a estas tarifas**: no es un tope contractu
 del proveedor, no cubre otras aplicaciones/API keys, cambios de precios ni impuestos.
 Configurar también límites/alertas en el proveedor y conciliar con su factura real.
 Cambiar de base reinicia el registro local; no hacerlo para evadir el límite.
+
+### Modo gratuito y límites de solicitudes
+
+En `FreeTier` no se inventan tarifas: la reserva y el coste **locales** son cero y
+se registra el uso de tokens. Esto **no certifica una factura de cero ni fuerza a
+Google a usar un nivel gratuito**: generateContent no lleva un parámetro de "no cobrar".
+Si alguien vincula facturación al proyecto o cambia la clave por una de un proyecto
+pago, Google puede cobrar aunque este JSON diga `FreeTier`. Sync no activa facturación
+ni hace fallback a otros modelos/proveedores. Mantener el proyecto sin facturación;
+si se quiere pasar a pago, usar `Paid` y sus tarifas/presupuesto vigentes.
+
+Los límites locales de solicitudes y entrada se aplican a ambos modos. Antes de
+llamar se reserva una solicitud mediante una transacción SQLite. Todas las filas
+cuentan (exitosas, fallidas y pendientes), sin importar modelo, proveedor o clave.
+Un reinicio, una ejecución manual o un cambio de configuración no devuelve cuota.
+Hay como máximo una reserva por minuto, además de los límites móviles de 24 h y
+mensuales UTC. Estos controles no cuentan el consumo de otras aplicaciones ni de
+otras bases de datos. La cuota de Google es por proyecto y su límite diario se
+reinicia a medianoche del Pacífico; nuestra ventana móvil de 24 h es intencionalmente
+conservadora y no intenta reproducir ese calendario.
+
+Ante HTTP 429 se informa agotamiento de cuota/frecuencia sin exponer la respuesta del
+proveedor ni la clave. No se reintenta la franja fallida; un sync futuro podrá intentar
+una nueva franja si hay cobertura y cuota local. La última edición publicada se conserva.
+No se recortan silenciosamente fuentes cuando la entrada supera el límite; se registra
+la omisión y se debe reducir `MaxArticles` manteniendo la diversidad editorial.
 
 Errores de mercado y de IA se registran por separado. Un error de IA puede producir
 código de salida 1 pero no revierte las cotizaciones ya sincronizadas. Falta de noticias,
@@ -190,11 +242,14 @@ dotnet build ARM.Mesa.Bursatil.sln -c Release
 Usan SQLite temporal y respuestas HTTP simuladas; no requieren clave, no gastan crédito
 y no escriben datos ficticios en la base real. Incluyen migración, diversidad, revocación
 de permisos IA, RSS malformado/XXE, ambos proveedores, negativas, truncado, citas
-inexistentes, publicación manual, presupuesto, concurrencia y conservación de la edición.
+inexistentes, publicación manual, presupuesto, FreeTier con tarifas cero, límites
+móviles/mensuales, HTTP 429, concurrencia y conservación de la edición.
 La fidelidad semántica y el rendimiento real del modelo elegido requieren un piloto
 supervisado con datos autorizados: no quedan certificados por estas pruebas.
 
 Referencias: [OpenAI JSON estructurado](https://developers.openai.com/api/docs/guides/structured-outputs),
 [Gemini JSON estructurado](https://ai.google.dev/gemini-api/docs/structured-output),
 [precios OpenAI](https://developers.openai.com/api/docs/pricing),
-[precios Gemini](https://ai.google.dev/gemini-api/docs/pricing).
+[precios Gemini](https://ai.google.dev/gemini-api/docs/pricing),
+[cuotas Gemini](https://ai.google.dev/gemini-api/docs/rate-limits),
+[modelo Gemini 3.8 Flash](https://ai.google.dev/gemini-api/docs/models/gemini-3.8-flash).

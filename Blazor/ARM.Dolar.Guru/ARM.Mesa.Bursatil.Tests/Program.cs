@@ -89,6 +89,7 @@ try
         && (await service.ObtenerIndicesAsync()).Count == 8, "Partial indices response preserves the last complete capture");
     Check((await service.ObtenerSeriesVentaAsync())["Blue"].All(point => point.Venta == 1250.78m), "Card history uses selling prices, not buying prices");
     await BriefingChecks.RunAsync(temporary);
+    await BriefingFreeTierChecks.RunAsync(temporary);
     await SyncConfigurationChecks.RunAsync(temporary);
     await BriefingProviderChecks.RunAsync(temporary);
     await NewsIngestionChecks.RunAsync(temporary);

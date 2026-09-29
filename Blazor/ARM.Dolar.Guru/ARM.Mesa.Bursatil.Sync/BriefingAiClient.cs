@@ -14,6 +14,9 @@ public interface IBriefingAiClient
 
 public sealed record BriefingAiResult(List<BriefingStatement> Summary, List<BriefingTopic> Topics, int InputTokens, int OutputTokens);
 
+public sealed class BriefingQuotaExceededException() : InvalidOperationException(
+    "HTTP 429: cuota o límite de frecuencia del proveedor agotado. Se conserva la edición publicada; sin reintento automático ni cambio de modelo/proveedor. Revise los límites del proyecto en AI Studio si usa Gemini.");
+
 /// <summary>
 /// A single non-streaming, structured-output request, without tools, retries or remote URL retrieval.
 /// The caller reserves budget before invoking this client and validates evidence before saving a draft.
@@ -148,6 +151,8 @@ public sealed class HttpBriefingAiClient(HttpClient http, BriefingOptions option
         CancellationToken cancellationToken = default)
     {
         var body = BuildRequestBody(sources, coverageEndUtc);
+        if (checked(body.Length + 4096) > options.MaxInputTokensPerRequest)
+            throw new InvalidOperationException("La entrada excede MaxInputTokensPerRequest; no se llamó a la API.");
         if (string.IsNullOrWhiteSpace(apiKey) || apiKey.Any(char.IsWhiteSpace))
             throw new InvalidOperationException("Falta una clave API válida en la configuración privada de Sync.");
         using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
@@ -163,6 +168,8 @@ public sealed class HttpBriefingAiClient(HttpClient http, BriefingOptions option
         try
         {
             using var response = await http.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, timeout.Token);
+            if (response.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
+                throw new BriefingQuotaExceededException();
             if (!response.IsSuccessStatusCode)
                 throw new InvalidOperationException($"El proveedor de síntesis devolvió HTTP {(int)response.StatusCode}. Sin reintento automático.");
             using var json = await ReadResponseAsync(response, timeout.Token);

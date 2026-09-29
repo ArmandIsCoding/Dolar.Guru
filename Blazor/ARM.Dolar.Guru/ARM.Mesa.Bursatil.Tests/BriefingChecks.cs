@@ -67,11 +67,12 @@ internal static class BriefingChecks
         var budget = new BriefingService(ledger);
         Check(budget.TryReserve("slot1", "hash1", now, 7m, 10m, "test", "test", out _), "Cost reserved before request");
         budget.FailRun("slot1");
-        Check(!budget.TryReserve("slot2", "hash2", now, 4m, 10m, "test", "test", out _), "Timeout or failure retains reservation against monthly limit");
+        Check(!budget.TryReserve("slot2", "hash2", now.AddMinutes(2), 4m, 10m, "test", "test", out var budgetReason)
+            && budgetReason.Contains("presupuesto mensual"), "Timeout or failure retains reservation against monthly limit");
         Check(!budget.TryReserve("slot1", "hash1", now, 1m, 10m, "test", "test", out _), "Failed slot cannot accidentally retry and double-charge");
         Check(budget.TryReserve("nextmonth", "hash2", now.AddMonths(1), 4m, 10m, "test", "test", out _), "New month has separate budget");
         var outcomes = await Task.WhenAll(Enumerable.Range(0, 5).Select(index => Task.Run(() =>
-            new BriefingService(ledger).TryReserve("concurrent", "concurrent-hash", now.AddMonths(1), 2m, 10m, "test", "test", out _))));
+            new BriefingService(ledger).TryReserve("concurrent", "concurrent-hash", now.AddMonths(1).AddMinutes(2), 2m, 10m, "test", "test", out _))));
         Check(outcomes.Count(x => x) == 1, "Concurrent sync processes reserve a slot exactly once");
         Check(!budget.TryReserve("different-slot", "concurrent-hash", now.AddMonths(1), 1m, 10m, "test", "test", out _),
             "Identical evidence still in flight is blocked across different editorial slots");
@@ -91,7 +92,7 @@ internal static class BriefingChecks
             && new BriefingService(failureDb).GetLatestPublished() is null, "Failure leaves no publication and cannot retry slot");
     }
 
-    private static void SeedNews(MarketDatabase database, DateTime now)
+    internal static void SeedNews(MarketDatabase database, DateTime now)
     {
         foreach (var source in Fixture(now).Sources)
         {
