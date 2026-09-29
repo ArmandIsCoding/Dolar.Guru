@@ -17,6 +17,7 @@ public sealed class BriefingOptions
     public decimal InputUsdPerMillion { get; set; }
     public decimal OutputUsdPerMillion { get; set; }
     public int[] ScheduleHours { get; set; } = [8, 12, 16, 20];
+    public bool GenerateWhenEmpty { get; set; } = true;
     public int MaxArticles { get; set; } = 24;
     public int MaxPerPublisher { get; set; } = 6;
     public int LookbackHours { get; set; } = 24;

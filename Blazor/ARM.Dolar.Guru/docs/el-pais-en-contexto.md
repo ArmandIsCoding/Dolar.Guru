@@ -11,6 +11,12 @@ La web no recibe la clave API y no tiene rutas públicas de administración edit
 
 ## Qué hace el sync
 
+**El funcionamiento habitual no requiere argumentos**, tanto desde F5 como desde
+el Programador de tareas. `Program.cs` carga appsettings e inicia `SyncWorkflow`:
+primero cotizaciones/noticias y luego evalúa si corresponde un resumen. Los comandos
+de revisión, importación y diagnóstico quedan separados en `SyncMaintenance`; siguen
+siendo opcionales y compatibles con instalaciones anteriores.
+
 1. Descarga los RSS configurados, guarda título, URL canónica, resumen, texto incluido
    en el propio feed, fecha, medio, grupo editorial, hash y fecha de consulta.
 2. Actualiza correcciones de una URL existente sin cambiar su ID. Deduplica URLs y
@@ -69,6 +75,7 @@ Se necesitan al menos cuatro noticias con texto suficiente de tres grupos.
 | `MaxInputTokensPerRequest` | Máximo de entrada estimada (bytes de petición + margen); por defecto 200000, rango 1000–250000. Si se excede, no llama a la API; reducir `MaxArticles`. |
 | `MaxOutputTokens` | Límite de salida; por defecto 5000. Una respuesta truncada no se publica. |
 | `ScheduleHours` | `[8,12,16,20]`, hora argentina UTC−03. Hasta cuatro franjas diarias. |
+| `GenerateWhenEmpty` | `true` por defecto. Si no existe ninguna edición guardada, adelanta la primera franja de hoy incluso antes del horario. No saltea permisos, cobertura, `Enabled` ni límites. |
 | `LookbackHours` | Ventana de noticias, por defecto 24 h. |
 | `MaxArticles`, `MaxPerPublisher` | Por defecto 24 y 6. |
 | `MinPublishers` | Por defecto 3; mínimo obligatorio 3. |
@@ -100,6 +107,8 @@ Usar la plantilla `ARM.Mesa.Bursatil.Sync/appsettings.Production.example.json`
     "InputUsdPerMillion": 0,
     "OutputUsdPerMillion": 0,
     "MaxRequestsPer24Hours": 4,
+    "ScheduleHours": [8, 12, 16, 20],
+    "GenerateWhenEmpty": true,
     "MaxRequestsPerMonth": 124,
     "MaxInputTokensPerRequest": 200000
   }
@@ -142,6 +151,37 @@ evitarlo. Las herramientas de despliegue propias deben respetar esta separación
 
 Para desarrollo también se puede usar `--settings` apuntando a un archivo privado
 externo; el archivo de la carpeta del proyecto no se copia automáticamente a `bin`.
+Para depurar **sin argumentos**, colocar manualmente `appsettings.Production.json`
+junto al ejecutable de `bin/Debug/net10.0` (o la salida que ejecute Visual Studio),
+sin reemplazar el `appsettings.json` base. Este privado no se copia desde el proyecto;
+conservar un respaldo seguro si se limpia la salida de compilación. La misma opción
+funciona junto al ejecutable publicado, dejando vacíos los argumentos de la tarea.
+
+### Frecuencia de cotizaciones e IA, por separado
+
+Mantener el ejecutable cada cinco minutos para las cotizaciones. Para IA basta con
+estos campos en el `Briefing` del archivo privado (conservar clave y demás opciones):
+
+```json
+"ScheduleHours": [8, 12, 16, 20],
+"GenerateWhenEmpty": true
+```
+
+Para dos ediciones, usar `"ScheduleHours": [8, 20]`. La lista del archivo privado
+reemplaza por completo la del archivo base; no se mezclan posiciones de ambas listas.
+Puede bajarse `MaxRequestsPer24Hours` a 2 si también se desea ese tope móvil.
+
+Si todavía no hay **ningún resumen** en `NewsBriefings`, se puede generar al iniciar,
+aunque sean las 06:00. Ese intento ocupa la franja de las 08:00: no se añade otra
+llamada a las 08:00. Un borrador (incluso pendiente de publicar), una edición publicada
+o una rechazada ya cuentan como historial. No se considera vacía la base solo porque
+no haya una edición pública. Si falló el intento inicial, no se repite en esa franja.
+Con noticias idénticas, tampoco se regenera en una franja posterior.
+
+Si la base está vacía **de noticias**, el flujo normal primero intenta descargar los RSS.
+Solo llama a IA al contar con texto suficiente y autorizado de varios grupos editoriales.
+`GenerateWhenEmpty` no envía un prompt sin evidencia ni habilita búsquedas externas:
+no debe inventar un resumen de actualidad a partir de la memoria del modelo.
 
 ## Generación y revisión desde Windows
 
@@ -181,8 +221,9 @@ no puede aprobarse: generar uno nuevo. Por ahora no hay edición manual de borra
 ni panel web de administración: ante un error, rechazar y revisar entradas/prompt.
 
 No hace falta una tarea adicional: Sync cada cinco minutos comprueba la franja actual
-(8/12/16/20). No recupera ediciones de franjas perdidas, ni genera antes de la primera
-hora del día. `--quotes-only` nunca llama a IA. Mantener “No iniciar una instancia
+(8/12/16/20 por defecto). No recupera ediciones de franjas perdidas. Solo puede adelantar
+la primera franja cuando no hay ninguna edición y `GenerateWhenEmpty=true`.
+`--quotes-only` nunca llama a IA. Mantener “No iniciar una instancia
 nueva” en el Programador de tareas. Un bloqueo transaccional en SQLite también evita
 duplicar una franja entre procesos. Con fuentes idénticas a una edición generada no
 se vuelve a llamar a la API, aunque haya otra franja disponible.
@@ -244,6 +285,8 @@ y no escriben datos ficticios en la base real. Incluyen migración, diversidad, 
 de permisos IA, RSS malformado/XXE, ambos proveedores, negativas, truncado, citas
 inexistentes, publicación manual, presupuesto, FreeTier con tarifas cero, límites
 móviles/mensuales, HTTP 429, concurrencia y conservación de la edición.
+También comprueban arranque sin argumentos, primera edición fuera de horario sin
+llamadas extras, respeto de borradores/fallos y reemplazo de cuatro horas por dos.
 La fidelidad semántica y el rendimiento real del modelo elegido requieren un piloto
 supervisado con datos autorizados: no quedan certificados por estas pruebas.
 

@@ -15,7 +15,16 @@ public sealed class BriefingGenerator(MarketDatabase database, BriefingOptions o
         if (!options.Enabled) { report?.Invoke("Síntesis IA desactivada; no se llama a ningún proveedor."); return null; }
         options.Validate();
         if (nowUtc.Kind != DateTimeKind.Utc) throw new ArgumentException("La fecha debe ser UTC.");
+        var service = new BriefingService(database);
         var slot = GetSlot(nowUtc, options.ScheduleHours);
+        if (slot is null && options.GenerateWhenEmpty && !service.HasAnyEdition())
+        {
+            // Bring today's first slot forward, don't add an extra slot or bypass request limits.
+            // A draft already counts as an edition even if it has not yet been published.
+            var local = new DateTimeOffset(nowUtc).ToOffset(TimeSpan.FromHours(-3));
+            slot = $"{local:yyyy-MM-dd}/{options.ScheduleHours.Min():D2}";
+            report?.Invoke("Todavía no hay resúmenes guardados: se adelanta la primera franja de hoy. Se mantienen cobertura, permisos y límites de solicitudes.");
+        }
         if (slot is null) { report?.Invoke("Todavía no hay una franja editorial habilitada hoy."); return null; }
         var news = new NewsService(database).GetBriefingCandidates(nowUtc.AddHours(-options.LookbackHours),
             options.MaxArticles, options.MaxPerPublisher, Math.Max(1, options.MaxArticles / 10), untilUtc: nowUtc);
@@ -43,7 +52,6 @@ public sealed class BriefingGenerator(MarketDatabase database, BriefingOptions o
             return null;
         }
         var reservation = decimal.Ceiling((inputCap * options.InputUsdPerMillion + outputCap * options.OutputUsdPerMillion) / 1_000_000m * 1_000_000m) / 1_000_000m;
-        var service = new BriefingService(database);
         if (!service.TryReserve(slot, fingerprint, nowUtc, reservation, options.MonthlyBudgetUsd, options.Provider, options.Model, out var reason,
             options.IsFreeTier, options.MaxRequestsPer24Hours, options.MaxRequestsPerMonth))
         {

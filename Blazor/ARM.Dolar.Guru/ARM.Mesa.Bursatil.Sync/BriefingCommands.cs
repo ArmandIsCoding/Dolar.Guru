@@ -22,6 +22,8 @@ public static class BriefingCommands
         InputUsdPerMillion = ReadDecimal(configuration, "InputUsdPerMillion", 0m),
         OutputUsdPerMillion = ReadDecimal(configuration, "OutputUsdPerMillion", 0m),
         ScheduleHours = ReadHours(configuration),
+        GenerateWhenEmpty = configuration["Briefing:GenerateWhenEmpty"] is not { } generateWhenEmpty
+            || bool.Parse(generateWhenEmpty),
         MaxArticles = ReadInt(configuration, "MaxArticles", 24),
         MaxPerPublisher = ReadInt(configuration, "MaxPerPublisher", 6),
         LookbackHours = ReadInt(configuration, "LookbackHours", 24),
@@ -31,6 +33,21 @@ public static class BriefingCommands
 
     private static int[] ReadHours(IConfiguration configuration)
     {
+        // JSON providers normally merge arrays by index. A private [8,20] must replace
+        // the base [8,12,16,20], not become [8,20,16,20]. Read the highest-priority list.
+        const string path = "Briefing:ScheduleHours";
+        if (configuration is IConfigurationRoot root)
+        {
+            foreach (var provider in root.Providers.Reverse())
+            {
+                var keys = provider.GetChildKeys([], path).Distinct().ToArray();
+                if (keys.Length == 0 && !provider.TryGet(path, out _)) continue;
+                if (keys.Length == 0) throw new ArgumentException("Briefing:ScheduleHours requiere una lista no vacía de horas.");
+                return keys.Select(key => provider.TryGet($"{path}:{key}", out var value)
+                    ? int.Parse(value!, CultureInfo.InvariantCulture)
+                    : throw new ArgumentException("Briefing:ScheduleHours contiene una hora inválida.")).ToArray();
+            }
+        }
         var children = configuration.GetSection("Briefing:ScheduleHours").GetChildren().ToArray();
         return children.Length == 0 ? [8, 12, 16, 20]
             : children.Select(s => int.Parse(s.Value!, CultureInfo.InvariantCulture)).ToArray();
@@ -63,6 +80,7 @@ public static class BriefingCommands
         _ = SyncConfiguration.ReadApiKey(configuration);
         report($"Configuración local válida. Proveedor={options.Provider}; Modelo={options.Model}; Modo={options.BillingMode}; Enabled={options.Enabled}.");
         report($"Límites: {options.MaxRequestsPer24Hours} solicitudes/24 h, {options.MaxRequestsPerMonth}/mes UTC; entrada estimada máxima={options.MaxInputTokensPerRequest} tokens/solicitud.");
+        report($"Horario argentino: {string.Join(", ", options.ScheduleHours.Order().Select(h => $"{h:D2}:00"))}; adelantar primera edición si la base de resúmenes está vacía={options.GenerateWhenEmpty}.");
         report("Clave presente (no se muestra). Sin llamadas a la API. Esta comprobación no valida la clave, cuota, facturación ni disponibilidad del modelo en Google; tampoco autoriza fuentes.");
     }
 

@@ -4,6 +4,23 @@ namespace ARM.Mesa.Bursatil.Sync;
 
 public static class SyncConfiguration
 {
+    public static NewsFeedOptions ReadNewsOptions(IConfiguration configuration)
+    {
+        var section = configuration.GetSection("News:Sources");
+        if (!section.GetChildren().Any()) return new NewsFeedOptions();
+        return new NewsFeedOptions
+        {
+            Sources = section.GetChildren().Select(s => new NewsFeedSource
+            {
+                Id = s["Id"] ?? "", Name = s["Name"] ?? "", Url = s["Url"] ?? "",
+                PublisherGroup = s["PublisherGroup"] ?? "",
+                IsInternational = bool.TryParse(s["IsInternational"], out var international) && international,
+                Enabled = !bool.TryParse(s["Enabled"], out var enabled) || enabled,
+                AllowAiUse = bool.TryParse(s["AllowAiUse"], out var allowed) && allowed
+            }).ToList()
+        };
+    }
+
     public static IConfigurationRoot Load(string baseDirectory, string? privateSettingsPath = null)
     {
         if (privateSettingsPath is not null && !Path.IsPathFullyQualified(privateSettingsPath))

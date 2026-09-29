@@ -49,6 +49,13 @@ public sealed class BriefingService(MarketDatabase database)
     }
 
     public NewsBriefing? GetLatestPublished() => ListPublished(1).FirstOrDefault();
+    public bool HasAnyEdition()
+    {
+        using var connection = database.Open();
+        using var command = connection.CreateCommand();
+        command.CommandText = "SELECT EXISTS(SELECT 1 FROM NewsBriefings)";
+        return (long)command.ExecuteScalar()! != 0;
+    }
     public NewsBriefing? GetPublished(long id) => Read(id, publishedOnly: true);
     public NewsBriefing? GetForReview(long id) => Read(id, publishedOnly: false);
     public List<NewsBriefing> ListPublished(int limit = 10) => List("published", limit);
