@@ -1,16 +1,12 @@
 using System.Globalization;
-using System.Net;
 using System.Net.Http.Json;
-using System.ServiceModel.Syndication;
 using System.Text.Json;
-using System.Xml;
 using ARM.Mesa.Bursatil.Models;
 using ARM.Mesa.Bursatil.Services;
-using HtmlAgilityPack;
 
 namespace ARM.Mesa.Bursatil.Sync;
 
-public sealed class MarketSynchronizer(MarketDatabase database, HttpClient http, ExecutionLog? log = null)
+public sealed class MarketSynchronizer(MarketDatabase database, HttpClient http, ExecutionLog? log = null, NewsFeedOptions? newsOptions = null)
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
 
@@ -26,8 +22,17 @@ public sealed class MarketSynchronizer(MarketDatabase database, HttpClient http,
         {
             results.Add(await Attempt("Índices y commodities Rava", Indices));
             results.Add(await Attempt("Futuros Rava", Futures));
-            foreach (var url in new[] { "https://www.clarin.com/rss/economia/", "https://www.perfil.com/feed" })
-                results.Add(await Attempt(url, () => News(url)));
+            var news = new NewsFeedSynchronizer(database, http);
+            var options = newsOptions ?? new NewsFeedOptions();
+            results.Add(await Attempt("Registro de fuentes RSS", () =>
+            {
+                NewsSchema.Initialize(database);
+                news.ApplySourcePolicy(options.Sources);
+                return Task.CompletedTask;
+            }));
+            foreach (var source in options.Sources.Where(source => source.Enabled))
+                results.Add(await Attempt($"RSS · {source.Name}", async () =>
+                    await news.RunAsync(source, options.MaxItemsPerFeed)));
         }
         results.Add(await Attempt("Escenarios estadísticos", Projections));
         return results.All(success => success);
@@ -95,40 +100,6 @@ public sealed class MarketSynchronizer(MarketDatabase database, HttpClient http,
         database.SaveSnapshot("IndicesMercadoJson", JsonSerializer.Serialize(indices));
     }
 
-    private async Task News(string url)
-    {
-        using var stream = await http.GetStreamAsync(url);
-        using var reader = XmlReader.Create(stream, new XmlReaderSettings
-        {
-            DtdProcessing = DtdProcessing.Prohibit, XmlResolver = null, MaxCharactersInDocument = 5_000_000
-        });
-        var feed = SyndicationFeed.Load(reader);
-        using var connection = database.Open();
-        using var transaction = connection.BeginTransaction();
-        foreach (var item in feed.Items.Take(50))
-        {
-            var link = item.Links.FirstOrDefault()?.Uri;
-            if (string.IsNullOrWhiteSpace(item.Title?.Text) || link is null ||
-                !link.IsAbsoluteUri || (link.Scheme != "https" && link.Scheme != "http")) continue;
-            var document = new HtmlDocument();
-            document.LoadHtml(item.Summary?.Text ?? "");
-            var summary = WebUtility.HtmlDecode(document.DocumentNode.InnerText);
-            using var command = connection.CreateCommand();
-            command.Transaction = transaction;
-            command.CommandText = """
-                INSERT INTO News(Titulo, Resumen, Url, Fuente, FechaPublicacion)
-                VALUES($title,$summary,$url,$source,$date) ON CONFLICT(Url) DO NOTHING
-                """;
-            command.Parameters.AddWithValue("$title", item.Title!.Text.Trim());
-            command.Parameters.AddWithValue("$summary", summary);
-            command.Parameters.AddWithValue("$url", link.ToString());
-            command.Parameters.AddWithValue("$source", feed.Title?.Text ?? new Uri(url).Host);
-            command.Parameters.AddWithValue("$date", item.PublishDate.UtcDateTime);
-            command.ExecuteNonQuery();
-        }
-        transaction.Commit();
-    }
-
     private async Task Projections()
     {
         var service = new CotizacionesService(database);
@@ -153,4 +124,3 @@ public sealed class MarketSynchronizer(MarketDatabase database, HttpClient http,
         database.SaveSnapshot("ProyeccionesDolarJson", JsonSerializer.Serialize(projections));
     }
 }
-

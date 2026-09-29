@@ -7,6 +7,7 @@
 @using System.Globalization
 @inject CotizacionesService Quotes
 @inject NewsService News
+@inject BriefingService Briefings
 @inject ILogger<Home> Logger
 <PageTitle>Mesa Bursátil · Tu terminal de mercado</PageTitle>
 
@@ -123,6 +124,8 @@
         </aside>
     </div>
 
+    <BriefingPanel Edition="briefing" />
+
     <GlobalMarkets Indices="indices" />
 
     <section class="analysis-grid" id="historico">
@@ -131,7 +134,7 @@
     </section>
 
     <section class="news-section">
-        <div class="section-heading"><div><span class="eyebrow">LO QUE HAY DETRÁS DEL PRECIO</span><h2>En el radar<span class="accent">.</span></h2></div><a class="text-link" href="/news">Toda la actualidad &#x2197;&#xFE0E;</a></div>
+        <div class="section-heading"><div><span class="eyebrow">LAS PUBLICACIONES ORIGINALES</span><h2>Explorá las fuentes<span class="accent">.</span></h2></div><a class="text-link" href="/news">Todas las noticias &#x2197;&#xFE0E;</a></div>
         <div class="news-grid">
             @for (var i = 0; i < news.Count; i++)
             {
@@ -151,6 +154,7 @@
     private List<CotizacionOtros> others = [];
     private List<MarketIndex> indices = [];
     private List<NewsItem> news = [];
+    private NewsBriefing? briefing;
     private Dictionary<string, List<(DateTime Fecha, decimal Venta)>> history = [];
     private FuturoRavaRofex? nearestFuture;
     private bool busy, paused;
@@ -188,8 +192,7 @@
         try {
             (dollars, others) = await Quotes.ObtenerUltimasCotizacionesAsync();
             news = (await News.ObtenerUltimasNoticiasAsync(100))
-                .Where(item => Uri.TryCreate(item.Url, UriKind.Absolute, out var uri)
-                    && uri.AbsolutePath.Split('/').Any(segment => segment.Equals("economia", StringComparison.OrdinalIgnoreCase)))
+                .DistinctBy(item => item.Fuente, StringComparer.OrdinalIgnoreCase)
                 .Take(3).ToList();
             indices = await Quotes.ObtenerIndicesAsync();
             history = await Quotes.ObtenerSeriesVentaAsync();
@@ -201,6 +204,8 @@
             Logger.LogError(ex, "No se pudo consultar el panel");
             error = "No pudimos actualizar todos los datos. Conservamos los últimos valores disponibles; podés volver a intentar.";
         } finally { busy = false; }
+        try { briefing = Briefings.GetLatestPublished(); }
+        catch (Exception ex) { Logger.LogError(ex, "No se pudo actualizar la edición pública de actualidad; se conserva la anterior"); }
     }
     private async Task Poll() {
         using var timer = new PeriodicTimer(TimeSpan.FromSeconds(60));

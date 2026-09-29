@@ -403,3 +403,6 @@ FodyWeavers.xsd
 
 # macOS Finder metadata
 .DS_Store
+
+# Server-only credentials/settings; templates without credentials may be tracked.
+appsettings.Production.json

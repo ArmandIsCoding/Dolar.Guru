@@ -1,0 +1,48 @@
+@page "/contexto"
+@page "/contexto/{Id:long}"
+@using ARM.Mesa.Bursatil.Models
+@using ARM.Mesa.Bursatil.Services
+@inject BriefingService Briefings
+@inject ILogger<Contexto> Logger
+
+<PageTitle>@(notFound ? "Edición no disponible" : "El país en contexto") · Mesa Bursátil</PageTitle>
+<div class="shell page-content briefing-page">
+    @if (notFound || loadFailed)
+    {
+        <section class="briefing-section briefing-empty">
+            <span class="eyebrow">EL PAÍS EN CONTEXTO</span>
+            <h1>@(loadFailed ? "No pudimos cargar la edición." : "Edición no disponible.")</h1>
+            <p>@(loadFailed ? "Intentá nuevamente en unos momentos. Las noticias de las fuentes siguen disponibles." : "No encontramos una edición publicada con este enlace. Podés consultar la última edición disponible.")</p>
+            <a class="text-link" href="/contexto">Ir a la última edición <span aria-hidden="true">→</span></a>
+        </section>
+    }
+    else
+    {
+        <BriefingPanel Edition="edition" Compact="false" />
+    }
+</div>
+
+@code {
+    [Parameter] public long? Id { get; set; }
+    [CascadingParameter] public HttpContext? HttpContext { get; set; }
+    private NewsBriefing? edition;
+    private bool notFound, loadFailed;
+
+    protected override void OnParametersSet()
+    {
+        edition = null;
+        notFound = loadFailed = false;
+        try
+        {
+            edition = Id.HasValue ? Briefings.GetPublished(Id.Value) : Briefings.GetLatestPublished();
+            notFound = Id.HasValue && edition is null;
+            if (notFound && HttpContext is { Response.HasStarted: false }) HttpContext.Response.StatusCode = 404;
+        }
+        catch (Exception exception)
+        {
+            loadFailed = true;
+            Logger.LogError(exception, "No se pudo cargar la edición pública de actualidad");
+            if (HttpContext is { Response.HasStarted: false }) HttpContext.Response.StatusCode = 503;
+        }
+    }
+}

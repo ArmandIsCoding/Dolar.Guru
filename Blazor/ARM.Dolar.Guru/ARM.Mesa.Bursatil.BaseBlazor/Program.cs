@@ -21,6 +21,7 @@ namespace ARM.Mesa.Bursatil.BaseBlazor
             builder.Services.AddSingleton(database);
             builder.Services.AddSingleton<CotizacionesService>();
             builder.Services.AddSingleton<NewsService>();
+            builder.Services.AddSingleton<BriefingService>();
 
             var app = builder.Build();
 

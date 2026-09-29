@@ -58,6 +58,8 @@ public sealed class MarketDatabase
             """;
         command.ExecuteNonQuery();
         transaction.Commit();
+        NewsSchema.Initialize(this);
+        BriefingService.Initialize(this);
     }
 
     public void SaveSnapshot(string table, string json)

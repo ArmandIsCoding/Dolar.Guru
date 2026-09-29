@@ -88,6 +88,10 @@ try
     Check(!await synchronizer.RunAsync() && Count(db, "IndicesMercadoJson") == 1
         && (await service.ObtenerIndicesAsync()).Count == 8, "Partial indices response preserves the last complete capture");
     Check((await service.ObtenerSeriesVentaAsync())["Blue"].All(point => point.Venta == 1250.78m), "Card history uses selling prices, not buying prices");
+    await BriefingChecks.RunAsync(temporary);
+    await SyncConfigurationChecks.RunAsync(temporary);
+    await BriefingProviderChecks.RunAsync(temporary);
+    await NewsIngestionChecks.RunAsync(temporary);
     Console.WriteLine("All integration checks passed.");
 }
 finally
@@ -140,5 +144,3 @@ sealed class MarketStubHttp : HttpMessageHandler
         return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(content, System.Text.Encoding.UTF8, path.StartsWith("/v1/") || path.StartsWith("/api/") ? "application/json" : "application/rss+xml") });
     }
 }
-
-

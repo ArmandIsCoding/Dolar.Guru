@@ -1,0 +1,129 @@
+@using ARM.Mesa.Bursatil.Models
+@using ARM.Mesa.Bursatil.BaseBlazor.Models
+
+<section class="briefing-section @(Compact ? "briefing-compact" : "briefing-full")" id="contexto" aria-labelledby="briefing-title">
+    <header class="briefing-heading">
+        <div>
+            <span class="eyebrow">ACTUALIDAD / UNA LECTURA INTEGRADA</span>
+            @if (Compact)
+            {
+                <h2 id="briefing-title">El país en contexto<span class="accent">.</span></h2>
+            }
+            else
+            {
+                <h1 id="briefing-title">El país en contexto<span class="accent">.</span></h1>
+            }
+            <p>Qué pasó, por qué importa y qué seguir de cerca.</p>
+        </div>
+        <a class="text-link" href="@(Compact ? EditionUrl : "/news")">@(Compact ? "Leer la edición completa" : "Explorar las fuentes") <span aria-hidden="true">&#x2197;&#xFE0E;</span></a>
+    </header>
+
+    @if (Edition is null)
+    {
+        <div class="briefing-empty">
+            <span class="eyebrow">DISTINTAS FUENTES. MÁS CONTEXTO.</span>
+            <h3>Una mirada al día, con las fuentes a mano.</h3>
+            <p>Todavía no hay una edición publicada. Mientras tanto, podés explorar las últimas noticias y leerlas en sus medios originales.</p>
+            <a class="text-link" href="/news">Explorar la actualidad <span aria-hidden="true">→</span></a>
+        </div>
+    }
+    else
+    {
+        <div class="briefing-edition-meta">
+            <span><span class="status-dot @(IsStale ? "stale" : "")"></span> Cierre de edición: <time datetime="@UtcIso(Edition.CoverageEndUtc)">@MarketFormat.Date(Edition.CoverageEndUtc)</time></span>
+            <span>@Edition.Topics.Count temas <span aria-hidden="true">/</span> @PublisherCount fuentes <span aria-hidden="true">/</span> IA + revisión humana</span>
+        </div>
+        @if (IsStale)
+        {
+            <p class="briefing-stale">Estás leyendo la última edición publicada, con un cierre de cobertura de hace más de 12 horas. Los acontecimientos pueden haber cambiado.</p>
+        }
+
+        <div class="briefing-layout">
+            <div class="briefing-overview">
+                <span class="eyebrow">LA SÍNTESIS</span>
+                @foreach (var statement in Edition.Summary)
+                {
+                    <div class="briefing-statement">
+                        <p>@statement.Text</p>
+                        <BriefingCitations Statement="statement" Sources="SourceMap" />
+                    </div>
+                }
+                <div class="briefing-overview-foot">Información con fecha, contexto y referencias para que puedas contrastarla.</div>
+            </div>
+
+            @if (!Compact) { <h2 class="briefing-sr-only">Temas de esta edición</h2> }
+            <div class="briefing-topics">
+                @foreach (var entry in Edition.Topics.Take(Compact ? 5 : int.MaxValue).Select((topic, index) => (Topic: topic, Index: index)))
+                {
+                    var topic = entry.Topic;
+                    <article class="briefing-topic" id="@($"tema-{entry.Index + 1}")">
+                        <div class="briefing-topic-label"><span>@((entry.Index + 1).ToString("D2"))</span><span>@(topic.IsInternational ? "EL MUNDO Y ARGENTINA" : "ARGENTINA")</span></div>
+                        @if (Compact)
+                        {
+                            <h3><a href="@($"{EditionUrl}#tema-{entry.Index + 1}")">@topic.Title <span aria-hidden="true">→</span></a></h3>
+                            <BriefingCitations Statement="topic.WhatHappened" Sources="SourceMap" />
+                        }
+                        else
+                        {
+                            <h3>@topic.Title</h3>
+                            <div class="briefing-statement">
+                                <h4>Qué pasó</h4>
+                                <p>@topic.WhatHappened.Text</p>
+                                <BriefingCitations Statement="topic.WhatHappened" Sources="SourceMap" />
+                            </div>
+                            <div class="briefing-statement">
+                                <h4>Por qué importa</h4>
+                                <p>@topic.WhyItMatters.Text</p>
+                                <BriefingCitations Statement="topic.WhyItMatters" Sources="SourceMap" />
+                            </div>
+                            <div class="briefing-statement briefing-watch">
+                                <h4>Qué seguir de cerca</h4>
+                                <p>@topic.WhatToWatch.Text</p>
+                                <BriefingCitations Statement="topic.WhatToWatch" Sources="SourceMap" />
+                            </div>
+                        }
+                    </article>
+                }
+            </div>
+        </div>
+
+        <footer class="briefing-note">
+            <p>Síntesis asistida por IA, revisada antes de publicarse. Puede contener errores: contrastá la información con las fuentes. No constituye asesoramiento de inversión.</p>
+            <a class="text-link" href="@(Compact ? EditionUrl : "/news")">@(Compact ? "Todos los temas y sus fuentes" : "Ver el feed de noticias") <span aria-hidden="true">→</span></a>
+        </footer>
+
+        @if (!Compact)
+        {
+            <details class="briefing-source-list">
+                <summary>Fuentes de esta edición <span>@citedSources.Count publicaciones</span></summary>
+                <p>Ventana de cobertura: @MarketFormat.Date(Edition.CoverageStartUtc) — @MarketFormat.Date(Edition.CoverageEndUtc). Los enlaces llevan a la publicación original de cada medio.</p>
+                <ul>
+                    @foreach (var source in citedSources)
+                    {
+                        <li><span>@source.SourceName · @MarketFormat.Date(source.PublishedAtUtc)</span><a href="@source.Url" target="_blank" rel="noopener noreferrer">@source.Title <span aria-hidden="true">&#x2197;&#xFE0E;</span><span class="briefing-sr-only"> (abre en otra pestaña)</span></a></li>
+                    }
+                </ul>
+            </details>
+        }
+    }
+</section>
+
+@code {
+    [Parameter] public NewsBriefing? Edition { get; set; }
+    [Parameter] public bool Compact { get; set; } = true;
+    private IReadOnlyDictionary<int, BriefingSource> SourceMap = new Dictionary<int, BriefingSource>();
+    private List<BriefingSource> citedSources = [];
+    private string EditionUrl => Edition is null ? "/contexto" : $"/contexto/{Edition.Id}";
+    private int PublisherCount => citedSources.Select(source => source.PublisherKey).Distinct(StringComparer.OrdinalIgnoreCase).Count();
+    private bool IsStale => Edition is not null && DateTime.UtcNow - DateTime.SpecifyKind(Edition.CoverageEndUtc, DateTimeKind.Utc) > TimeSpan.FromHours(12);
+    private static string UtcIso(DateTime date) => DateTime.SpecifyKind(date, DateTimeKind.Utc).ToString("O");
+    private static bool IsSafeSource(BriefingSource source) => Uri.TryCreate(source.Url, UriKind.Absolute, out var uri) && uri.Scheme is "http" or "https";
+
+    protected override void OnParametersSet()
+    {
+        SourceMap = Edition?.Sources.DistinctBy(source => source.NewsId).ToDictionary(source => source.NewsId) ?? [];
+        var referencedIds = Edition?.Summary.Concat(Edition.Topics.SelectMany(topic => new[] { topic.WhatHappened, topic.WhyItMatters, topic.WhatToWatch }))
+            .SelectMany(statement => statement.Citations).Select(citation => citation.NewsId).ToHashSet() ?? [];
+        citedSources = SourceMap.Values.Where(source => referencedIds.Contains(source.NewsId) && IsSafeSource(source)).ToList();
+    }
+}

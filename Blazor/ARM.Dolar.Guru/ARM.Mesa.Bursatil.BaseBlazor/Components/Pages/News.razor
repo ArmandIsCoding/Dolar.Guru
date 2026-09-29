@@ -6,7 +6,7 @@
 @inject NewsService NewsService
 <PageTitle>Actualidad económica · Mesa Bursátil</PageTitle>
 <div class="shell page-content">
-    <header class="page-intro"><div class="eyebrow">EL MERCADO EN CONTEXTO</div><h1>Más allá del número.</h1><p>Las últimas publicaciones de nuestras fuentes. Abrí cada noticia para leerla en su medio original.</p></header>
+    <header class="page-intro"><div class="eyebrow">EXPLORÁ LAS FUENTES</div><h1>Más allá del número.</h1><p>Las últimas publicaciones de nuestras fuentes. Abrí cada noticia para leerla en su medio original.</p><a class="text-link news-context-link" href="/contexto">¿Preferís una lectura integrada? El país en contexto <span aria-hidden="true">→</span></a></header>
     <input class="news-search" type="search" aria-label="Buscar noticias por título o fuente" placeholder="Buscar por título o fuente…" @bind="search" @bind:event="oninput" />
     <div class="news-grid news-page-grid">
         @foreach (var item in Filtered)

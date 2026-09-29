@@ -1,0 +1,27 @@
+@using ARM.Mesa.Bursatil.Models
+
+@if (ResolvedSources.Count > 0)
+{
+    <span class="briefing-citations" aria-label="Fuentes de esta afirmación">
+        <span class="briefing-citations-label">Fuentes</span>
+        @foreach (var source in ResolvedSources)
+        {
+            <a href="@source.Url" target="_blank" rel="noopener noreferrer" title="@source.Title">
+                @source.SourceName<span aria-hidden="true">&#x2197;&#xFE0E;</span>
+                <span class="briefing-sr-only">: @source.Title (abre en otra pestaña)</span>
+            </a>
+        }
+    </span>
+}
+
+@code {
+    [Parameter] public BriefingStatement? Statement { get; set; }
+    [Parameter] public IReadOnlyDictionary<int, BriefingSource> Sources { get; set; } = new Dictionary<int, BriefingSource>();
+
+    private List<BriefingSource> ResolvedSources => (Statement?.Citations ?? [])
+        .Select(citation => Sources.GetValueOrDefault(citation.NewsId))
+        .OfType<BriefingSource>()
+        .Where(source => Uri.TryCreate(source.Url, UriKind.Absolute, out var uri) && uri.Scheme is "http" or "https")
+        .DistinctBy(source => source.NewsId)
+        .ToList();
+}

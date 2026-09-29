@@ -40,6 +40,22 @@ no se elige una base alternativa silenciosamente.
 
 ## Arquitectura
 
+### El país en contexto
+
+La primera versión incorpora RSS de seis medios, selección diversa, síntesis IA por
+ediciones y revisión humana antes de publicar. El home muestra la última edición
+aprobada y `/contexto` sus temas y fuentes. **IA desactivada por defecto**, sin claves
+en el repositorio y sin llamadas por visitante. OpenAI y Gemini son intercambiables.
+
+Ver [configuración, presupuesto, revisión y publicación](docs/el-pais-en-contexto.md).
+La clave se configura como `Briefing:ApiKey` en un `appsettings.Production.json`
+privado del servidor, sin variables de entorno. Sync lo carga junto al ejecutable,
+o desde una ruta externa con `--settings`; no se incluye en Git ni al publicar.
+La configuración de API y la autorización de fuentes son pasos previos obligatorios;
+desplegar el código por sí solo no genera ni publica noticias con IA.
+
+### Proyectos
+
 - Models: contratos y conversión JSON.
 - Services: inicialización SQLite y consultas; conexiones cortas por operación.
 - Sync: orquestación de fuentes, validación, persistencia e importación de históricos.
